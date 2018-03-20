@@ -1,6 +1,7 @@
   mov 1 up
   mov 2 null
   mov 3 acc
+
 + mov 4 acc
 - mov 6 acc
   mov 5 null

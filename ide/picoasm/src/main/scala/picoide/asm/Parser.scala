@@ -6,6 +6,7 @@ class PicoAsmParser extends RegexParsers {
   override def skipWhitespace = false
 
   def whitespace: Parser[Unit] = " +".r ^^^ { () }
+  def comment: Parser[String] = whitespace ~> "#([^\r\n])*".r
   def newline: Parser[Unit] = "\r?\n".r ^^^ { () }
   def number: Parser[Int] = "[0-9]+".r ^^ { _.toInt }
   def name: Parser[String] = "[a-z]+".r
@@ -27,5 +28,5 @@ class PicoAsmParser extends RegexParsers {
     )
 
   def instructions: Parser[Seq[Instruction]] =
-    repsep(instruction, newline) <~ newline.?
+    newline.* ~> repsep(instruction, rep1(newline)) <~ newline.*
 }
