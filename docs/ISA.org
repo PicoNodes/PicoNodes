@@ -1,0 +1,65 @@
+* Bytecode Format
+
+** Number
+
+A number is a signed two's complement integer between -100 and 100, inclusive.
+Arithmetic operations are saturating on overflow, so that ~90+20=100~.
+
+** Register references
+
+Registers are given IDs outside of the normal number range. This way, the same
+instruction can handle both register and immediate values.
+
+*** Registers
+
+|           id | name      |
+|--------------+-----------|
+|         -128 | up        |
+|         -127 | down      |
+|         -126 | left      |
+|         -125 | right     |
+| -124 to -101 | reserved  |
+|  -100 to 100 | immediate |
+|   101 to 125 | reserved  |
+|          126 | acc       |
+|          127 | null      |
+
+** Flags
+
+Each instruction has two flags: ~+~ and ~-~, corresponding to VM flags.
+If an instruction has a given flag then the instruction is only executed if
+the corresponding VM flag is also true.
+
+** Conditionals
+
+Conditionals set the ~+~ and ~-~ flags according to the following rules:
+
+| instruction | case | +     | -     |
+|-------------+------+-------+-------|
+| teq         | a=b  | true  | false |
+| teq         | a<b  | false | true  |
+| teq         | a>b  | false | true  |
+|-------------+------+-------+-------|
+| tgt         | a=b  | false | true  |
+| tgt         | a<b  | false | true  |
+| tgt         | a>b  | true  | false |
+|-------------+------+-------+-------|
+| tlt         | a=b  | false | true  |
+| tlt         | a<b  | true  | false |
+| tlt         | a>b  | false | true  |
+|-------------+------+-------+-------|
+| tcp         | a=b  | false | false |
+| tcp         | a<b  | false | true  |
+| tcp         | a>b  | true  | false |
+
+** Instructions
+
+|             | 2 bits | 6 bits | 8 bits | 8 bits |
+| instruction | flags  | opcode | A      | B      |
+| mov         |        |      0 | R/I    | I      |
+| add         |        |      1 | R/I    | 0      |
+| sub         |        |      1 | R/I    | 1      |
+| teq         |        |      4 | R/I    | R/I    |
+| tgt         |        |      5 | R/I    | R/I    |
+| tlt         |        |      6 | R/I    | R/I    |
+| tcp         |        |      7 | R/I    | R/I    |
