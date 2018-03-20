@@ -1,0 +1,28 @@
+* Nodes
+
+** MCU Node
+
+- MCU: [[http://se.farnell.com/stmicroelectronics/stm32f030f4p6/mcu-32bit-cortex-m0-48mhz-tssop/dp/2393635][STM32F030F4P6]]
+- Connector: 12pin header? Talk to Mark
+- Status RGB LED
+
+* Mobo
+
+** Node Area
+
+- PCB with headers in grid layout
+- LEDs in communication traces between nodes
+
+[[./pcb-sketch.jpg]]
+
+** Control Area
+
+- Crystal: 8MHz?
+- Power regulator: 5V to 3.3V
+- Power input: USB micro-B?
+
+** Programmer Area
+
+- ESP32 for communication and driving
+  - Separate module or built into board? Talk to Mark
+- Node header
