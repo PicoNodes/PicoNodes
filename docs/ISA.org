@@ -1,30 +1,39 @@
 * Bytecode Format
 
 ** Number
+   :PROPERTIES:
+   :CUSTOM_ID: numbers
+   :END:
 
 A number is a signed two's complement integer between -100 and 100, inclusive.
 Arithmetic operations are saturating on overflow, so that ~90+20=100~.
 
 ** Register references
+   :PROPERTIES:
+   :CUSTOM_ID: registers
+   :END:
 
 Registers are given IDs outside of the normal number range. This way, the same
 instruction can handle both register and immediate values.
 
 *** Registers
 
-|           id | name      |
-|--------------+-----------|
-|         -128 | up        |
-|         -127 | down      |
-|         -126 | left      |
-|         -125 | right     |
-| -124 to -101 | reserved  |
-|  -100 to 100 | immediate |
-|   101 to 125 | reserved  |
-|          126 | acc       |
-|          127 | null      |
+|           id | name                     |
+|--------------+--------------------------|
+|         -128 | up                       |
+|         -127 | down                     |
+|         -126 | left                     |
+|         -125 | right                    |
+| -124 to -101 | reserved for IO ports    |
+|  -100 to 100 | immediate                |
+|   101 to 125 | reserved for data memory |
+|          126 | acc                      |
+|          127 | null                     |
 
 ** Flags
+   :PROPERTIES:
+   :CUSTOM_ID: flags
+   :END:
 
 Each instruction has two flags: ~+~ and ~-~, corresponding to VM flags.
 If an instruction has a given flag then the instruction is only executed if
@@ -54,12 +63,19 @@ Conditionals set the ~+~ and ~-~ flags according to the following rules:
 
 ** Instructions
 
-|             | 2 bits | 6 bits | 8 bits | 8 bits |
-| instruction | flags  | opcode | A      | B      |
-| mov         |        |      0 | R/I    | I      |
-| add         |        |      1 | R/I    | 0      |
-| sub         |        |      1 | R/I    | 1      |
-| teq         |        |      4 | R/I    | R/I    |
-| tgt         |        |      5 | R/I    | R/I    |
-| tlt         |        |      6 | R/I    | R/I    |
-| tcp         |        |      7 | R/I    | R/I    |
+- R: [[#registers][Register]]
+- I: [[#numbers][Immediate]]
+- x/y: x OR y
+- F: [[#flags][Flag(s)]]
+- <number>: Magical constant
+
+|             | 2 bits | 6 bits | 8 bits      | 8 bits         |
+| instruction | flags  | opcode | operand A   | operand B      |
+|-------------+--------+--------+-------------+----------------|
+| mov         | F      |      0 | R/I: source | R: destination |
+| add         | F      |      1 | R/I         | 0              |
+| sub         | F      |      1 | R/I         | 1              |
+| teq         | F      |      4 | R/I         | R/I            |
+| tgt         | F      |      5 | R/I         | R/I            |
+| tlt         | F      |      6 | R/I         | R/I            |
+| tcp         | F      |      7 | R/I         | R/I            |
