@@ -6,9 +6,15 @@ lazy val picoasmJVM = picoasm.jvm
 lazy val picoasmJS = picoasm.js
 
 lazy val picoide = project
-  .enablePlugins(ScalaJSPlugin)
+  .enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin)
   .settings(
-    "io.suzaku" %%% "diode-react" % "1.1.3"
+    libraryDependencies += "io.suzaku" %%% "diode-react" % "1.1.3",
+    scalaJSUseMainModuleInitializer := true,
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+    webpackDevServerExtraArgs in fastOptJS ++= Seq(
+      "--content-base",
+      (sourceDirectory.value / "main" / "web").getAbsolutePath
+    )
   )
   .dependsOn(picoasmJS)
 
