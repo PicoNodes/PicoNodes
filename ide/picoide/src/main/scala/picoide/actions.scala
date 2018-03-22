@@ -3,5 +3,8 @@ package picoide
 import diode.Action
 
 object Actions {
-  case class EditCurrentFile(newContent: String) extends Action
+  object CurrentFile {
+    case class ReplaceLine(line: Int, newContent: String) extends Action
+    case class SplitLine(line: Int, position: Int)        extends Action
+  }
 }

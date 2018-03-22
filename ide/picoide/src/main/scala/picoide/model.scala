@@ -2,13 +2,15 @@ package picoide
 
 import picoide.asm.PicoAsmParser
 
-case class SourceFile(content: String) {
-  def formatted: String = {
+case class SourceFile(content: Seq[String]) {
+  def formatted: Seq[String] = {
     val parser = new PicoAsmParser
-    parser
-      .parseAll(parser.rawInstructions, content)
-      .map(_.mkString("\r\n"))
-      .getOrElse(content)
+    content.map(
+      line =>
+        parser
+          .parseAll(parser.rawInstruction, line)
+          .map(_.toString())
+          .getOrElse(line))
   }
 }
 

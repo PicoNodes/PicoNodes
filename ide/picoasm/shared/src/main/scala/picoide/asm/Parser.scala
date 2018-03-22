@@ -3,10 +3,9 @@ package picoide.asm
 import scala.util.parsing.combinator.RegexParsers
 
 class PicoAsmParser extends RegexParsers {
-  override def skipWhitespace = false
+  override val whiteSpace = """[ \t]+""".r
 
-  def whitespace: Parser[Unit] = " +".r ^^^ { () }
-  def comment: Parser[String]  = whitespace ~> "#([^\r\n])*".r
+  def comment: Parser[String]  = "#([^\r\n])*".r
   def newline: Parser[Unit]    = "\r?\n".r ^^^ { () }
   def number: Parser[Int]      = "[0-9]+".r ^^ { _.toInt }
   def name: Parser[String]     = "[a-z]+".r
@@ -14,11 +13,11 @@ class PicoAsmParser extends RegexParsers {
   def flags: Parser[Flags] =
     ("+" ^^^ Flags(plus = true) |
       "-" ^^^ Flags(minus = true) |
-      success(Flags())) <~ whitespace.?
+      success(Flags()))
   def operand: Parser[RawOperand] =
     number ^^ RawOperand.Integer | name ^^ RawOperand.Name
   def rawInstruction: Parser[RawInstruction] =
-    flags ~ name.? ~ (whitespace ~> operand).? ~ (whitespace ~> operand).? ^^ {
+    flags ~ name.? ~ (operand).? ~ (operand).? ^^ {
       case flags ~ name ~ opA ~ opB =>
         RawInstruction(name.getOrElse(""), opA, opB, flags)
     }
