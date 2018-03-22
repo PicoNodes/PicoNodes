@@ -6,27 +6,29 @@ class PicoAsmParser extends RegexParsers {
   override def skipWhitespace = false
 
   def whitespace: Parser[Unit] = " +".r ^^^ { () }
-  def comment: Parser[String] = whitespace ~> "#([^\r\n])*".r
-  def newline: Parser[Unit] = "\r?\n".r ^^^ { () }
-  def number: Parser[Int] = "[0-9]+".r ^^ { _.toInt }
-  def name: Parser[String] = "[a-z]+".r
+  def comment: Parser[String]  = whitespace ~> "#([^\r\n])*".r
+  def newline: Parser[Unit]    = "\r?\n".r ^^^ { () }
+  def number: Parser[Int]      = "[0-9]+".r ^^ { _.toInt }
+  def name: Parser[String]     = "[a-z]+".r
 
   def flags: Parser[Flags] =
     ("+" ^^^ Flags(plus = true) |
-       "-" ^^^ Flags(minus = true) |
-       success(Flags())) <~ whitespace.?
+      "-" ^^^ Flags(minus = true) |
+      success(Flags())) <~ whitespace.?
   def operand: Parser[RawOperand] =
     number ^^ RawOperand.Integer | name ^^ RawOperand.Name
   def rawInstruction: Parser[RawInstruction] =
-    flags ~ name ~ (whitespace ~> operand).? ~ (whitespace ~> operand).? ^^ {
+    flags ~ name.? ~ (whitespace ~> operand).? ~ (whitespace ~> operand).? ^^ {
       case flags ~ name ~ opA ~ opB =>
-        RawInstruction(name, opA, opB, flags)
+        RawInstruction(name.getOrElse(""), opA, opB, flags)
     }
+
   def instruction: Parser[Instruction] =
     rawInstruction.flatMap(raw =>
-      Instruction.decode(raw).fold(error => failure(error.toString()), success)
-    )
+      Instruction.decode(raw).fold(error => failure(error.toString()), success))
 
+  def rawInstructions: Parser[Seq[RawInstruction]] =
+    repsep(rawInstruction, newline) <~ newline.*
   def instructions: Parser[Seq[Instruction]] =
-    newline.* ~> repsep(instruction, rep1(newline)) <~ newline.*
+    repsep(instruction, newline) <~ newline.*
 }
