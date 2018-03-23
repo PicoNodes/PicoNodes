@@ -1,0 +1,23 @@
+#+TITLE: Title Template for Degree Project
+#+SUBTITLE: SUBTITLE - Arial 16/19pt
+#+AUTHOR: Therese Kennerberg, Teo Klestrup Röijezon
+
+* Introduction
+** Background
+***** Use references
+** Problem
+***** Use references
+** Purpose
+** Goal
+*** Benefits, Ethics and Sustainability
+** Methodology / Methods
+***** Use references!
+** Delimitations (Avgränsningar, swe)
+** Outline (Disposition)
+* (Theoretic Background) Use a self-explaining title
+** Use headings to break the text
+* (Engineering-related content, Methodologies and Methods) Use a self-explaining title
+** Engineering-related and scientific content:
+** (The work)
+** (Result)
+** (Conclusions)

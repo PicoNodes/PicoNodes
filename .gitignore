@@ -2,3 +2,5 @@ target
 .ensime*
 *.gbr
 *.drl
+Report.tex
+Report.pdf
