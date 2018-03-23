@@ -58,15 +58,18 @@ object CodeEditor {
 
     def render(file: ModelProxy[SourceFile]) =
       <.ol(
-        file.value.formatted.zipWithIndex.map {
-          case ((line, lineNo)) =>
-            <.li(
-              lineComponent(
-                LineProps(line,
-                          updateLine(lineNo, _, file),
-                          splitLine(lineNo, _, file)))
-            )
-        }: _*
+        ^.classSet("code-editor" -> true),
+        TagMod(
+          file.value.formatted.zipWithIndex.map {
+            case ((line, lineNo)) =>
+              <.li(
+                lineComponent(
+                  LineProps(line,
+                            updateLine(lineNo, _, file),
+                            splitLine(lineNo, _, file)))
+              )
+          }: _*
+        )
       )
   }
 
