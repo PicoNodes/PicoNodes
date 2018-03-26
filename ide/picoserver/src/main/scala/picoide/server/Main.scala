@@ -2,6 +2,7 @@ package picoide.server
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.Sink
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -10,6 +11,6 @@ object Main {
     implicit val dispatcher   = actorSystem.dispatcher
 
     IDEServer.start()
-    NodeServer.start()
+    NodeServer.start().to(Sink.ignore).run()
   }
 }
