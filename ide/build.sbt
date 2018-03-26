@@ -74,6 +74,9 @@ lazy val root = project
 
 scalaVersion in ThisBuild := "2.12.5"
 
+// ensimeRepositoryUrls in ThisBuild += "https://oss.sonatype.org/content/repositories/snapshots/"
+// ensimeServerVersion in ThisBuild := "3.0.0-SNAPSHOT"
+
 // Diode is still compiled using Scala 2.12.4
 ensimeIgnoreScalaMismatch in diodeReact.copy(project = "diodeJS") := true
 ensimeIgnoreScalaMismatch in diodeReact.copy(project = "diodeJVM") := true
