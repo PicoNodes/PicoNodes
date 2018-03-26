@@ -2,80 +2,54 @@ package picoide.view
 
 import diode.react.ModelProxy
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.vdom.html_<^._
 import picoide.{Actions, AppCircuit, SourceFile}
+import picoide.asm.PicoAsmFormatter
+import monocle.macros.Lenses
+import scalajs.js
 
 object CodeEditor {
-  case class LineProps(originalLine: String,
-                       updateCallback: String => Callback,
-                       splitCallback: Int => Callback)
+  @Lenses
+  case class State(currentCoord: ReactCodeMirror.Coord)
 
-  class LineBackend($ : BackendScope[LineProps, Option[String]]) {
-    def updateLine(ev: ReactEventFromInput,
-                   updateCallback: String => Callback) = {
-      val value = ev.target.value
-      $.setState(Some(value)) >> updateCallback(value)
-    }
+  class Backend($ : BackendScope[ModelProxy[SourceFile], State]) {
+    private def beforeChange(editor: ReactCodeMirror.Editor,
+                             changes: Seq[ReactCodeMirror.Change],
+                             value: String): Callback =
+      $.props.flatMap(_.dispatchCB(Actions.CurrentFile.Modify(value)))
 
-    def clearEdit(): Callback =
-      $.setState(None)
+    private def onCursorMove(editor: ReactCodeMirror.Editor,
+                             coord: ReactCodeMirror.Coord): Callback =
+      $.state
+        .map(_.currentCoord)
+        .map { oldCoord =>
+          if (oldCoord.line != coord.line && !editor
+                .somethingSelected()) {
+            reformatLine(editor, oldCoord.line)
+          }
+        } >> $.setStateL(State.currentCoord)(coord)
 
-    def onKeyPress(ev: ReactKeyboardEventFromInput,
-                   splitCallback: Int => Callback): Callback =
-      ev.key match {
-        case "Enter" =>
-          ev.preventDefaultCB >> splitCallback(ev.target.selectionStart)
-        case _ =>
-          Callback.empty
-      }
-
-    def render(props: LineProps, editedLine: Option[String]) =
-      <.input(
-        ^.value := editedLine.getOrElse(props.originalLine),
-        ^.onChange ==> (updateLine(_, props.updateCallback)),
-        ^.onBlur --> clearEdit(),
-        ^.onKeyPress ==> (onKeyPress(_, props.splitCallback))
-      )
-  }
-
-  val lineComponent =
-    ScalaComponent
-      .builder[LineProps]("CodeEditor.line")
-      .initialState(None: Option[String])
-      .renderBackend[LineBackend]
-      .build
-
-  class Backend($ : BackendScope[ModelProxy[SourceFile], Unit]) {
-    def updateLine(lineNo: Int,
-                   newLine: String,
-                   modelProxy: ModelProxy[_]): Callback =
-      modelProxy.dispatchCB(Actions.CurrentFile.ReplaceLine(lineNo, newLine))
-
-    def splitLine(lineNo: Int,
-                  position: Int,
-                  modelProxy: ModelProxy[_]): Callback =
-      modelProxy.dispatchCB(Actions.CurrentFile.SplitLine(lineNo, position))
+    private def reformatLine(editor: ReactCodeMirror.Editor, line: Int): Unit =
+      PicoAsmFormatter
+        .formatInstruction(editor.getLine(line))
+        .foreach { formatted =>
+          editor.replaceRange(formatted,
+                              ReactCodeMirror.coord(line, 0),
+                              ReactCodeMirror.coord(line))
+        }
 
     def render(file: ModelProxy[SourceFile]) =
-      <.ol(
-        ^.classSet("code-editor" -> true),
-        TagMod(
-          file.value.formatted.zipWithIndex.map {
-            case ((line, lineNo)) =>
-              <.li(
-                lineComponent(
-                  LineProps(line,
-                            updateLine(lineNo, _, file),
-                            splitLine(lineNo, _, file)))
-              )
-          }: _*
-        )
-      )
+      ReactCodeMirror.component(
+        ReactCodeMirror.props(file().content,
+                              onBeforeChange = beforeChange,
+                              onCursor = onCursorMove))
   }
 
   private val realComponent =
     ScalaComponent
       .builder[ModelProxy[SourceFile]]("CodeEditor")
+      .initialState(State(currentCoord = ReactCodeMirror.coord(line = 0)))
       .renderBackend[Backend]
       .build
   val component = AppCircuit.connect(_.currentFile).apply(realComponent(_))

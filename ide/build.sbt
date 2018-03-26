@@ -7,13 +7,23 @@ lazy val picoasm = crossProject
   .settings(
     libraryDependencies += "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.1.0"
   )
+  .jvmSettings(
+    // For some reason neo-sbt-scalafmt does not normally format the shared src directory...
+    Compile / scalafmt / sourceDirectories ++= CrossType.Full
+      .sharedSrcDir(baseDirectory.value, "main")
+  )
 lazy val picoasmJVM = picoasm.jvm
 lazy val picoasmJS  = picoasm.js
 
 lazy val picoide = project
   .enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalaJSWeb)
   .settings(
-    // libraryDependencies += "io.suzaku" %%% "diode-react" % "1.1.3",
+    libraryDependencies ++= Seq(
+      "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % "1.2.0",
+      "com.github.julien-truffaut"        %%% "monocle-macro"    % "1.5.0-cats"
+    ),
+    addCompilerPlugin(
+      "org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full),
     webpackConfigFile := Some(
       baseDirectory.value / "scalajs.webpack.config.js"),
     scalaJSUseMainModuleInitializer := true,
@@ -27,8 +37,10 @@ lazy val picoide = project
       (sourceDirectory.value / "main" / "web").getAbsolutePath
     ),
     npmDependencies in Compile ++= Seq(
-      "react"     -> "16.2.0",
-      "react-dom" -> "16.2.0"
+      "react"             -> "16.2.0",
+      "react-dom"         -> "16.2.0",
+      "react-codemirror2" -> "4.2.1",
+      "codemirror"        -> "5.36.0"
     ),
     npmDevDependencies in Compile ++= Seq(
       "sass-loader"  -> "6.0.7",

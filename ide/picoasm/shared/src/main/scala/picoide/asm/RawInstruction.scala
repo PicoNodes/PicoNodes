@@ -4,7 +4,8 @@ case class RawInstruction(name: String,
                           opA: Option[RawOperand],
                           opB: Option[RawOperand],
                           flags: Flags) {
-  override def toString() = f"$flags%-1s $name${opA.fold("")(" " + _)}${opB.fold("")(" " + _)}"
+  override def toString() =
+    f"$flags%-1s $name${opA.fold("")(" " + _)}${opB.fold("")(" " + _)}"
 }
 
 sealed trait RawOperand

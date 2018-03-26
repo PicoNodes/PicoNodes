@@ -5,10 +5,10 @@ import scala.util.parsing.combinator.RegexParsers
 class PicoAsmParser extends RegexParsers {
   override val whiteSpace = """[ \t]+""".r
 
-  def comment: Parser[String]  = "#([^\r\n])*".r
-  def newline: Parser[Unit]    = "\r?\n".r ^^^ { () }
-  def number: Parser[Int]      = "[0-9]+".r ^^ { _.toInt }
-  def name: Parser[String]     = "[a-z]+".r
+  def comment: Parser[String] = "#([^\r\n])*".r
+  def newline: Parser[Unit]   = "\r?\n".r ^^^ { () }
+  def number: Parser[Int]     = "[0-9]+".r ^^ { _.toInt }
+  def name: Parser[String]    = "[a-z]+".r
 
   def flags: Parser[Flags] =
     ("+" ^^^ Flags(plus = true) |
@@ -31,3 +31,5 @@ class PicoAsmParser extends RegexParsers {
   def instructions: Parser[Seq[Instruction]] =
     repsep(instruction, newline) <~ newline.*
 }
+
+object PicoAsmParser extends PicoAsmParser

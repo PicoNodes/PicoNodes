@@ -47,20 +47,21 @@ object Instruction {
 sealed trait DecodeError
 object DecodeError {
   case object UnknownInstruction extends DecodeError
-  case object OpRequired        extends DecodeError
-  case object OpType            extends DecodeError
-  case object OpRange           extends DecodeError
-  case object OpIllegalRegister extends DecodeError
+  case object OpRequired         extends DecodeError
+  case object OpType             extends DecodeError
+  case object OpRange            extends DecodeError
+  case object OpIllegalRegister  extends DecodeError
 }
 
 case class Flags(plus: Boolean = false, minus: Boolean = false) {
   def |(other: Flags): Flags =
     Flags(plus = this.plus || other.plus, minus = this.minus || other.minus)
 
-  override def toString() = Seq(
-    if (plus) "+" else "",
-    if (minus) "-" else ""
-  ).mkString
+  override def toString() =
+    Seq(
+      if (plus) "+" else "",
+      if (minus) "-" else ""
+    ).mkString
 }
 
 sealed trait Operand {

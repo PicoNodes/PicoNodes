@@ -6,6 +6,11 @@ module.exports = {
             path.resolve(__dirname, "picoide-fastopt.js")
         ]
     },
+    "resolve": {
+        "modules": [
+            path.resolve(__dirname, "node_modules")
+        ]
+    },
     "module": {
         rules: [{
             test: /\.scss$/,
