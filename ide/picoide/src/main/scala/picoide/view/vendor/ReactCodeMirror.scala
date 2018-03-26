@@ -1,4 +1,4 @@
-package picoide.view
+package picoide.view.vendor
 
 import japgolly.scalajs.react._
 import scala.scalajs.js.annotation.JSImport
@@ -39,10 +39,15 @@ object ReactCodeMirror {
   type OnCursorJS = js.Function2[Editor, Coord, Unit]
 
   @js.native
-  trait Options extends js.Object {}
+  trait Options extends js.Object {
+    var lineNumbers: Boolean = js.native
+  }
 
-  def options(): Options =
-    new js.Object().asInstanceOf[Options]
+  def options(lineNumbers: Boolean = true): Options = {
+    val opts = new js.Object().asInstanceOf[Options]
+    opts.lineNumbers = lineNumbers
+    opts
+  }
 
   @js.native
   trait Props extends js.Object {

@@ -7,7 +7,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import picoide.{Actions, AppCircuit, SourceFile}
 import picoide.asm.PicoAsmFormatter
 import monocle.macros.Lenses
-import scalajs.js
+import picoide.view.vendor.ReactCodeMirror
 
 object CodeEditor {
   @Lenses
