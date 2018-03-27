@@ -1,17 +1,19 @@
 package picoide.server
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
+import akka.http.scaladsl.model.{ContentType, ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import org.webjars.WebJarAssetLocator
 import scala.concurrent.{ExecutionContext, Future}
 
 object IDEServer {
-  def start()(implicit actorSystem: ActorSystem,
-              materializer: Materializer,
-              executionContext: ExecutionContext): Future[ServerBinding] = {
+  def start(nodeRegistry: ActorRef)(
+      implicit actorSystem: ActorSystem,
+      materializer: Materializer,
+      executionContext: ExecutionContext): Future[ServerBinding] = {
     val webJarLocator = new WebJarAssetLocator()
 
     val router =
@@ -19,6 +21,8 @@ object IDEServer {
         get {
           getFromResource("index.html")
         }
+      } ~ path("connect") {
+        handleWebSocketMessages(IDEConnection.webSocketHandler(nodeRegistry))
       } ~ path("public" / Segment / Remaining) { (webJar, asset) =>
         get {
           Option(webJarLocator.getFullPathExact(webJar, asset))

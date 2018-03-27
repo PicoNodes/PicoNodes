@@ -15,12 +15,24 @@ lazy val picoasm = crossProject
 lazy val picoasmJVM = picoasm.jvm
 lazy val picoasmJS  = picoasm.js
 
+lazy val picoideProto = crossProject
+  .crossType(CrossType.Pure)
+  .jvmSettings(
+    // For some reason neo-sbt-scalafmt does not normally format the shared src directory...
+    Compile / scalafmt / sourceDirectories ++= CrossType.Pure
+      .sharedSrcDir(baseDirectory.value, "main")
+  )
+lazy val picoideProtoJVM = picoideProto.jvm
+lazy val picoideProtoJS  = picoideProto.js
+
 lazy val picoide = project
   .enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalaJSWeb)
   .settings(
     libraryDependencies ++= Seq(
-      "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats" % "1.2.0",
-      "com.github.julien-truffaut"        %%% "monocle-macro"    % "1.5.0-cats"
+      "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % "1.2.0",
+      "com.github.julien-truffaut"        %%% "monocle-macro"     % "1.5.0-cats",
+      "org.akka-js"                       %%% "akkajsactor"       % "1.2.5.11",
+      "org.akka-js"                       %%% "akkajsactorstream" % "1.2.5.11"
     ),
     addCompilerPlugin(
       "org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full),
@@ -49,7 +61,7 @@ lazy val picoide = project
       "node-sass"    -> "4.7.2"
     )
   )
-  .dependsOn(picoasmJS, diodeReact)
+  .dependsOn(picoasmJS, picoideProtoJS, diodeReact)
 
 lazy val picoserver = project
   .enablePlugins(WebScalaJSBundlerPlugin)
@@ -62,6 +74,7 @@ lazy val picoserver = project
       "com.typesafe.akka" %% "akka-stream"         % "2.5.11"
     )
   )
+  .dependsOn(picoideProtoJVM)
 
 lazy val root = project
   .in(file("."))
@@ -69,7 +82,9 @@ lazy val root = project
     picoasmJVM,
     picoasmJS,
     picoide,
-    picoserver
+    picoserver,
+    picoideProtoJVM,
+    picoideProtoJS
   )
 
 scalaVersion in ThisBuild := "2.12.5"

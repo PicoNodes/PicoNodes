@@ -10,8 +10,8 @@ object Main {
     implicit val materializer = ActorMaterializer()
     implicit val dispatcher   = actorSystem.dispatcher
 
-    IDEServer.start()
     // NodeServer.start().to(Sink.ignore).run()
     val nodeRegistry = actorSystem.actorOf(NodeRegistry.props)
+    IDEServer.start(nodeRegistry)
   }
 }
