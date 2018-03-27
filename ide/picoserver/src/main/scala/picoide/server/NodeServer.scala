@@ -3,7 +3,7 @@ package picoide.server
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.event.Logging
-import akka.stream.{ClosedShape, FlowShape, Materializer}
+import akka.stream.Materializer
 import akka.stream.scaladsl.Tcp.IncomingConnection
 import akka.stream.scaladsl._
 import akka.stream.scaladsl.Tcp.ServerBinding
@@ -24,8 +24,7 @@ object ProgrammerEvent {
     val buf = msg.asByteBuffer
     buf.getInt match {
       case unknownType =>
-        println(msg)
-        Left(s"Unknown event of type $unknownType")
+        Left(s"Unknown event of type $unknownType: $msg")
     }
   }
 }
