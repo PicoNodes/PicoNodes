@@ -17,10 +17,23 @@ lazy val picoasmJS  = picoasm.js
 
 lazy val picoideProto = crossProject
   .crossType(CrossType.Pure)
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.suzaku" %%% "boopickle" % "1.3.0"
+    )
+  )
+  .jsSettings(
+    libraryDependencies ++= Seq(
+      "org.akka-js" %%% "akkajsactorstream" % "1.2.5.11"
+    )
+  )
   .jvmSettings(
     // For some reason neo-sbt-scalafmt does not normally format the shared src directory...
     Compile / scalafmt / sourceDirectories ++= CrossType.Pure
-      .sharedSrcDir(baseDirectory.value, "main")
+      .sharedSrcDir(baseDirectory.value, "main"),
+    libraryDependencies ++= Seq(
+      "com.typesafe.akka" %% "akka-stream" % "2.5.11"
+    )
   )
 lazy val picoideProtoJVM = picoideProto.jvm
 lazy val picoideProtoJS  = picoideProto.js

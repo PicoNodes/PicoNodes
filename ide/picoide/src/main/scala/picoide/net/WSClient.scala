@@ -9,6 +9,9 @@ import akka.actor.{
   PoisonPill,
   Props
 }
+import akka.stream.scaladsl.BidiFlow
+import scala.scalajs.js.typedarray.TypedArrayBuffer
+import java.nio.ByteBuffer
 import akka.stream.{BufferOverflowException, Materializer, OverflowStrategy}
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.util.ByteString
@@ -16,6 +19,7 @@ import java.io.IOException
 import scala.scalajs.js
 import org.scalajs.dom.raw.WebSocket
 import scala.scalajs.js.typedarray.ArrayBuffer
+import scala.scalajs.js.typedarray.TypedArrayBufferOps._
 
 class WSClient(url: String, protocols: Seq[String], streamSource: ActorRef)
     extends Actor {
@@ -32,7 +36,8 @@ class WSClient(url: String, protocols: Seq[String], streamSource: ActorRef)
       case textMsg: String =>
         self ! WSClient.IncomingMessage(WSClient.TextMessage(textMsg))
       case binaryMsg: ArrayBuffer =>
-        self ! WSClient.IncomingMessage(WSClient.BinaryMessage(binaryMsg))
+        self ! WSClient.IncomingMessage(
+          WSClient.BinaryMessage(TypedArrayBuffer.wrap(binaryMsg)))
     }
     inner.onerror = _ => self ! WSClient.Error
     context.watch(streamSource)
@@ -47,7 +52,7 @@ class WSClient(url: String, protocols: Seq[String], streamSource: ActorRef)
     case WSClient.TextMessage(textMsg) =>
       inner.get.send(textMsg)
     case WSClient.BinaryMessage(binMsg) =>
-      inner.get.send(binMsg)
+      inner.get.send(binMsg.arrayBuffer())
   }
 
   override def receive = {
@@ -93,7 +98,17 @@ object WSClient {
     Flow.fromSinkAndSourceCoupled(sink, sourcePreMat)
   }
 
-  class WebSocketFailed extends IOException
+  val binaryMessagesFlow
+    : BidiFlow[Message, ByteBuffer, ByteBuffer, Message, NotUsed] =
+    BidiFlow.fromFunctions({
+      case BinaryMessage(msg) => msg
+      case msg                => throw new IllegalMessageException(msg, "binary")
+    }, BinaryMessage)
+
+  class IllegalMessageException(msg: Message, expected: String)
+      extends IOException(
+        s"Received $msg when only $expected messages are allowed")
+  class WebSocketFailed extends IOException("Websocket connection failed")
 
   private case object Connected
   private case object Error
@@ -104,6 +119,6 @@ object WSClient {
   private case object StreamAck
 
   sealed trait Message
-  case class TextMessage(inner: String)        extends Message
-  case class BinaryMessage(inner: ArrayBuffer) extends Message
+  case class TextMessage(inner: String)       extends Message
+  case class BinaryMessage(inner: ByteBuffer) extends Message
 }
