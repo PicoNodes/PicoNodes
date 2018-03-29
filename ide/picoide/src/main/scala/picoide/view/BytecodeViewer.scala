@@ -4,10 +4,10 @@ import diode.react.ModelProxy
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import picoide.asm.PicoAsmParser
-import picoide.{Actions, AppCircuit, SourceFile}
+import picoide.{Actions, SourceFile}
 
 object BytecodeViewer {
-  private val realComponent =
+  val component =
     ScalaComponent
       .builder[ModelProxy[SourceFile]]("BytecodeViewer")
       .render_P { (file: ModelProxy[SourceFile]) =>
@@ -28,5 +28,4 @@ object BytecodeViewer {
         )
       }
       .build
-  val component = AppCircuit.connect(_.currentFile).apply(realComponent(_))
 }

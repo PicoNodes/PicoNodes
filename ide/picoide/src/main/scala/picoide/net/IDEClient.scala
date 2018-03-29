@@ -4,13 +4,13 @@ import akka.{Done, NotUsed}
 import akka.actor.ActorRefFactory
 import akka.stream.{Materializer, OverflowStrategy}
 import akka.stream.scaladsl._
-import diode.Effect
+import diode.{Circuit, Effect}
 import diode.data.{Pot, Ready}
 import java.nio.ByteBuffer
 import boopickle.Default._
 import picoide.proto.{IDECommand, IDEEvent}
 import picoide.proto.IDEPicklers._
-import picoide.{Actions, AppCircuit}
+import picoide.Actions
 import scala.concurrent.{ExecutionContext, Future}
 
 object IDEClient {
@@ -27,7 +27,7 @@ object IDEClient {
       .join(WSClient.binaryMessagesFlow)
       .join(protocolPickler)
 
-  def connectToCircuit(url: String)(
+  def connectToCircuit(url: String, circuit: Circuit[_])(
       implicit materializer: Materializer,
       executionContext: ExecutionContext): Effect =
     Effect {
@@ -35,7 +35,7 @@ object IDEClient {
         .queue(10, OverflowStrategy.fail)
         .viaMat(connect(url))(Keep.both)
         .to(Sink.foreach(msg =>
-          AppCircuit.dispatch(Actions.IDEEvent.Received(msg))))
+          circuit.dispatch(Actions.IDEEvent.Received(msg))))
         .run()
       connectedFuture
         .map(_ => queue)

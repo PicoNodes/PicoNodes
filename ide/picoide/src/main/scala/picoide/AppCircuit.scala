@@ -12,7 +12,7 @@ import picoide.net.IDEClient
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object AppCircuit extends Circuit[Root] with ReactConnector[Root] {
+class AppCircuit extends Circuit[Root] with ReactConnector[Root] {
   private implicit val actorSystem  = ActorSystem("picoide")
   private implicit val materializer = ActorMaterializer()
 
@@ -41,9 +41,10 @@ object AppCircuit extends Circuit[Root] with ReactConnector[Root] {
   def commandQueueHandler = new ActionHandler(zoomTo(_.commandQueue)) {
     override def handle = {
       case action: Actions.IDECommandQueue.Update =>
-        action.handleWith(this,
-                          IDEClient.connectToCircuit(
-                            "ws://localhost:8080/connect"))(PotAction.handler())
+        action.handleWith(
+          this,
+          IDEClient.connectToCircuit("ws://localhost:8080/connect",
+                                     AppCircuit.this))(PotAction.handler())
     }
   }
 }

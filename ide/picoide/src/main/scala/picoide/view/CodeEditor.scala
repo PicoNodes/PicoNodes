@@ -4,7 +4,7 @@ import diode.react.ModelProxy
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.vdom.html_<^._
-import picoide.{Actions, AppCircuit, SourceFile}
+import picoide.{Actions, SourceFile}
 import picoide.asm.PicoAsmFormatter
 import monocle.macros.Lenses
 import picoide.view.vendor.ReactCodeMirror
@@ -46,11 +46,10 @@ object CodeEditor {
                               onCursor = onCursorMove))
   }
 
-  private val realComponent =
+  val component =
     ScalaComponent
       .builder[ModelProxy[SourceFile]]("CodeEditor")
       .initialState(State(currentCoord = ReactCodeMirror.coord(line = 0)))
       .renderBackend[Backend]
       .build
-  val component = AppCircuit.connect(_.currentFile).apply(realComponent(_))
 }
