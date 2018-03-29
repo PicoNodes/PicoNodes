@@ -1,6 +1,6 @@
 package picoide.net
 
-import akka.NotUsed
+import akka.{Done, NotUsed}
 import akka.actor.ActorRefFactory
 import akka.stream.{Materializer, OverflowStrategy}
 import akka.stream.scaladsl._
@@ -11,7 +11,7 @@ import boopickle.Default._
 import picoide.proto.{IDECommand, IDEEvent}
 import picoide.proto.IDEPicklers._
 import picoide.{Actions, AppCircuit}
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 object IDEClient {
   val protocolPickler
@@ -21,9 +21,7 @@ object IDEClient {
                      Pickle.intoBytes[IDECommand](_))
       .named("protocolPickler")
 
-  def connect(url: String)(
-      implicit materializer: Materializer,
-      actorFactory: ActorRefFactory): Flow[IDECommand, IDEEvent, NotUsed] =
+  def connect(url: String): Flow[IDECommand, IDEEvent, Future[Done]] =
     WSClient
       .connect(url, Seq("picoide"))
       .join(WSClient.binaryMessagesFlow)
@@ -31,15 +29,17 @@ object IDEClient {
 
   def connectToCircuit(url: String)(
       implicit materializer: Materializer,
-      actorFactory: ActorRefFactory,
       executionContext: ExecutionContext): Effect =
-    Effect.action {
-      val queue = Source
+    Effect {
+      val (queue, connectedFuture) = Source
         .queue(10, OverflowStrategy.fail)
-        .via(connect(url))
+        .viaMat(connect(url))(Keep.both)
         .to(Sink.foreach(msg =>
           AppCircuit.dispatch(Actions.IDEEvent.Received(msg))))
         .run()
-      Actions.IDECommandQueue.Update(Ready(queue))
+      connectedFuture
+        .map(_ => queue)
+        .map(Ready(_))
+        .map(Actions.IDECommandQueue.Update)
     }
 }

@@ -1,6 +1,7 @@
 package picoide.net
 
-import akka.NotUsed
+import akka.stream.stage.{InHandler, OutHandler}
+import akka.{Done, NotUsed}
 import akka.actor.{
   Actor,
   ActorContext,
@@ -9,6 +10,16 @@ import akka.actor.{
   PoisonPill,
   Props
 }
+import org.scalajs.dom.raw.MessageEvent
+import scala.concurrent.Promise
+import scala.concurrent.Future
+import akka.stream.stage.GraphStageWithMaterializedValue
+import akka.stream.stage.GraphStageLogic
+import akka.stream.Attributes
+import akka.stream.Outlet
+import akka.stream.Inlet
+import akka.stream.FlowShape
+import akka.stream.stage.GraphStage
 import akka.stream.scaladsl.BidiFlow
 import scala.scalajs.js.typedarray.TypedArrayBuffer
 import java.nio.ByteBuffer
@@ -21,83 +32,82 @@ import org.scalajs.dom.raw.WebSocket
 import scala.scalajs.js.typedarray.ArrayBuffer
 import scala.scalajs.js.typedarray.TypedArrayBufferOps._
 
-class WSClient(url: String, protocols: Seq[String], streamSource: ActorRef)
-    extends Actor {
-  private var inner: Option[WebSocket]       = None
-  private var connected                      = false
-  private var incomingSink: Option[ActorRef] = None
+import picoide.net.WSClient.Message
 
-  override def preStart(): Unit = {
-    val inner = new WebSocket(url, js.Array(protocols: _*))
-    inner.binaryType = "arraybuffer"
-    inner.onopen = _ => self ! WSClient.Connected
-    inner.onclose = _ => self ! PoisonPill
-    inner.onmessage = _.data match {
-      case textMsg: String =>
-        self ! WSClient.IncomingMessage(WSClient.TextMessage(textMsg))
-      case binaryMsg: ArrayBuffer =>
-        self ! WSClient.IncomingMessage(
-          WSClient.BinaryMessage(TypedArrayBuffer.wrap(binaryMsg)))
+class WSClient(url: String, protocols: Seq[String])
+    extends GraphStageWithMaterializedValue[FlowShape[Message, Message],
+                                            Future[Done]] {
+  val in             = Inlet[Message]("WSClient.in")
+  val out            = Outlet[Message]("WSClient.out")
+  override val shape = FlowShape(in, out)
+
+  override def createLogicAndMaterializedValue(
+      inheritedAttributes: Attributes): (GraphStageLogic, Future[Done]) = {
+    val connectedPromise = Promise[Done]()
+    val logic = new GraphStageLogic(shape) {
+      private var inner: Option[WebSocket] = None
+
+      override def preStart(): Unit = {
+        val onOpenCb = getAsyncCallback[Unit] { _ =>
+          connectedPromise.success(Done)
+          pull(in)
+        }
+        val onCloseCb = getAsyncCallback[Unit] { _ =>
+          completeStage()
+        }
+        val onMessageCb = getAsyncCallback[MessageEvent](_.data match {
+          case textMsg: String =>
+            push(out, WSClient.TextMessage(textMsg))
+          case binaryMsg: ArrayBuffer =>
+            push(out, WSClient.BinaryMessage(TypedArrayBuffer.wrap(binaryMsg)))
+        })
+        val onErrorCb = getAsyncCallback[Unit] { _ =>
+          val reason = new WSClient.WebSocketFailed()
+          failStage(reason)
+          if (!connectedPromise.isCompleted) {
+            connectedPromise.failure(reason)
+          }
+        }
+
+        val inner = new WebSocket(url, js.Array(protocols: _*))
+        inner.binaryType = "arraybuffer"
+        inner.onopen = _ => onOpenCb.invoke(())
+        inner.onclose = _ => onCloseCb.invoke(())
+        inner.onmessage = onMessageCb.invoke(_)
+        inner.onerror = _ => onErrorCb.invoke(())
+      }
+
+      override def postStop(): Unit =
+        inner.foreach(_.close())
+
+      setHandlers(
+        in,
+        out,
+        new InHandler with OutHandler {
+          override def onPush(): Unit = {
+            grab(in) match {
+              case WSClient.TextMessage(textMsg) =>
+                inner.get.send(textMsg)
+              case WSClient.BinaryMessage(binMsg) =>
+                inner.get.send(binMsg.arrayBuffer())
+            }
+            pull(in)
+          }
+
+          override def onPull(): Unit = {
+            // Do nothing, since we can't backpressure websockets :(
+          }
+        }
+      )
     }
-    inner.onerror = _ => self ! WSClient.Error
-    context.watch(streamSource)
-  }
-
-  override def postStop(): Unit = {
-    inner.foreach(_.close())
-    connected = false
-  }
-
-  private def send(msg: WSClient.Message): Unit = msg match {
-    case WSClient.TextMessage(textMsg) =>
-      inner.get.send(textMsg)
-    case WSClient.BinaryMessage(binMsg) =>
-      inner.get.send(binMsg.arrayBuffer())
-  }
-
-  override def receive = {
-    case WSClient.Connected =>
-      connected = true
-      incomingSink.foreach(_ ! WSClient.StreamAck)
-    case WSClient.IncomingMessage(msg) =>
-      streamSource ! msg
-    case WSClient.Error =>
-      throw new WSClient.WebSocketFailed()
-    case WSClient.OutgoingMessage(msg) =>
-      if (connected) {
-        send(msg)
-        sender ! WSClient.StreamAck
-      } else {
-        throw new BufferOverflowException(
-          s"$sender tried to send a message before it was connected")
-      }
-
-    case WSClient.StreamInit =>
-      incomingSink = Some(sender)
-      if (connected) {
-        sender ! WSClient.StreamAck
-      }
+    (logic, connectedPromise.future)
   }
 }
 
 object WSClient {
-  def connect(url: String, protocols: Seq[String] = Seq.empty)(
-      implicit materializer: Materializer,
-      actorFactory: ActorRefFactory): Flow[Message, Message, NotUsed] = {
-    val source                      = Source.actorRef(10, OverflowStrategy.dropHead)
-    val (sourceActor, sourcePreMat) = source.preMaterialize()
-
-    val connectionActor =
-      actorFactory.actorOf(Props(new WSClient(url, protocols, sourceActor)))
-    // val sink = Sink.actorRefWithAck(connectionActor,
-    //                                 onInitMessage = StreamInit,
-    //                                 ackMessage = StreamAck,
-    //                                 onCompleteMessage = PoisonPill,
-    //                                 onFailureMessage = _ => PoisonPill)
-
-    // Flow.fromSinkAndSourceCoupled(sink, sourcePreMat)
-    ???
-  }
+  def connect(url: String, protocols: Seq[String] = Seq.empty)
+    : Flow[Message, Message, Future[Done]] =
+    Flow.fromGraph(new WSClient(url, protocols))
 
   val binaryMessagesFlow
     : BidiFlow[Message, ByteBuffer, ByteBuffer, Message, NotUsed] =

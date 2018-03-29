@@ -41,8 +41,9 @@ object AppCircuit extends Circuit[Root] with ReactConnector[Root] {
   def commandQueueHandler = new ActionHandler(zoomTo(_.commandQueue)) {
     override def handle = {
       case action: Actions.IDECommandQueue.Update =>
-        action.handleWith(this, IDEClient.connectToCircuit("ws:///connect"))(
-          PotAction.handler())
+        action.handleWith(this,
+                          IDEClient.connectToCircuit(
+                            "ws://localhost:8080/connect"))(PotAction.handler())
     }
   }
 }
