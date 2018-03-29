@@ -89,13 +89,14 @@ object WSClient {
 
     val connectionActor =
       actorFactory.actorOf(Props(new WSClient(url, protocols, sourceActor)))
-    val sink = Sink.actorRefWithAck(connectionActor,
-                                    onInitMessage = StreamInit,
-                                    ackMessage = StreamAck,
-                                    onCompleteMessage = PoisonPill,
-                                    onFailureMessage = _ => PoisonPill)
+    // val sink = Sink.actorRefWithAck(connectionActor,
+    //                                 onInitMessage = StreamInit,
+    //                                 ackMessage = StreamAck,
+    //                                 onCompleteMessage = PoisonPill,
+    //                                 onFailureMessage = _ => PoisonPill)
 
-    Flow.fromSinkAndSourceCoupled(sink, sourcePreMat)
+    // Flow.fromSinkAndSourceCoupled(sink, sourcePreMat)
+    ???
   }
 
   val binaryMessagesFlow

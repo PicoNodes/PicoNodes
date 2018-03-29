@@ -2,5 +2,5 @@ package picoide.proto
 
 sealed trait IDEEvent
 object IDEEvent {
-  case object Hello extends IDEEvent
+  case class AvailableNodes(nodes: Seq[ProgrammerNodeInfo]) extends IDEEvent
 }
