@@ -25,11 +25,12 @@ class AppCircuit extends Circuit[Root] with ReactConnector[Root] {
                                |- mov 6 acc
                                |  mov 5 null
 """.stripMargin),
-    commandQueue = Pot.empty
+    commandQueue = Pot.empty,
+    programmerNodes = Pot.empty
   )
 
   override def actionHandler =
-    composeHandlers(editorHandler, commandQueueHandler)
+    composeHandlers(editorHandler, commandQueueHandler, programmerNodesHandler)
 
   def editorHandler = new ActionHandler(zoomTo(_.currentFile)) {
     override def handle = {
@@ -40,11 +41,20 @@ class AppCircuit extends Circuit[Root] with ReactConnector[Root] {
 
   def commandQueueHandler = new ActionHandler(zoomTo(_.commandQueue)) {
     override def handle = {
-      case action: Actions.IDECommandQueue.Update =>
+      case action: Actions.CommandQueue.Update =>
         action.handleWith(
           this,
           IDEClient.connectToCircuit("ws://localhost:8080/connect",
                                      AppCircuit.this))(PotAction.handler())
+    }
+  }
+
+  def programmerNodesHandler = new ActionHandler(zoomTo(_.programmerNodes)) {
+    override def handle = {
+      case action: Actions.ProgrammerNodes.Update =>
+        action.handleWith(this,
+                          IDEClient.requestNodeList(zoomTo(_.commandQueue)))(
+          PotAction.handler())
     }
   }
 }

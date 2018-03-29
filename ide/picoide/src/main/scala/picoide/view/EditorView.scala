@@ -9,11 +9,11 @@ object EditorView {
   val component =
     ScalaComponent
       .builder[ModelProxy[Root]]("EditorView")
-      .render_P(
-        model =>
-          <.div(
-            model.connect(_.currentFile).apply(CodeEditor.component(_)),
-            model.connect(_.currentFile).apply(BytecodeViewer.component(_))
-        ))
+      .render_P(model =>
+        <.div(
+          model.connect(identity(_)).apply(BoardPicker.component(_)),
+          model.connect(_.currentFile).apply(CodeEditor.component(_)),
+          model.connect(_.currentFile).apply(BytecodeViewer.component(_))
+      ))
       .build
 }

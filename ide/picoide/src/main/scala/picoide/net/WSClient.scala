@@ -49,8 +49,8 @@ class WSClient(url: String, protocols: Seq[String])
 
       override def preStart(): Unit = {
         val onOpenCb = getAsyncCallback[Unit] { _ =>
-          connectedPromise.success(Done)
           pull(in)
+          connectedPromise.success(Done)
         }
         val onCloseCb = getAsyncCallback[Unit] { _ =>
           completeStage()
@@ -75,15 +75,15 @@ class WSClient(url: String, protocols: Seq[String])
         inner.onclose = _ => onCloseCb.invoke(())
         inner.onmessage = onMessageCb.invoke(_)
         inner.onerror = _ => onErrorCb.invoke(())
+        this.inner = Some(inner)
       }
 
       override def postStop(): Unit =
         inner.foreach(_.close())
 
-      setHandlers(
+      setHandler(
         in,
-        out,
-        new InHandler with OutHandler {
+        new InHandler {
           override def onPush(): Unit = {
             grab(in) match {
               case WSClient.TextMessage(textMsg) =>
@@ -93,7 +93,12 @@ class WSClient(url: String, protocols: Seq[String])
             }
             pull(in)
           }
+        }
+      )
 
+      setHandler(
+        out,
+        new OutHandler {
           override def onPull(): Unit = {
             // Do nothing, since we can't backpressure websockets :(
           }
