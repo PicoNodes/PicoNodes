@@ -56,6 +56,7 @@ lazy val picoide = project
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.CommonJSModule).withSourceMap(false)
     },
+    webpackBundlingMode := BundlingMode.LibraryOnly(),
     webpackMonitoredDirectories += (Compile / resourceDirectory).value,
     webpackDevServerExtraArgs in fastOptJS ++= Seq(
       "--content-base",
@@ -68,10 +69,11 @@ lazy val picoide = project
       "codemirror"        -> "5.36.0"
     ),
     npmDevDependencies in Compile ++= Seq(
-      "sass-loader"  -> "6.0.7",
-      "css-loader"   -> "0.28.11",
-      "style-loader" -> "0.20.3",
-      "node-sass"    -> "4.7.2"
+      "sass-loader"                -> "6.0.7",
+      "css-loader"                 -> "0.28.11",
+      "style-loader"               -> "0.20.3",
+      "node-sass"                  -> "4.7.2",
+      "hard-source-webpack-plugin" -> "0.6.4"
     )
   )
   .dependsOn(picoasmJS, picoideProtoJS, diodeReact)

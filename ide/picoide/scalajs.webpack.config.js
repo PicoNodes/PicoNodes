@@ -1,9 +1,10 @@
 var path = require('path');
+var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
 module.exports = {
     "entry": {
         "picoide-fastopt": [
-            path.resolve(__dirname, "picoide-fastopt.js")
+            path.resolve(__dirname, "picoide-fastopt-entrypoint.js")
         ]
     },
     "resolve": {
@@ -19,6 +20,11 @@ module.exports = {
     },
     "output": {
         "path": __dirname,
-        "filename": "[name]-bundle.js"
-    }
-}
+        "filename": "[name]-library.js",
+        "library": "ScalaJSBundlerLibrary",
+        "libraryTarget": "var"
+    },
+    "plugins": [
+        new HardSourceWebpackPlugin()
+    ]
+};
