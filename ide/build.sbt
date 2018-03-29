@@ -54,7 +54,7 @@ lazy val picoide = project
     scalaJSUseMainModuleInitializer := true,
     scalaJSOutputMode := org.scalajs.core.tools.linker.standard.OutputMode.ECMAScript2015,
     scalaJSLinkerConfig ~= {
-      _.withModuleKind(ModuleKind.CommonJSModule).withSourceMap(false)
+      _.withModuleKind(ModuleKind.CommonJSModule)
     },
     webpackBundlingMode := BundlingMode.LibraryOnly(),
     webpackMonitoredDirectories += (Compile / resourceDirectory).value,

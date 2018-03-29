@@ -5,6 +5,9 @@ module.exports = {
     "entry": {
         "picoide-fastopt": [
             path.resolve(__dirname, "picoide-fastopt-entrypoint.js")
+        ],
+        "picoide-opt": [
+            path.resolve(__dirname, "picoide-opt-entrypoint.js")
         ]
     },
     "resolve": {
