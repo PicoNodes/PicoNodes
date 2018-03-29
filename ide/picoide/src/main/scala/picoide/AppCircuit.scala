@@ -1,7 +1,6 @@
 package picoide
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 
 import diode.{ActionHandler, ActionResult, Circuit, Effect, NoAction}
 import diode.data.{Pot, PotAction, PotState}
@@ -12,10 +11,9 @@ import picoide.net.IDEClient
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class AppCircuit extends Circuit[Root] with ReactConnector[Root] {
-  private implicit val actorSystem  = ActorSystem("picoide")
-  private implicit val materializer = ActorMaterializer()
-
+class AppCircuit(implicit materializer: Materializer)
+    extends Circuit[Root]
+    with ReactConnector[Root] {
   override def initialModel = Root(
     currentFile = SourceFile("""  mov 1 up
                                |  mov 2 null
