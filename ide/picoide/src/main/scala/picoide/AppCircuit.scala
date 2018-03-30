@@ -1,12 +1,14 @@
 package picoide
 
 import akka.stream.Materializer
+import diode.data.Ready
 
 import diode.{ActionHandler, ActionResult, Circuit, Effect, NoAction}
 import diode.data.{Pot, PotAction, PotState}
 import diode.react.ReactConnector
 
 import picoide.net.IDEClient
+import picoide.proto.IDEEvent
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -28,7 +30,10 @@ class AppCircuit(implicit materializer: Materializer)
   )
 
   override def actionHandler =
-    composeHandlers(editorHandler, commandQueueHandler, programmerNodesHandler)
+    composeHandlers(editorHandler,
+                    commandQueueHandler,
+                    programmerNodesHandler,
+                    ideEventHandler)
 
   def editorHandler = new ActionHandler(zoomTo(_.currentFile)) {
     override def handle = {
@@ -55,4 +60,13 @@ class AppCircuit(implicit materializer: Materializer)
           PotAction.handler())
     }
   }
+
+  def ideEventHandler =
+    new ActionHandler(zoomRW(identity(_))((_, x) => x)) {
+      override def handle = {
+        case Actions.IDEEvent.Received(IDEEvent.AvailableNodes(nodes)) =>
+          effectOnly(
+            Effect.action(Actions.ProgrammerNodes.Update(Ready(nodes))))
+      }
+    }
 }

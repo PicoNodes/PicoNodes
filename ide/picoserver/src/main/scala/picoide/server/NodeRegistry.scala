@@ -53,15 +53,18 @@ class NodeRegistry extends Actor {
 object NodeRegistry {
   def props: Props = Props[NodeRegistry]()
 
-  case class AddNode(node: ProgrammerNode)
-  case object AddNodeNoop
-  case object NodeAdded
+  sealed trait Command
+  sealed trait Response
 
-  case class RemoveNode(node: ProgrammerNode)
+  case class AddNode(node: ProgrammerNode) extends Command
+  case object AddNodeNoop                  extends Response
+  case object NodeAdded                    extends Response
 
-  case object ListNodes
-  case class ListNodesResponse(nodes: Seq[ProgrammerNode])
+  case class RemoveNode(node: ProgrammerNode) extends Command
 
-  case class GetNode(id: UUID)
-  case class GetNodeResponse(node: Option[ProgrammerNode])
+  case object ListNodes                                    extends Command
+  case class ListNodesResponse(nodes: Seq[ProgrammerNode]) extends Response
+
+  case class GetNode(id: UUID)                             extends Command
+  case class GetNodeResponse(node: Option[ProgrammerNode]) extends Response
 }

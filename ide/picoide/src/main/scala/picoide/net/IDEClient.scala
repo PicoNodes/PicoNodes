@@ -44,8 +44,9 @@ object IDEClient {
           case Failure(ex)   => Actions.CommandQueue.Update(Failed(ex))
           case Success(Done) => Actions.CommandQueue.Update(Unavailable)
         })
-        .to(Sink.foreach(msg =>
-          circuit.dispatch(Actions.IDEEvent.Received(msg))))
+        .to(Sink.foreach { msg =>
+          circuit.dispatch(Actions.IDEEvent.Received(msg))
+        })
         .run()
       connectedFuture
         .map(_ => queue)
