@@ -73,7 +73,7 @@ object IDEClient {
       commandQueue: ModelRO[Pot[SourceQueueWithComplete[IDECommand]]])(
       implicit executionContext: ExecutionContext): Effect = Effect {
     commandQueue()
-      .fold[Future[Pot[Seq[ProgrammerNodeInfo]]]](
+      .fold[Future[Pot[Set[ProgrammerNodeInfo]]]](
         Future.successful(Unavailable))(_.offer(IDECommand.ListNodes).map {
         case QueueOfferResult.Enqueued =>
           Pending()

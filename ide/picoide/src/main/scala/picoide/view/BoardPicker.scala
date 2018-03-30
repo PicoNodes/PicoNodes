@@ -20,7 +20,7 @@ object BoardPicker {
               <.option(s"Loading...").when(model().programmerNodes.isPending),
               TagMod(
                 model().programmerNodes
-                  .getOrElse(Seq())
+                  .fold(Seq[ProgrammerNodeInfo]())(_.toSeq)
                   .map(node => <.option(node.toString())): _*
               )
             ),

@@ -6,6 +6,8 @@ object IDEPicklers {
   implicit val ideEventPickler =
     compositePickler[IDEEvent]
       .addConcreteType[IDEEvent.AvailableNodes]
+      .addConcreteType[IDEEvent.AvailableNodeAdded]
+      .addConcreteType[IDEEvent.AvailableNodeRemoved]
       .addConcreteType[IDEEvent.Pong.type]
   implicit val ideCommandPickler =
     compositePickler[IDECommand]

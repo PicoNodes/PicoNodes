@@ -69,36 +69,40 @@ object IDEConnection {
       implicit mat: Materializer): Flow[Message, Message, NotUsed] =
     binaryMessagesFlow
       .atop(protocolPickler)
-      .join(Flow.fromGraph(GraphDSL.create(Source.actorRef[Any](
-        10,
-        OverflowStrategy.fail)) { implicit builder => events =>
-        import GraphDSL.Implicits._
+      .join(Flow.fromGraph(
+        GraphDSL.create(Source.actorRef[Any](10, OverflowStrategy.fail)) {
+          implicit builder => events =>
+            import GraphDSL.Implicits._
 
-        val eventTargetActor =
-          builder.materializedValue
-            .expand(Stream.continually(_).iterator)
-            .log("eventTargetActor")
+            val eventTargetActor =
+              builder.materializedValue
+                .expand(Stream.continually(_).iterator)
+                .log("eventTargetActor")
 
-        val commandsWithEventActor = builder.add(Zip[IDECommand, ActorRef])
-        val router = builder.add(Sink.foreach[(IDECommand, ActorRef)] {
-          case (IDECommand.ListNodes, eventTargetActor) =>
-            nodeRegistry.tell(NodeRegistry.ListNodes, eventTargetActor)
-          case (IDECommand.Ping, eventTargetActor) =>
-            eventTargetActor ! IDEEvent.Pong
-        })
-        val formattedEvents = builder.add(Flow[Any].map {
-          case event: IDEEvent =>
-            event
-          case NodeRegistry.ListNodesResponse(nodes) =>
-            IDEEvent.AvailableNodes(
-              nodes.map(node => ProgrammerNodeInfo(id = node.id)))
-        })
+            val commandsWithEventActor = builder.add(Zip[IDECommand, ActorRef])
+            val router = builder.add(Sink.foreach[(IDECommand, ActorRef)] {
+              case (IDECommand.ListNodes, eventTargetActor) =>
+                nodeRegistry.tell(NodeRegistry.ListNodes, eventTargetActor)
+              case (IDECommand.Ping, eventTargetActor) =>
+                eventTargetActor ! IDEEvent.Pong
+            })
+            val formattedEvents = builder.add(Flow[Any].map {
+              case event: IDEEvent =>
+                event
+              case NodeRegistry.ListNodesResponse(nodes) =>
+                IDEEvent.AvailableNodes(
+                  nodes.map(node => ProgrammerNodeInfo(id = node.id)))
+              case NodeRegistry.ListNodesNodeAdded(node) =>
+                IDEEvent.AvailableNodeAdded(ProgrammerNodeInfo(id = node.id))
+              case NodeRegistry.ListNodesNodeRemoved(node) =>
+                IDEEvent.AvailableNodeRemoved(ProgrammerNodeInfo(id = node.id))
+            })
 
-        eventTargetActor ~> repeatFirst[ActorRef] ~> commandsWithEventActor.in1
-        commandsWithEventActor.out ~> router
+            eventTargetActor ~> repeatFirst[ActorRef] ~> commandsWithEventActor.in1
+            commandsWithEventActor.out ~> router
 
-        events.out ~> formattedEvents
+            events.out ~> formattedEvents
 
-        FlowShape(commandsWithEventActor.in0, formattedEvents.out)
-      }))
+            FlowShape(commandsWithEventActor.in0, formattedEvents.out)
+        }))
 }

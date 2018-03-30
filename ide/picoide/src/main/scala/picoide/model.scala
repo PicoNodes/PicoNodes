@@ -11,4 +11,4 @@ case class SourceFile(content: String)
 @Lenses
 case class Root(currentFile: SourceFile,
                 commandQueue: Pot[SourceQueueWithComplete[IDECommand]],
-                programmerNodes: Pot[Seq[ProgrammerNodeInfo]])
+                programmerNodes: Pot[Set[ProgrammerNodeInfo]])

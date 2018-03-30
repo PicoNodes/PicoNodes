@@ -15,19 +15,18 @@ class NodeRegistry extends Actor {
 
   implicit private val materializer = ActorMaterializer.create(context)
   private val nodes                 = mutable.Map[UUID, ProgrammerNode]()
+  private val subscribers           = mutable.Set[ActorRef]()
   private val log                   = Logging(this)
 
   override def preStart(): Unit =
     NodeServer
       .start()
       .map(NodeRegistry.AddNode)
-      .to(
-        Sink.actorRefWithAck(self,
-                             onInitMessage = AddNodeNoop,
-                             ackMessage = NodeAdded,
-                             onCompleteMessage = PoisonPill,
-                             onFailureMessage = _ => Kill))
+      .to(Sink.actorRef(self, onCompleteMessage = PoisonPill))
       .run()
+
+  override def postStop(): Unit =
+    materializer.shutdown()
 
   override def receive = {
     case AddNode(node) =>
@@ -37,14 +36,16 @@ class NodeRegistry extends Actor {
         .to(Sink.onComplete(_ => self ! RemoveNode(node)))
         .run()
       nodes += node.id -> node
-      sender ! NodeAdded
-    case AddNodeNoop =>
-      sender ! NodeAdded
+      subscribers.foreach(_ ! ListNodesNodeAdded(node))
     case RemoveNode(node) =>
       log.info(s"Removing node ${node.id}")
       nodes -= node.id
+      subscribers.foreach(_ ! ListNodesNodeRemoved(node))
     case ListNodes =>
       sender ! ListNodesResponse(nodes.values.toSeq)
+      subscribers += sender
+    case ListNodesUnsubscribe(ref) =>
+      subscribers -= sender
     case GetNode(id) =>
       sender ! GetNodeResponse(nodes.get(id))
   }
@@ -56,14 +57,14 @@ object NodeRegistry {
   sealed trait Command
   sealed trait Response
 
-  case class AddNode(node: ProgrammerNode) extends Command
-  case object AddNodeNoop                  extends Response
-  case object NodeAdded                    extends Response
-
-  case class RemoveNode(node: ProgrammerNode) extends Command
+  case class AddNode(node: ProgrammerNode)            extends Command
+  private case class RemoveNode(node: ProgrammerNode) extends Command
 
   case object ListNodes                                    extends Command
+  case class ListNodesUnsubscribe(ref: ActorRef)           extends Command
   case class ListNodesResponse(nodes: Seq[ProgrammerNode]) extends Response
+  case class ListNodesNodeAdded(node: ProgrammerNode)      extends Response
+  case class ListNodesNodeRemoved(node: ProgrammerNode)    extends Response
 
   case class GetNode(id: UUID)                             extends Command
   case class GetNodeResponse(node: Option[ProgrammerNode]) extends Response

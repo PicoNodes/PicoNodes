@@ -19,11 +19,14 @@ object Actions {
   }
 
   object ProgrammerNodes {
-    case class Update(potResult: Pot[Seq[ProgrammerNodeInfo]])
-        extends PotAction[Seq[ProgrammerNodeInfo], Update] {
-      def next(newResult: Pot[Seq[ProgrammerNodeInfo]]) =
+    case class Update(potResult: Pot[Set[ProgrammerNodeInfo]])
+        extends PotAction[Set[ProgrammerNodeInfo], Update] {
+      def next(newResult: Pot[Set[ProgrammerNodeInfo]]) =
         Update(newResult)
     }
+
+    case class Add(node: ProgrammerNodeInfo)    extends Action
+    case class Remove(node: ProgrammerNodeInfo) extends Action
   }
 
   object CurrentFile {
