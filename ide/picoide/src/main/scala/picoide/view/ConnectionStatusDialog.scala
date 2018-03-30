@@ -1,0 +1,24 @@
+package picoide.view
+
+import akka.stream.scaladsl.SourceQueueWithComplete
+import diode.data.{Failed, Pot}
+import diode.react.ModelProxy
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.html_<^._
+import picoide.proto.IDECommand
+import picoide.Actions
+
+object ConnectionStatusDialog {
+  val component =
+    ScalaComponent
+      .builder[ModelProxy[Pot[SourceQueueWithComplete[IDECommand]]]](
+        "ConnectionStatusDialog")
+      .render_P(model =>
+        <.div(
+          "Not connected".when(model().isEmpty),
+          "Connecting...".when(model().isPending),
+          "Disconnected".when(model().isUnavailable),
+          "Connection failed".when(model().isFailed)
+      ))
+      .build
+}

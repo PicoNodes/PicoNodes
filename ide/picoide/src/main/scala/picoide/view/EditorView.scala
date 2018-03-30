@@ -11,6 +11,9 @@ object EditorView {
       .builder[ModelProxy[Root]]("EditorView")
       .render_P(model =>
         <.div(
+          model
+            .connect(_.commandQueue)
+            .apply(ConnectionStatusDialog.component(_)),
           model.connect(identity(_)).apply(BoardPicker.component(_)),
           model.connect(_.currentFile).apply(CodeEditor.component(_)),
           model.connect(_.currentFile).apply(BytecodeViewer.component(_))

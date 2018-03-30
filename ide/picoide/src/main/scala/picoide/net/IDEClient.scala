@@ -44,19 +44,24 @@ object IDEClient {
       val (queue, connectedFuture) = Source
         .queue[IDECommand](10, OverflowStrategy.fail)
         .keepAlive(10.seconds, () => IDECommand.Ping)
+        .log("connectToCircuit.outgoing")
         .viaMat(connect(url))(Keep.both)
-        .wireTap(Sink.onComplete {
-          case Failure(ex)   => Actions.CommandQueue.Update(Failed(ex))
-          case Success(Done) => Actions.CommandQueue.Update(Unavailable)
-        })
-        .log("connectToCircuit.pre-dispatch")
-        .to(Sink.foreach { msg =>
-          try {
-            circuit.dispatch(Actions.IDEEvent.Received(msg))
-          } catch {
-            case ex: Exception => ex.printStackTrace()
+        .log("connectToCircuit.incoming")
+        .to(Sink.combine(
+          Sink.foreach[IDEEvent] { msg =>
+            try {
+              circuit.dispatch(Actions.IDEEvent.Received(msg))
+            } catch {
+              case ex: Exception => ex.printStackTrace()
+            }
+          },
+          Sink.onComplete {
+            case Failure(ex) =>
+              circuit.dispatch(Actions.CommandQueue.Update(Failed(ex)))
+            case Success(Done) =>
+              circuit.dispatch(Actions.CommandQueue.Update(Unavailable))
           }
-        })
+        )(Broadcast(_)))
         .run()
       connectedFuture
         .map(_ => queue)
