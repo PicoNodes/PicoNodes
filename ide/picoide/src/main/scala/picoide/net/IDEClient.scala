@@ -37,18 +37,13 @@ object IDEClient {
       .join(WSClient.binaryMessagesFlow)
       .join(protocolPickler)
 
-  val heartbeatSource: Source[IDECommand, NotUsed] =
-    Source
-      .tick(0.seconds, 1.second, IDECommand.Ping)
-      .mapMaterializedValue(_ => NotUsed)
-
   def connectToCircuit(url: String, circuit: Circuit[_])(
       implicit materializer: Materializer,
       executionContext: ExecutionContext): Effect =
     Effect {
       val (queue, connectedFuture) = Source
         .queue[IDECommand](10, OverflowStrategy.fail)
-        .merge(heartbeatSource, eagerComplete = true)
+        .keepAlive(10.seconds, () => IDECommand.Ping)
         .viaMat(connect(url))(Keep.both)
         .wireTap(Sink.onComplete {
           case Failure(ex)   => Actions.CommandQueue.Update(Failed(ex))
