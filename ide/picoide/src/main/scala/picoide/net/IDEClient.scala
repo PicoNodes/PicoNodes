@@ -18,6 +18,7 @@ import picoide.proto.IDEPicklers._
 import picoide.Actions
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
+import scala.concurrent.duration._
 
 object IDEClient {
   val protocolPickler
@@ -33,12 +34,18 @@ object IDEClient {
       .join(WSClient.binaryMessagesFlow)
       .join(protocolPickler)
 
+  val heartbeatSource: Source[IDECommand, NotUsed] =
+    Source
+      .tick(0.seconds, 1.second, IDECommand.Ping)
+      .mapMaterializedValue(_ => NotUsed)
+
   def connectToCircuit(url: String, circuit: Circuit[_])(
       implicit materializer: Materializer,
       executionContext: ExecutionContext): Effect =
     Effect {
       val (queue, connectedFuture) = Source
-        .queue(0, OverflowStrategy.fail)
+        .queue[IDECommand](10, OverflowStrategy.fail)
+        .merge(heartbeatSource, eagerComplete = true)
         .viaMat(connect(url))(Keep.both)
         .wireTap(Sink.onComplete {
           case Failure(ex)   => Actions.CommandQueue.Update(Failed(ex))
