@@ -112,7 +112,8 @@ class WSClient(url: String, protocols: Seq[String])
 object WSClient {
   def connect(url: String, protocols: Seq[String] = Seq.empty)
     : Flow[Message, Message, Future[Done]] =
-    Flow.fromGraph(new WSClient(url, protocols))
+    Flow
+      .fromGraph(new WSClient(url, protocols))
 
   val binaryMessagesFlow
     : BidiFlow[Message, ByteBuffer, ByteBuffer, Message, NotUsed] =
@@ -125,14 +126,6 @@ object WSClient {
       extends IOException(
         s"Received $msg when only $expected messages are allowed")
   class WebSocketFailed extends IOException("Websocket connection failed")
-
-  private case object Connected
-  private case object Error
-  private case class IncomingMessage(msg: Message)
-  private case class OutgoingMessage(msg: Message)
-
-  private case object StreamInit
-  private case object StreamAck
 
   sealed trait Message
   case class TextMessage(inner: String)       extends Message
