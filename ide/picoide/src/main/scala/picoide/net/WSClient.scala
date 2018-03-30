@@ -48,6 +48,8 @@ class WSClient(url: String, protocols: Seq[String])
       private var inner: Option[WebSocket] = None
 
       override def preStart(): Unit = {
+        val inner = new WebSocket(url, js.Array(protocols: _*))
+
         val onOpenCb = getAsyncCallback[Unit] { _ =>
           pull(in)
           connectedPromise.success(Done)
@@ -62,14 +64,13 @@ class WSClient(url: String, protocols: Seq[String])
             push(out, WSClient.BinaryMessage(TypedArrayBuffer.wrap(binaryMsg)))
         })
         val onErrorCb = getAsyncCallback[Unit] { _ =>
-          val reason = new WSClient.WebSocketFailed()
+          val reason = new WSClient.WebSocketFailed(inner.readyState)
           failStage(reason)
           if (!connectedPromise.isCompleted) {
             connectedPromise.failure(reason)
           }
         }
 
-        val inner = new WebSocket(url, js.Array(protocols: _*))
         inner.binaryType = "arraybuffer"
         inner.onopen = _ => onOpenCb.invoke(())
         inner.onclose = _ => onCloseCb.invoke(())
@@ -125,7 +126,9 @@ object WSClient {
   class IllegalMessageException(msg: Message, expected: String)
       extends IOException(
         s"Received $msg when only $expected messages are allowed")
-  class WebSocketFailed extends IOException("Websocket connection failed")
+  class WebSocketFailed(readyState: Int)
+      extends IOException(
+        s"Websocket connection failed, readyState: $readyState")
 
   sealed trait Message
   case class TextMessage(inner: String)       extends Message

@@ -26,6 +26,9 @@ object IDEClient {
     BidiFlow
       .fromFunctions(Unpickle[IDEEvent].fromBytes(_),
                      Pickle.intoBytes[IDECommand](_))
+      .atop(
+        BidiFlow.fromFlows(Flow[IDEEvent].log("protocolPickler.incoming"),
+                           Flow[IDECommand].log("protocolPickler.outgoing")))
       .named("protocolPickler")
 
   def connect(url: String): Flow[IDECommand, IDEEvent, Future[Done]] =
@@ -51,8 +54,13 @@ object IDEClient {
           case Failure(ex)   => Actions.CommandQueue.Update(Failed(ex))
           case Success(Done) => Actions.CommandQueue.Update(Unavailable)
         })
+        .log("connectToCircuit.pre-dispatch")
         .to(Sink.foreach { msg =>
-          circuit.dispatch(Actions.IDEEvent.Received(msg))
+          try {
+            circuit.dispatch(Actions.IDEEvent.Received(msg))
+          } catch {
+            case ex: Exception => ex.printStackTrace()
+          }
         })
         .run()
       connectedFuture

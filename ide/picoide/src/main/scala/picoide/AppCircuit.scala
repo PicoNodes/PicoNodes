@@ -67,6 +67,8 @@ class AppCircuit(implicit materializer: Materializer)
         case Actions.IDEEvent.Received(IDEEvent.AvailableNodes(nodes)) =>
           effectOnly(
             Effect.action(Actions.ProgrammerNodes.Update(Ready(nodes))))
+        case Actions.IDEEvent.Received(IDEEvent.Pong) =>
+          noChange
       }
     }
 }
