@@ -32,14 +32,12 @@ object IDEConnection {
   def readBinaryMessageFlow(
       implicit mat: Materializer): Flow[Message, ByteString, NotUsed] =
     Flow[Message]
-      .log("readBinaryMessageFlow")
       .map {
         case msg: BinaryMessage => msg.dataStream
         case _ =>
           throw new ClassCastException("Only binary messages are supported")
       }
       .mapAsync(1)(_.runFold(ByteString())(_ ++ _))
-      .log("readBinaryMessageFlow2")
       .named("readBinaryMessageFlow")
 
   val writeBinaryMessageFlow: Flow[ByteString, Message, NotUsed] =
