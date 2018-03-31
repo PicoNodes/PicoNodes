@@ -46,10 +46,22 @@ class AppCircuit(implicit materializer: Materializer)
   def commandQueueHandler = new ActionHandler(zoomTo(_.commandQueue)) {
     override def handle = {
       case action: Actions.CommandQueue.Update =>
-        action.handleWith(
-          this,
-          IDEClient.connectToCircuit("ws://localhost:8080/connect",
-                                     AppCircuit.this))(PotAction.handler())
+        import PotState._
+        action.handle {
+          case PotEmpty =>
+            updated(value.pending(),
+                    IDEClient.connectToCircuit("ws://localhost:8080/connect",
+                                               AppCircuit.this))
+          case PotPending =>
+            noChange
+          case PotReady =>
+            updated(action.potResult,
+                    Effect.action(Actions.ProgrammerNodes.Update(Pot.empty)))
+          case PotUnavailable =>
+            updated(value.unavailable())
+          case PotFailed =>
+            updated(value.fail(action.result.failed.get))
+        }
     }
   }
 

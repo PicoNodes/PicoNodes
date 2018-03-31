@@ -23,11 +23,7 @@ object BoardPicker {
                   .fold(Seq[ProgrammerNodeInfo]())(_.toSeq)
                   .map(node => <.option(node.toString())): _*
               )
-            ),
-            <.button("Refresh",
-                     ^.disabled := !model().commandQueue.isReady,
-                     ^.onClick --> (model.dispatchCB(
-                       Actions.ProgrammerNodes.Update(Pot.empty))))
+            )
         )
       )
       .build
