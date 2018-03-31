@@ -13,4 +13,5 @@ object IDEPicklers {
     compositePickler[IDECommand]
       .addConcreteType[IDECommand.ListNodes.type]
       .addConcreteType[IDECommand.Ping.type]
+      .addConcreteType[IDECommand.SelectNode]
 }

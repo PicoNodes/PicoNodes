@@ -27,6 +27,8 @@ object Actions {
 
     case class Add(node: ProgrammerNodeInfo)    extends Action
     case class Remove(node: ProgrammerNodeInfo) extends Action
+
+    case class Select(node: Option[ProgrammerNodeInfo]) extends Action
   }
 
   object CurrentFile {
