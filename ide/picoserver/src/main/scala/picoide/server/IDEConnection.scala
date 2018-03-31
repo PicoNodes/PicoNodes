@@ -56,13 +56,11 @@ object IDEConnection {
       val merger     = builder.add(Merge[T](2, eagerComplete = false))
       val splitter   = builder.add(Broadcast[T](2))
 
-      limitInput.out ~> merger.in(0)
-      merger.out ~> splitter.in
-      splitter
-        .out(1)
-        .buffer(1, OverflowStrategy.dropHead) ~> merger.in(1)
+      limitInput ~> merger
+      merger ~> splitter
+      splitter.detach ~> merger
 
-      FlowShape(limitInput.in, splitter.out(0))
+      FlowShape(limitInput.in, splitter.out(1))
     })
 
   def webSocketHandler(nodeRegistry: ActorRef)(
@@ -74,10 +72,9 @@ object IDEConnection {
           implicit builder => events =>
             import GraphDSL.Implicits._
 
-            val eventTargetActor =
+            def eventTargetActor =
               builder.materializedValue
-                .expand(Stream.continually(_).iterator)
-                .log("eventTargetActor")
+                .via(repeatFirst)
 
             val commandsWithEventActor = builder.add(Zip[IDECommand, ActorRef])
             val router = builder.add(Sink.foreach[(IDECommand, ActorRef)] {
@@ -98,10 +95,9 @@ object IDEConnection {
                 IDEEvent.AvailableNodeRemoved(ProgrammerNodeInfo(id = node.id))
             })
 
-            eventTargetActor ~> repeatFirst[ActorRef] ~> commandsWithEventActor.in1
+            eventTargetActor ~> commandsWithEventActor.in1
             commandsWithEventActor.out ~> router
-
-            events.out ~> formattedEvents
+            events ~> formattedEvents
 
             FlowShape(commandsWithEventActor.in0, formattedEvents.out)
         }))
