@@ -82,7 +82,7 @@ lazy val picoserver = project
   .enablePlugins(WebScalaJSBundlerPlugin)
   .settings(
     scalaJSProjects := Seq(picoide),
-    Assets / pipelineStages := Seq(scalaJSPipeline),
+    Assets / pipelineStages := Seq(scalaJSDev),
     libraryDependencies ++= Seq(
       "org.webjars"       % "webjars-locator-core" % "0.35",
       "com.typesafe.akka" %% "akka-http"           % "10.1.0",
@@ -91,7 +91,7 @@ lazy val picoserver = project
   )
   .dependsOn(picoideProtoJVM)
 
-lazy val root = project
+lazy val picoroot = project
   .in(file("."))
   .aggregate(
     picoasmJVM,
