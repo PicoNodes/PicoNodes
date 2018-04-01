@@ -22,7 +22,9 @@ object IDEServer {
           getFromResource("index.html")
         }
       } ~ path("connect") {
-        handleWebSocketMessages(IDEConnection.webSocketHandler(nodeRegistry))
+        handleWebSocketMessagesForProtocol(
+          IDEConnection.webSocketHandler(nodeRegistry),
+          "picoide")
       } ~ path("public" / Segment / Remaining) { (webJar, asset) =>
         get {
           Option(webJarLocator.getFullPathExact(webJar, asset))
