@@ -1,7 +1,9 @@
-lazy val diodeReact = ProjectRef(
+def diode(subProject: String) = ProjectRef(
   uri(
     "https://github.com/PicoNodes/diode.git#b86426452e3b2f53630424800e18186689144632"),
-  "diodeReact")
+  subProject
+)
+lazy val diodeReact = diode("diodeReact")
 
 lazy val picoasm = crossProject
   .settings(
@@ -58,17 +60,17 @@ lazy val picoide = project
     },
     webpackBundlingMode := BundlingMode.LibraryOnly(),
     webpackMonitoredDirectories += (Compile / resourceDirectory).value,
-    webpackDevServerExtraArgs in fastOptJS ++= Seq(
+    fastOptJS / webpackDevServerExtraArgs ++= Seq(
       "--content-base",
       (sourceDirectory.value / "main" / "web").getAbsolutePath
     ),
-    npmDependencies in Compile ++= Seq(
+    Compile / npmDependencies ++= Seq(
       "react"             -> "16.2.0",
       "react-dom"         -> "16.2.0",
       "react-codemirror2" -> "4.2.1",
       "codemirror"        -> "5.36.0"
     ),
-    npmDevDependencies in Compile ++= Seq(
+    Compile / npmDevDependencies ++= Seq(
       "sass-loader"                -> "6.0.7",
       "css-loader"                 -> "0.28.11",
       "style-loader"               -> "0.20.3",
@@ -102,21 +104,21 @@ lazy val picoroot = project
     picoideProtoJS
   )
 
-scalaVersion in ThisBuild := "2.12.5"
+ThisBuild / scalaVersion := "2.12.5"
 
-// ensimeRepositoryUrls in ThisBuild += "https://oss.sonatype.org/content/repositories/snapshots/"
-// ensimeServerVersion in ThisBuild := "3.0.0-SNAPSHOT"
+// ThisBuild / ensimeRepositoryUrls += "https://oss.sonatype.org/content/repositories/snapshots/"
+// ThisBuild / ensimeServerVersion := "3.0.0-SNAPSHOT"
 
 // Diode is still compiled using Scala 2.12.4
-ensimeIgnoreScalaMismatch in diodeReact.copy(project = "diodeJS") := true
-ensimeIgnoreScalaMismatch in diodeReact.copy(project = "diodeJVM") := true
-ensimeIgnoreScalaMismatch in diodeReact.copy(project = "diodeDataJS") := true
-ensimeIgnoreScalaMismatch in diodeReact.copy(project = "diodeDataJVM") := true
-ensimeIgnoreScalaMismatch in diodeReact.copy(project = "diodeCoreJS") := true
-ensimeIgnoreScalaMismatch in diodeReact.copy(project = "diodeCoreJVM") := true
-ensimeIgnoreScalaMismatch in diodeReact.copy(project = "diodeDevtoolsJS") := true
-ensimeIgnoreScalaMismatch in diodeReact.copy(project = "diodeDevtoolsJVM") := true
-ensimeIgnoreScalaMismatch in diodeReact.copy(project = "root") := true
-ensimeIgnoreScalaMismatch in diodeReact := true
+diode("diodeJS") / ensimeIgnoreScalaMismatch := true
+diode("diodeJVM") / ensimeIgnoreScalaMismatch := true
+diode("diodeDataJS") / ensimeIgnoreScalaMismatch := true
+diode("diodeDataJVM") / ensimeIgnoreScalaMismatch := true
+diode("diodeCoreJS") / ensimeIgnoreScalaMismatch := true
+diode("diodeCoreJVM") / ensimeIgnoreScalaMismatch := true
+diode("diodeDevtoolsJS") / ensimeIgnoreScalaMismatch := true
+diode("diodeDevtoolsJVM") / ensimeIgnoreScalaMismatch := true
+diode("root") / ensimeIgnoreScalaMismatch := true
+diodeReact / ensimeIgnoreScalaMismatch := true
 
-scalafmtOnCompile in ThisBuild := true
+ThisBuild / scalafmtOnCompile := true
