@@ -1,6 +1,7 @@
 package picoide.server
 
-import akka.NotUsed
+import akka.stream.scaladsl.Keep
+import akka.{Done, NotUsed}
 import akka.actor.{Actor, ActorRef}
 import akka.http.scaladsl.model.ws.{BinaryMessage, Message}
 import akka.stream.scaladsl.{Broadcast, Merge, Zip, ZipWith2}
@@ -17,6 +18,7 @@ import java.nio.ByteBuffer
 import picoide.proto.{IDECommand, IDEEvent, ProgrammerNodeInfo}
 import picoide.proto.IDEPicklers._
 import boopickle.Default._
+import scala.concurrent.Future
 
 object IDEConnection {
   val protocolPickler
@@ -64,20 +66,26 @@ object IDEConnection {
     })
 
   def webSocketHandler(nodeRegistry: ActorRef)(
-      implicit mat: Materializer): Flow[Message, Message, NotUsed] =
+      implicit mat: Materializer): Flow[Message, Message, NotUsed] = {
+    val eventTargetActorSource = Source.actorRef[Any](10, OverflowStrategy.fail)
+    val finishSink             = Sink.ignore
+
     binaryMessagesFlow
       .atop(protocolPickler)
       .join(Flow.fromGraph(
-        GraphDSL.create(Source.actorRef[Any](10, OverflowStrategy.fail)) {
-          implicit builder => events =>
+        GraphDSL.create(eventTargetActorSource, finishSink)(Keep.both) {
+          implicit builder => (events, finish) =>
             import GraphDSL.Implicits._
 
-            def eventTargetActor =
+            val eventTargetActor =
               builder.materializedValue
+                .map(_._1)
                 .via(repeatFirst)
 
+            val finishFuture = builder.materializedValue.map(_._2)
+
             val commandsWithEventActor = builder.add(Zip[IDECommand, ActorRef])
-            val router = builder.add(Sink.foreach[(IDECommand, ActorRef)] {
+            val router = builder.add(Flow[(IDECommand, ActorRef)].map {
               case (IDECommand.ListNodes, eventTargetActor) =>
                 nodeRegistry.tell(NodeRegistry.ListNodes, eventTargetActor)
               case (IDECommand.Ping, eventTargetActor) =>
@@ -94,11 +102,15 @@ object IDEConnection {
               case NodeRegistry.ListNodesNodeRemoved(node) =>
                 IDEEvent.AvailableNodeRemoved(ProgrammerNodeInfo(id = node.id))
             })
+            val coupler = builder.add(WatchFuture[Any, Done].named("coupler"))
 
             eventTargetActor ~> commandsWithEventActor.in1
-            commandsWithEventActor.out ~> router
-            events ~> formattedEvents
+            commandsWithEventActor.out ~> router ~> finish
+            events ~> coupler.in0
+            finishFuture ~> coupler.in1
+            coupler.out ~> formattedEvents
 
             FlowShape(commandsWithEventActor.in0, formattedEvents.out)
         }))
+  }
 }
