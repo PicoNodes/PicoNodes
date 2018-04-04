@@ -1,15 +1,17 @@
-var path = require('path');
-var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+const path = require('path');
+const fs = require('fs');
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+
+let entryPoints = {};
+for (const entryPoint of ["picoide-fastopt", "picoide-opt"]) {
+    const entryPointPath = path.resolve(__dirname, `${entryPoint}-entrypoint.js`);
+    if (fs.existsSync(entryPointPath)) {
+        entryPoints[entryPoint] = entryPointPath;
+    }
+}
 
 module.exports = {
-    "entry": {
-        "picoide-fastopt": [
-            path.resolve(__dirname, "picoide-fastopt-entrypoint.js")
-        ],
-        "picoide-opt": [
-            path.resolve(__dirname, "picoide-opt-entrypoint.js")
-        ]
-    },
+    "entry": entryPoints,
     "resolve": {
         "modules": [
             path.resolve(__dirname, "node_modules")

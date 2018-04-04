@@ -2,7 +2,7 @@ package picoide
 
 import akka.stream.Materializer
 import diode.Action
-import diode.data.Ready
+import diode.data.{Failed, Ready}
 
 import diode.{ActionHandler, ActionResult, Circuit, Effect, NoAction}
 import diode.data.{Pot, PotAction, PotState}
@@ -66,17 +66,33 @@ class AppCircuit(implicit materializer: Materializer)
   }
 
   def programmerNodesHandler =
-    new ActionHandler[Root, Pot[Set[ProgrammerNodeInfo]]](
-      zoomTo(_.programmerNodes)) {
+    new ActionHandler[Root, Pot[ProgrammerNodes]](zoomTo(_.programmerNodes)) {
       override def handle: PartialFunction[Any, ActionResult[Root]] = {
         case action: Actions.ProgrammerNodes.Update =>
-          action.handleWith(this,
-                            IDEClient.requestNodeList(zoomTo(_.commandQueue)))(
-            PotAction.handler())
+          import PotState._
+          action.handle {
+            case PotEmpty =>
+              updated(value.pending(),
+                      IDEClient.requestNodeList(zoomTo(_.commandQueue)))
+            case PotPending =>
+              noChange
+            case PotReady =>
+              updated(action.potResult.map(ProgrammerNodes(_)))
+            case PotUnavailable =>
+              updated(value.unavailable())
+            case PotFailed =>
+              updated(value.fail(action.result.failed.get),
+                      Effect.action(
+                        Actions.ProgrammerNodes.Update(
+                          Failed(action.result.failed.get))))
+          }
         case Actions.ProgrammerNodes.Add(node) =>
-          updated(value.map(_ + node))
+          updated(value.map(ProgrammerNodes.all.modify(_ + node)))
         case Actions.ProgrammerNodes.Remove(node) =>
-          updated(value.map(_ - node))
+          updated(value.map(ProgrammerNodes.all.modify(_ - node)))
+        case Actions.ProgrammerNodes.Select(node) =>
+          updated(value.map(ProgrammerNodes.current.set(node)),
+                  IDEClient.selectNode(node, zoomTo(_.commandQueue)))
       }
     }
 

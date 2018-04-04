@@ -5,6 +5,7 @@ import akka.{Done, NotUsed}
 import akka.actor.ActorRefFactory
 import akka.stream.{Materializer, OverflowStrategy}
 import akka.stream.scaladsl._
+import diode.NoAction
 import diode.data.Failed
 import diode.{Action, ModelR, ModelRO}
 import diode.data.{Pending, Unavailable}
@@ -21,6 +22,8 @@ import scala.util.{Failure, Success}
 import scala.concurrent.duration._
 
 object IDEClient {
+  type CommandQueue = SourceQueueWithComplete[IDECommand]
+
   val protocolPickler
     : BidiFlow[ByteBuffer, IDEEvent, IDECommand, ByteBuffer, NotUsed] =
     BidiFlow
@@ -69,8 +72,7 @@ object IDEClient {
         .map(Actions.CommandQueue.Update)
     }
 
-  def requestNodeList(
-      commandQueue: ModelRO[Pot[SourceQueueWithComplete[IDECommand]]])(
+  def requestNodeList(commandQueue: ModelRO[Pot[CommandQueue]])(
       implicit executionContext: ExecutionContext): Effect = Effect {
     commandQueue()
       .fold[Future[Pot[Set[ProgrammerNodeInfo]]]](
@@ -85,5 +87,13 @@ object IDEClient {
           Unavailable
       })
       .map(Actions.ProgrammerNodes.Update(_))
+  }
+
+  def selectNode(node: Option[ProgrammerNodeInfo],
+                 commandQueue: ModelRO[Pot[CommandQueue]])(
+      implicit ec: ExecutionContext): Effect = Effect {
+    commandQueue().get
+      .offer(IDECommand.SelectNode(node.map(_.id)))
+      .map(_ => NoAction)
   }
 }
