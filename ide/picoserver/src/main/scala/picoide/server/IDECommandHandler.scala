@@ -3,6 +3,7 @@ package picoide.server
 import akka.NotUsed
 import akka.pattern.{ask, pipe}
 import akka.actor.ActorRef
+import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.stage.OutHandler
 import akka.stream.{Attributes, Outlet}
 import akka.stream.scaladsl.{SinkQueueWithCancel, SourceQueueWithComplete}
@@ -10,6 +11,7 @@ import akka.stream.stage.{GraphStageLogic, InHandler, StageLogging}
 import akka.stream.{FanOutShape, Inlet, Shape}
 import akka.stream.stage.GraphStage
 import akka.util.Timeout
+import picoide.proto.{ProgrammerCommand, ProgrammerEvent}
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import picoide.proto.{IDECommand, IDEEvent, ProgrammerNodeInfo}
@@ -17,19 +19,27 @@ import cats.instances.option._
 import cats.instances.future._
 import cats.syntax.traverse._
 
-class IDECommandHandlerShape(val in: Inlet[IDECommand],
-                             val out: Outlet[IDEEvent])
+class IDECommandHandlerShape(
+    val in: Inlet[IDECommand],
+    val out: Outlet[IDEEvent],
+    val switchProgrammer: Outlet[
+      Flow[ProgrammerCommand, ProgrammerEvent, NotUsed]])
     extends Shape {
   def this(name: String) = this(
     in = Inlet[IDECommand](s"$name.in"),
-    out = Outlet[IDEEvent](s"$name.out")
+    out = Outlet[IDEEvent](s"$name.out"),
+    switchProgrammer =
+      Outlet[Flow[ProgrammerCommand, ProgrammerEvent, NotUsed]](
+        s"$name.switchProgrammer")
   )
 
   override val inlets  = List(in)
-  override val outlets = List(out)
+  override val outlets = List(out, switchProgrammer)
 
   override def deepCopy(): IDECommandHandlerShape =
-    new IDECommandHandlerShape(in = in.carbonCopy(), out = out.carbonCopy())
+    new IDECommandHandlerShape(in = in.carbonCopy(),
+                               out = out.carbonCopy(),
+                               switchProgrammer = switchProgrammer.carbonCopy())
 }
 
 object IDECommandHandlerShape {
@@ -39,13 +49,13 @@ object IDECommandHandlerShape {
 class IDECommandHandler(nodeRegistry: ActorRef)
     extends GraphStage[IDECommandHandlerShape] {
   override val shape = IDECommandHandlerShape("IDECommandHandler")
-  import shape.{in, out}
+  import shape.{in, out, switchProgrammer}
 
   override def createLogic(inheritedAttributes: Attributes) =
     new GraphStageLogic(shape) with StageLogging {
       implicit def executionContext = materializer.executionContext
 
-      case class SwapCurrentNode(node: Option[NodeRegistry.GetNodeResponse])
+      case class SwapCurrentNode(node: Option[ProgrammerNode])
 
       override def preStart(): Unit = {
         def formatProgrammerNode(node: ProgrammerNode) =
@@ -57,6 +67,12 @@ class IDECommandHandler(nodeRegistry: ActorRef)
             push(out, IDEEvent.AvailableNodeAdded(formatProgrammerNode(node)))
           case (_, NodeRegistry.ListNodesNodeRemoved(node)) =>
             push(out, IDEEvent.AvailableNodeRemoved(formatProgrammerNode(node)))
+          case (_, SwapCurrentNode(node)) =>
+            push(
+              switchProgrammer,
+              node
+                .map(_.flow)
+                .getOrElse(Flow.fromSinkAndSource(Sink.ignore, Source.empty)))
           case (sender, msg) =>
             log.warning(s"Unknown message $msg from $sender")
         }
@@ -75,12 +91,16 @@ class IDECommandHandler(nodeRegistry: ActorRef)
               case IDECommand.Ping =>
                 push(out, IDEEvent.Pong)
                 pull(in)
+              case _: IDECommand.ToProgrammer =>
+                pull(in)
               case IDECommand.SelectNode(node) =>
                 node
-                  .map(id =>
-                    (nodeRegistry ? NodeRegistry.GetNode(id))
-                      .mapTo[NodeRegistry.GetNodeResponse])
-                  .sequence
+                  .map(
+                    id =>
+                      (nodeRegistry ? NodeRegistry.GetNode(id))
+                        .mapTo[NodeRegistry.GetNodeResponse]
+                        .map(_.node))
+                  .flatSequence
                   .map(SwapCurrentNode(_))
                   .pipeTo(stageActor.ref)
             }
@@ -89,6 +109,10 @@ class IDECommandHandler(nodeRegistry: ActorRef)
       )
 
       setHandler(out, new OutHandler {
+        override def onPull(): Unit = {}
+      })
+
+      setHandler(switchProgrammer, new OutHandler() {
         override def onPull(): Unit = {}
       })
     }

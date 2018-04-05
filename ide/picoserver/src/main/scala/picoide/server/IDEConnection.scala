@@ -15,7 +15,13 @@ import akka.stream.scaladsl.{BidiFlow, Flow, Sink, Source}
 import akka.stream.stage.GraphStage
 import akka.util.ByteString
 import java.nio.ByteBuffer
-import picoide.proto.{IDECommand, IDEEvent, ProgrammerNodeInfo}
+import picoide.proto.{
+  IDECommand,
+  IDEEvent,
+  ProgrammerCommand,
+  ProgrammerEvent,
+  ProgrammerNodeInfo
+}
 import picoide.proto.IDEPicklers._
 import boopickle.Default._
 import scala.concurrent.Future
@@ -75,9 +81,22 @@ object IDEConnection {
         val commandHandler = builder.add(IDECommandHandler(nodeRegistry))
         val buffer =
           builder.add(Flow[IDEEvent].buffer(10, OverflowStrategy.fail))
+        val commandBroadcast = builder.add(Broadcast[IDECommand](2))
+        val eventMerger      = builder.add(Merge[IDEEvent](2))
+        val programmerSwapper = builder.add(
+          new SwappableFlowAdapter[ProgrammerCommand, ProgrammerEvent])
 
-        commandHandler.out ~> buffer.in
+        commandBroadcast ~> commandHandler.in
+        commandHandler.out ~> buffer ~> eventMerger
+        commandHandler.switchProgrammer ~> programmerSwapper.in1
 
-        FlowShape(commandHandler.in, buffer.out)
+        commandBroadcast ~> Flow[IDECommand]
+          .collectType[IDECommand.ToProgrammer]
+          .map(_.cmd) ~> programmerSwapper.in0
+        programmerSwapper.out ~> Flow[ProgrammerEvent].map(
+          IDEEvent.FromProgrammer(_)) ~> eventMerger
+
+        FlowShape(commandBroadcast.in, eventMerger.out)
       }))
+      .named("ide-connection")
 }

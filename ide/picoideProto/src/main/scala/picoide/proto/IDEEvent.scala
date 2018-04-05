@@ -10,4 +10,6 @@ object IDEEvent {
     * Response to [[IDECommand.Ping]]
     */
   case object Pong extends IDEEvent
+
+  case class FromProgrammer(event: ProgrammerEvent) extends IDEEvent
 }

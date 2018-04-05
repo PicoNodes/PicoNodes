@@ -9,27 +9,23 @@ import akka.stream.scaladsl._
 import akka.stream.scaladsl.Tcp.ServerBinding
 import akka.util.ByteString
 import java.util.UUID
+import picoide.proto.{ProgrammerCommand, ProgrammerEvent}
 import scala.concurrent.{ExecutionContext, Future}
 
 case class ProgrammerNode(
     id: UUID,
     flow: Flow[ProgrammerCommand, ProgrammerEvent, NotUsed])
 
-sealed trait ProgrammerCommand {
-  def emit: ByteString
-}
-sealed trait ProgrammerEvent
-object ProgrammerEvent {
-  def parse(msg: ByteString): Either[String, ProgrammerEvent] = {
+object NodeServer {
+  def emitCommand(cmd: ProgrammerCommand): ByteString = ???
+  def parseEvent(msg: ByteString): Either[String, ProgrammerEvent] = {
     val buf = msg.asByteBuffer
     buf.getInt match {
       case unknownType =>
         Left(s"Unknown event of type $unknownType: $msg")
     }
   }
-}
 
-object NodeServer {
   def start()(implicit actorSystem: ActorSystem,
               materializer: Materializer,
               executionContext: ExecutionContext)
@@ -47,7 +43,7 @@ object NodeServer {
         .named("toNode")
 
       val parseEvents = Flow[ByteString]
-        .map(ProgrammerEvent.parse)
+        .map(parseEvent)
         .mapConcat[ProgrammerEvent] {
           case Left(err) =>
             log.warning(s"Invalid message from ${conn.remoteAddress}: $err")
@@ -58,7 +54,7 @@ object NodeServer {
         .named("parseEvents")
 
       val emitCommands =
-        Flow[ProgrammerCommand].map(_.emit).named("parseEvents")
+        Flow[ProgrammerCommand].map(emitCommand).named("parseEvents")
 
       val protocol =
         Framing

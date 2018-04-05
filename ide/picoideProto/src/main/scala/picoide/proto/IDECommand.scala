@@ -8,4 +8,6 @@ object IDECommand {
   case object Ping      extends IDECommand
 
   case class SelectNode(id: Option[UUID]) extends IDECommand
+
+  case class ToProgrammer(cmd: ProgrammerCommand) extends IDECommand
 }

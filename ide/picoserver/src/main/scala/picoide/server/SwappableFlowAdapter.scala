@@ -33,6 +33,18 @@ class SwappableFlowAdapter[In, Out]
 
       var pushOnConnect = false
 
+      override def preStart(): Unit = {
+        pull(in)
+        pull(flow)
+      }
+
+      override def postStop(): Unit =
+        queues.foreach {
+          case (source, sink) =>
+            source.complete()
+            sink.cancel()
+        }
+
       def tryToPush(): Unit = queues match {
         case None =>
           pushOnConnect = true
