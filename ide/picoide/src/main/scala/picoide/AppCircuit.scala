@@ -77,7 +77,10 @@ class AppCircuit(implicit materializer: Materializer)
             case PotPending =>
               noChange
             case PotReady =>
-              updated(action.potResult.map(Downloaders(_)))
+              updated(
+                action.potResult
+                  .map(_.map(dler => dler.id -> dler).toMap)
+                  .map(Downloaders(_)))
             case PotUnavailable =>
               updated(value.unavailable())
             case PotFailed =>
@@ -87,13 +90,16 @@ class AppCircuit(implicit materializer: Materializer)
                   Actions.Downloaders.Update(Failed(action.result.failed.get))))
           }
         case Actions.Downloaders.Add(downloader) =>
-          updated(value.map(Downloaders.all.modify(_ + downloader)))
-        case Actions.Downloaders.Remove(downloader) =>
-          updated(value.map(Downloaders.all.modify(_ - downloader)))
-        case Actions.Downloaders.Select(downloader) =>
           updated(
-            value.map(Downloaders.current.set(downloader)),
+            value.map(
+              Downloaders.all.modify(_ + (downloader.id -> downloader))))
+        case Actions.Downloaders.Remove(downloader) =>
+          updated(value.map(Downloaders.all.modify(_ - downloader.id)))
+        case Actions.Downloaders.Select(downloader) =>
+          effectOnly(
             IDEClient.selectDownloader(downloader, zoomTo(_.commandQueue)))
+        case Actions.Downloaders.Selected(downloader) =>
+          updated(value.map(Downloaders.current.set(downloader)))
       }
     }
 
@@ -108,6 +114,14 @@ class AppCircuit(implicit materializer: Materializer)
           Actions.Downloaders.Remove(downloader)
         case IDEEvent.Pong =>
           NoAction
+        case IDEEvent.DownloaderSelected(downloader) =>
+          Actions.Downloaders.Selected(
+            for {
+              id    <- downloader
+              state <- value.downloaders.toOption
+              dler  <- state.all.get(id)
+            } yield dler
+          )
       }
 
       override def handle = {

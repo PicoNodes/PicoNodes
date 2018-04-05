@@ -83,6 +83,7 @@ class IDECommandHandler(downloaderRegistry: ActorRef)
               downloader
                 .map(_.flow)
                 .getOrElse(Flow.fromSinkAndSource(Sink.ignore, Source.empty)))
+            push(out, IDEEvent.DownloaderSelected(downloader.map(_.id)))
           case (sender, msg) =>
             log.warning(s"Unknown message $msg from $sender")
         }
@@ -98,12 +99,9 @@ class IDECommandHandler(downloaderRegistry: ActorRef)
               case IDECommand.ListDownloaders =>
                 downloaderRegistry.tell(DownloaderRegistry.ListDownloaders,
                                         stageActor.ref)
-                pull(in)
               case IDECommand.Ping =>
                 push(out, IDEEvent.Pong)
-                pull(in)
               case _: IDECommand.ToDownloader =>
-                pull(in)
               case IDECommand.SelectDownloader(downloader) =>
                 downloader
                   .map(id =>
@@ -114,6 +112,7 @@ class IDECommandHandler(downloaderRegistry: ActorRef)
                   .map(SwapCurrentDownloader(_))
                   .pipeTo(stageActor.ref)
             }
+            pull(in)
           }
         }
       )

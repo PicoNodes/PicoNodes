@@ -28,7 +28,8 @@ object Actions {
     case class Add(downloader: DownloaderInfo)    extends Action
     case class Remove(downloader: DownloaderInfo) extends Action
 
-    case class Select(downloader: Option[DownloaderInfo]) extends Action
+    case class Select(downloader: Option[DownloaderInfo])   extends Action
+    case class Selected(downloader: Option[DownloaderInfo]) extends Action
   }
 
   object CurrentFile {

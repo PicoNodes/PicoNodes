@@ -12,6 +12,7 @@ object IDEPicklers {
       .addConcreteType[IDEEvent.AvailableDownloaderAdded]
       .addConcreteType[IDEEvent.AvailableDownloaderRemoved]
       .addConcreteType[IDEEvent.Pong.type]
+      .addConcreteType[IDEEvent.DownloaderSelected]
       .addConcreteType[IDEEvent.FromDownloader]
   implicit val ideCommandPickler =
     compositePickler[IDECommand]

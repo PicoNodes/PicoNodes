@@ -112,6 +112,7 @@ class SwappableFlowAdapter[In, Out]
               pushOnConnect = false
               tryToPush()
             }
+            pull(flow)
           }
         }
       )

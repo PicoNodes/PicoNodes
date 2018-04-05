@@ -1,5 +1,7 @@
 package picoide.proto
 
+import java.util.UUID
+
 sealed trait IDEEvent
 object IDEEvent {
   case class AvailableDownloaders(downloaders: Seq[DownloaderInfo])
@@ -8,6 +10,8 @@ object IDEEvent {
       extends IDEEvent
   case class AvailableDownloaderRemoved(downloader: DownloaderInfo)
       extends IDEEvent
+
+  case class DownloaderSelected(downloader: Option[UUID]) extends IDEEvent
 
   /**
     * Response to [[IDECommand.Ping]]

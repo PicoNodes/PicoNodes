@@ -78,16 +78,26 @@ object IDEConnection {
       .join(Flow.fromGraph(GraphDSL.create() { implicit builder =>
         import GraphDSL.Implicits._
 
-        val commandHandler = builder.add(IDECommandHandler(downloaderRegistry))
-        val buffer =
-          builder.add(Flow[IDEEvent].buffer(10, OverflowStrategy.fail))
+        val commandHandler   = builder.add(IDECommandHandler(downloaderRegistry))
         val commandBroadcast = builder.add(Broadcast[IDECommand](2))
         val eventMerger      = builder.add(Merge[IDEEvent](2))
         val downloaderSwapper = builder.add(
           new SwappableFlowAdapter[DownloaderCommand, DownloaderEvent])
 
-        commandBroadcast ~> commandHandler.in
-        commandHandler.out ~> buffer ~> eventMerger
+        // The identity maps are to make it easy to comment out the log statements
+        val inLog =
+          builder.add(
+            Flow[IDECommand]
+            // .log("webSocketHandler.incoming")
+              .map(identity))
+        val outLog =
+          builder.add(
+            Flow[IDEEvent]
+            // .log("webSocketHandler.outgoing")
+              .map(identity))
+
+        inLog ~> commandBroadcast ~> commandHandler.in
+        commandHandler.out.buffer(10, OverflowStrategy.fail) ~> eventMerger
         commandHandler.switchDownloader ~> downloaderSwapper.in1
 
         commandBroadcast ~> Flow[IDECommand]
@@ -95,8 +105,9 @@ object IDEConnection {
           .map(_.cmd) ~> downloaderSwapper.in0
         downloaderSwapper.out ~> Flow[DownloaderEvent].map(
           IDEEvent.FromDownloader(_)) ~> eventMerger
+        eventMerger ~> outLog
 
-        FlowShape(commandBroadcast.in, eventMerger.out)
+        FlowShape(inLog.in, outLog.out)
       }))
       .named("ide-connection")
 }
