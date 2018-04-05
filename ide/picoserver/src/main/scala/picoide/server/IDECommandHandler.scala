@@ -11,10 +11,10 @@ import akka.stream.stage.{GraphStageLogic, InHandler, StageLogging}
 import akka.stream.{FanOutShape, Inlet, Shape}
 import akka.stream.stage.GraphStage
 import akka.util.Timeout
-import picoide.proto.{ProgrammerCommand, ProgrammerEvent}
+import picoide.proto.{DownloaderCommand, DownloaderEvent}
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import picoide.proto.{IDECommand, IDEEvent, ProgrammerNodeInfo}
+import picoide.proto.{DownloaderInfo, IDECommand, IDEEvent}
 import cats.instances.option._
 import cats.instances.future._
 import cats.syntax.traverse._
@@ -22,55 +22,65 @@ import cats.syntax.traverse._
 class IDECommandHandlerShape(
     val in: Inlet[IDECommand],
     val out: Outlet[IDEEvent],
-    val switchProgrammer: Outlet[
-      Flow[ProgrammerCommand, ProgrammerEvent, NotUsed]])
+    val switchDownloader: Outlet[
+      Flow[DownloaderCommand, DownloaderEvent, NotUsed]])
     extends Shape {
   def this(name: String) = this(
     in = Inlet[IDECommand](s"$name.in"),
     out = Outlet[IDEEvent](s"$name.out"),
-    switchProgrammer =
-      Outlet[Flow[ProgrammerCommand, ProgrammerEvent, NotUsed]](
-        s"$name.switchProgrammer")
+    switchDownloader =
+      Outlet[Flow[DownloaderCommand, DownloaderEvent, NotUsed]](
+        s"$name.switchDownloader")
   )
 
   override val inlets  = List(in)
-  override val outlets = List(out, switchProgrammer)
+  override val outlets = List(out, switchDownloader)
 
   override def deepCopy(): IDECommandHandlerShape =
     new IDECommandHandlerShape(in = in.carbonCopy(),
                                out = out.carbonCopy(),
-                               switchProgrammer = switchProgrammer.carbonCopy())
+                               switchDownloader = switchDownloader.carbonCopy())
 }
 
 object IDECommandHandlerShape {
   def apply(name: String) = new IDECommandHandlerShape(name)
 }
 
-class IDECommandHandler(nodeRegistry: ActorRef)
+class IDECommandHandler(downloaderRegistry: ActorRef)
     extends GraphStage[IDECommandHandlerShape] {
   override val shape = IDECommandHandlerShape("IDECommandHandler")
-  import shape.{in, out, switchProgrammer}
+  import shape.{in, out, switchDownloader}
 
   override def createLogic(inheritedAttributes: Attributes) =
     new GraphStageLogic(shape) with StageLogging {
       implicit def executionContext = materializer.executionContext
 
-      case class SwapCurrentNode(node: Option[ProgrammerNode])
+      case class SwapCurrentDownloader(downloader: Option[Downloader])
 
       override def preStart(): Unit = {
-        def formatProgrammerNode(node: ProgrammerNode) =
-          ProgrammerNodeInfo(node.id)
+        def formatDownloader(downloader: Downloader) =
+          DownloaderInfo(downloader.id)
         getStageActor {
-          case (_, NodeRegistry.ListNodesResponse(nodes)) =>
-            push(out, IDEEvent.AvailableNodes(nodes.map(formatProgrammerNode)))
-          case (_, NodeRegistry.ListNodesNodeAdded(node)) =>
-            push(out, IDEEvent.AvailableNodeAdded(formatProgrammerNode(node)))
-          case (_, NodeRegistry.ListNodesNodeRemoved(node)) =>
-            push(out, IDEEvent.AvailableNodeRemoved(formatProgrammerNode(node)))
-          case (_, SwapCurrentNode(node)) =>
+          case (_, DownloaderRegistry.ListDownloadersResponse(downloaders)) =>
             push(
-              switchProgrammer,
-              node
+              out,
+              IDEEvent.AvailableDownloaders(downloaders.map(formatDownloader)))
+          case (
+              _,
+              DownloaderRegistry.ListDownloadersDownloaderAdded(downloader)) =>
+            push(
+              out,
+              IDEEvent.AvailableDownloaderAdded(formatDownloader(downloader)))
+          case (_,
+                DownloaderRegistry.ListDownloadersDownloaderRemoved(
+                  downloader)) =>
+            push(
+              out,
+              IDEEvent.AvailableDownloaderRemoved(formatDownloader(downloader)))
+          case (_, SwapCurrentDownloader(downloader)) =>
+            push(
+              switchDownloader,
+              downloader
                 .map(_.flow)
                 .getOrElse(Flow.fromSinkAndSource(Sink.ignore, Source.empty)))
           case (sender, msg) =>
@@ -85,23 +95,23 @@ class IDECommandHandler(nodeRegistry: ActorRef)
           override def onPush(): Unit = {
             implicit val timeout = Timeout(10.seconds)
             grab(in) match {
-              case IDECommand.ListNodes =>
-                nodeRegistry.tell(NodeRegistry.ListNodes, stageActor.ref)
+              case IDECommand.ListDownloaders =>
+                downloaderRegistry.tell(DownloaderRegistry.ListDownloaders,
+                                        stageActor.ref)
                 pull(in)
               case IDECommand.Ping =>
                 push(out, IDEEvent.Pong)
                 pull(in)
-              case _: IDECommand.ToProgrammer =>
+              case _: IDECommand.ToDownloader =>
                 pull(in)
-              case IDECommand.SelectNode(node) =>
-                node
-                  .map(
-                    id =>
-                      (nodeRegistry ? NodeRegistry.GetNode(id))
-                        .mapTo[NodeRegistry.GetNodeResponse]
-                        .map(_.node))
+              case IDECommand.SelectDownloader(downloader) =>
+                downloader
+                  .map(id =>
+                    (downloaderRegistry ? DownloaderRegistry.GetDownloader(id))
+                      .mapTo[DownloaderRegistry.GetDownloaderResponse]
+                      .map(_.downloader))
                   .flatSequence
-                  .map(SwapCurrentNode(_))
+                  .map(SwapCurrentDownloader(_))
                   .pipeTo(stageActor.ref)
             }
           }
@@ -112,12 +122,13 @@ class IDECommandHandler(nodeRegistry: ActorRef)
         override def onPull(): Unit = {}
       })
 
-      setHandler(switchProgrammer, new OutHandler() {
+      setHandler(switchDownloader, new OutHandler() {
         override def onPull(): Unit = {}
       })
     }
 }
 
 object IDECommandHandler {
-  def apply(nodeRegistry: ActorRef) = new IDECommandHandler(nodeRegistry)
+  def apply(downloaderRegistry: ActorRef) =
+    new IDECommandHandler(downloaderRegistry)
 }

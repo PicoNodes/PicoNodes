@@ -2,4 +2,4 @@ package picoide.proto
 
 import java.util.UUID
 
-case class ProgrammerNodeInfo(id: UUID)
+case class DownloaderInfo(id: UUID)

@@ -3,20 +3,20 @@ package picoide.proto
 import boopickle.Default._
 
 object IDEPicklers {
-  implicit val programmerEventPickler   = compositePickler[ProgrammerEvent]
-  implicit val programmerCommandPickler = compositePickler[ProgrammerCommand]
+  implicit val downloaderEventPickler   = compositePickler[DownloaderEvent]
+  implicit val downloaderCommandPickler = compositePickler[DownloaderCommand]
 
   implicit val ideEventPickler =
     compositePickler[IDEEvent]
-      .addConcreteType[IDEEvent.AvailableNodes]
-      .addConcreteType[IDEEvent.AvailableNodeAdded]
-      .addConcreteType[IDEEvent.AvailableNodeRemoved]
+      .addConcreteType[IDEEvent.AvailableDownloaders]
+      .addConcreteType[IDEEvent.AvailableDownloaderAdded]
+      .addConcreteType[IDEEvent.AvailableDownloaderRemoved]
       .addConcreteType[IDEEvent.Pong.type]
-      .addConcreteType[IDEEvent.FromProgrammer]
+      .addConcreteType[IDEEvent.FromDownloader]
   implicit val ideCommandPickler =
     compositePickler[IDECommand]
-      .addConcreteType[IDECommand.ListNodes.type]
+      .addConcreteType[IDECommand.ListDownloaders.type]
       .addConcreteType[IDECommand.Ping.type]
-      .addConcreteType[IDECommand.SelectNode]
-      .addConcreteType[IDECommand.ToProgrammer]
+      .addConcreteType[IDECommand.SelectDownloader]
+      .addConcreteType[IDECommand.ToDownloader]
 }

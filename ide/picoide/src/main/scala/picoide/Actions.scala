@@ -3,7 +3,7 @@ package picoide
 import akka.stream.scaladsl.SourceQueueWithComplete
 import diode.Action
 import diode.data.{Pot, PotAction}
-import picoide.proto.{IDECommand, IDEEvent, ProgrammerNodeInfo}
+import picoide.proto.{DownloaderInfo, IDECommand, IDEEvent}
 
 object Actions {
   object IDEEvent {
@@ -18,17 +18,17 @@ object Actions {
     }
   }
 
-  object ProgrammerNodes {
-    case class Update(potResult: Pot[Set[ProgrammerNodeInfo]])
-        extends PotAction[Set[ProgrammerNodeInfo], Update] {
-      def next(newResult: Pot[Set[ProgrammerNodeInfo]]) =
+  object Downloaders {
+    case class Update(potResult: Pot[Set[DownloaderInfo]])
+        extends PotAction[Set[DownloaderInfo], Update] {
+      def next(newResult: Pot[Set[DownloaderInfo]]) =
         Update(newResult)
     }
 
-    case class Add(node: ProgrammerNodeInfo)    extends Action
-    case class Remove(node: ProgrammerNodeInfo) extends Action
+    case class Add(downloader: DownloaderInfo)    extends Action
+    case class Remove(downloader: DownloaderInfo) extends Action
 
-    case class Select(node: Option[ProgrammerNodeInfo]) extends Action
+    case class Select(downloader: Option[DownloaderInfo]) extends Action
   }
 
   object CurrentFile {

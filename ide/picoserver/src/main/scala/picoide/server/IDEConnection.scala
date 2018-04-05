@@ -16,11 +16,11 @@ import akka.stream.stage.GraphStage
 import akka.util.ByteString
 import java.nio.ByteBuffer
 import picoide.proto.{
+  DownloaderCommand,
+  DownloaderEvent,
+  DownloaderInfo,
   IDECommand,
-  IDEEvent,
-  ProgrammerCommand,
-  ProgrammerEvent,
-  ProgrammerNodeInfo
+  IDEEvent
 }
 import picoide.proto.IDEPicklers._
 import boopickle.Default._
@@ -71,30 +71,30 @@ object IDEConnection {
       FlowShape(limitInput.in, splitter.out(1))
     })
 
-  def webSocketHandler(nodeRegistry: ActorRef)(
+  def webSocketHandler(downloaderRegistry: ActorRef)(
       implicit mat: Materializer): Flow[Message, Message, NotUsed] =
     binaryMessagesFlow
       .atop(protocolPickler)
       .join(Flow.fromGraph(GraphDSL.create() { implicit builder =>
         import GraphDSL.Implicits._
 
-        val commandHandler = builder.add(IDECommandHandler(nodeRegistry))
+        val commandHandler = builder.add(IDECommandHandler(downloaderRegistry))
         val buffer =
           builder.add(Flow[IDEEvent].buffer(10, OverflowStrategy.fail))
         val commandBroadcast = builder.add(Broadcast[IDECommand](2))
         val eventMerger      = builder.add(Merge[IDEEvent](2))
-        val programmerSwapper = builder.add(
-          new SwappableFlowAdapter[ProgrammerCommand, ProgrammerEvent])
+        val downloaderSwapper = builder.add(
+          new SwappableFlowAdapter[DownloaderCommand, DownloaderEvent])
 
         commandBroadcast ~> commandHandler.in
         commandHandler.out ~> buffer ~> eventMerger
-        commandHandler.switchProgrammer ~> programmerSwapper.in1
+        commandHandler.switchDownloader ~> downloaderSwapper.in1
 
         commandBroadcast ~> Flow[IDECommand]
-          .collectType[IDECommand.ToProgrammer]
-          .map(_.cmd) ~> programmerSwapper.in0
-        programmerSwapper.out ~> Flow[ProgrammerEvent].map(
-          IDEEvent.FromProgrammer(_)) ~> eventMerger
+          .collectType[IDECommand.ToDownloader]
+          .map(_.cmd) ~> downloaderSwapper.in0
+        downloaderSwapper.out ~> Flow[DownloaderEvent].map(
+          IDEEvent.FromDownloader(_)) ~> eventMerger
 
         FlowShape(commandBroadcast.in, eventMerger.out)
       }))

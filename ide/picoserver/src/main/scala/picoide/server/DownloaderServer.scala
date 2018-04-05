@@ -9,16 +9,15 @@ import akka.stream.scaladsl._
 import akka.stream.scaladsl.Tcp.ServerBinding
 import akka.util.ByteString
 import java.util.UUID
-import picoide.proto.{ProgrammerCommand, ProgrammerEvent}
+import picoide.proto.{DownloaderCommand, DownloaderEvent}
 import scala.concurrent.{ExecutionContext, Future}
 
-case class ProgrammerNode(
-    id: UUID,
-    flow: Flow[ProgrammerCommand, ProgrammerEvent, NotUsed])
+case class Downloader(id: UUID,
+                      flow: Flow[DownloaderCommand, DownloaderEvent, NotUsed])
 
-object NodeServer {
-  def emitCommand(cmd: ProgrammerCommand): ByteString = ???
-  def parseEvent(msg: ByteString): Either[String, ProgrammerEvent] = {
+object DownloaderServer {
+  def emitCommand(cmd: DownloaderCommand): ByteString = ???
+  def parseEvent(msg: ByteString): Either[String, DownloaderEvent] = {
     val buf = msg.asByteBuffer
     buf.getInt match {
       case unknownType =>
@@ -29,22 +28,22 @@ object NodeServer {
   def start()(implicit actorSystem: ActorSystem,
               materializer: Materializer,
               executionContext: ExecutionContext)
-    : Source[ProgrammerNode, Future[ServerBinding]] = {
+    : Source[Downloader, Future[ServerBinding]] = {
     val log = Logging.apply(actorSystem, getClass)
 
-    val setupNode = Flow[IncomingConnection].map { conn =>
+    val setupDownloader = Flow[IncomingConnection].map { conn =>
       val id = UUID.randomUUID()
 
-      val toNode = Flow
+      val toDownloader = Flow
         .fromSinkAndSourceMat(
-          BroadcastHub.sink[ProgrammerEvent],
-          MergeHub.source[ProgrammerCommand])((eventSource, commandSink) =>
-          ProgrammerNode(id, Flow.fromSinkAndSource(commandSink, eventSource)))
-        .named("toNode")
+          BroadcastHub.sink[DownloaderEvent],
+          MergeHub.source[DownloaderCommand])((eventSource, commandSink) =>
+          Downloader(id, Flow.fromSinkAndSource(commandSink, eventSource)))
+        .named("toDownloader")
 
       val parseEvents = Flow[ByteString]
         .map(parseEvent)
-        .mapConcat[ProgrammerEvent] {
+        .mapConcat[DownloaderEvent] {
           case Left(err) =>
             log.warning(s"Invalid message from ${conn.remoteAddress}: $err")
             List.empty
@@ -54,14 +53,14 @@ object NodeServer {
         .named("parseEvents")
 
       val emitCommands =
-        Flow[ProgrammerCommand].map(emitCommand).named("parseEvents")
+        Flow[DownloaderCommand].map(emitCommand).named("parseEvents")
 
       val protocol =
         Framing
           .simpleFramingProtocol(1024)
           .reversed
           .atop(BidiFlow.fromFlows(parseEvents, emitCommands))
-          .joinMat(toNode)(Keep.right)
+          .joinMat(toDownloader)(Keep.right)
           .named("protocol")
 
       conn.handleWith(protocol)
@@ -69,9 +68,9 @@ object NodeServer {
 
     Tcp()
       .bind("0.0.0.0", 8081)
-      .via(setupNode)
+      .via(setupDownloader)
       .mapMaterializedValue(_.map { binding =>
-        actorSystem.log.info("Node server listening on {}",
+        actorSystem.log.info("Downloader server listening on {}",
                              binding.localAddress)
         binding
       })

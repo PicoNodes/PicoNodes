@@ -9,7 +9,7 @@ import diode.data.{Pot, PotAction, PotState}
 import diode.react.ReactConnector
 
 import picoide.net.IDEClient
-import picoide.proto.{IDEEvent, ProgrammerNodeInfo}
+import picoide.proto.{DownloaderInfo, IDEEvent}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -27,13 +27,13 @@ class AppCircuit(implicit materializer: Materializer)
                                |  mov 5 null
 """.stripMargin),
     commandQueue = Pot.empty,
-    programmerNodes = Pot.empty
+    downloaders = Pot.empty
   )
 
   override def actionHandler =
     composeHandlers(editorHandler,
                     commandQueueHandler,
-                    programmerNodesHandler,
+                    downloadersHandler,
                     ideEventHandler)
 
   def editorHandler = new ActionHandler(zoomTo(_.currentFile)) {
@@ -56,7 +56,7 @@ class AppCircuit(implicit materializer: Materializer)
             noChange
           case PotReady =>
             updated(action.potResult,
-                    Effect.action(Actions.ProgrammerNodes.Update(Pot.empty)))
+                    Effect.action(Actions.Downloaders.Update(Pot.empty)))
           case PotUnavailable =>
             updated(value.unavailable())
           case PotFailed =>
@@ -65,46 +65,47 @@ class AppCircuit(implicit materializer: Materializer)
     }
   }
 
-  def programmerNodesHandler =
-    new ActionHandler[Root, Pot[ProgrammerNodes]](zoomTo(_.programmerNodes)) {
+  def downloadersHandler =
+    new ActionHandler[Root, Pot[Downloaders]](zoomTo(_.downloaders)) {
       override def handle: PartialFunction[Any, ActionResult[Root]] = {
-        case action: Actions.ProgrammerNodes.Update =>
+        case action: Actions.Downloaders.Update =>
           import PotState._
           action.handle {
             case PotEmpty =>
               updated(value.pending(),
-                      IDEClient.requestNodeList(zoomTo(_.commandQueue)))
+                      IDEClient.requestDownloaderList(zoomTo(_.commandQueue)))
             case PotPending =>
               noChange
             case PotReady =>
-              updated(action.potResult.map(ProgrammerNodes(_)))
+              updated(action.potResult.map(Downloaders(_)))
             case PotUnavailable =>
               updated(value.unavailable())
             case PotFailed =>
-              updated(value.fail(action.result.failed.get),
-                      Effect.action(
-                        Actions.ProgrammerNodes.Update(
-                          Failed(action.result.failed.get))))
+              updated(
+                value.fail(action.result.failed.get),
+                Effect.action(
+                  Actions.Downloaders.Update(Failed(action.result.failed.get))))
           }
-        case Actions.ProgrammerNodes.Add(node) =>
-          updated(value.map(ProgrammerNodes.all.modify(_ + node)))
-        case Actions.ProgrammerNodes.Remove(node) =>
-          updated(value.map(ProgrammerNodes.all.modify(_ - node)))
-        case Actions.ProgrammerNodes.Select(node) =>
-          updated(value.map(ProgrammerNodes.current.set(node)),
-                  IDEClient.selectNode(node, zoomTo(_.commandQueue)))
+        case Actions.Downloaders.Add(downloader) =>
+          updated(value.map(Downloaders.all.modify(_ + downloader)))
+        case Actions.Downloaders.Remove(downloader) =>
+          updated(value.map(Downloaders.all.modify(_ - downloader)))
+        case Actions.Downloaders.Select(downloader) =>
+          updated(
+            value.map(Downloaders.current.set(downloader)),
+            IDEClient.selectDownloader(downloader, zoomTo(_.commandQueue)))
       }
     }
 
   def ideEventHandler =
     new ActionHandler(zoomRW(identity(_))((_, x) => x)) {
       def toAction(event: IDEEvent): Action = event match {
-        case IDEEvent.AvailableNodes(nodes) =>
-          Actions.ProgrammerNodes.Update(Ready(nodes.toSet))
-        case IDEEvent.AvailableNodeAdded(node) =>
-          Actions.ProgrammerNodes.Add(node)
-        case IDEEvent.AvailableNodeRemoved(node) =>
-          Actions.ProgrammerNodes.Remove(node)
+        case IDEEvent.AvailableDownloaders(downloaders) =>
+          Actions.Downloaders.Update(Ready(downloaders.toSet))
+        case IDEEvent.AvailableDownloaderAdded(downloader) =>
+          Actions.Downloaders.Add(downloader)
+        case IDEEvent.AvailableDownloaderRemoved(downloader) =>
+          Actions.Downloaders.Remove(downloader)
         case IDEEvent.Pong =>
           NoAction
       }
