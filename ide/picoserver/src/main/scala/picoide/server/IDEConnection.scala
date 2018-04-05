@@ -66,51 +66,18 @@ object IDEConnection {
     })
 
   def webSocketHandler(nodeRegistry: ActorRef)(
-      implicit mat: Materializer): Flow[Message, Message, NotUsed] = {
-    val eventTargetActorSource = Source.actorRef[Any](10, OverflowStrategy.fail)
-    val finishSink             = Sink.ignore
-
+      implicit mat: Materializer): Flow[Message, Message, NotUsed] =
     binaryMessagesFlow
       .atop(protocolPickler)
-      .join(Flow.fromGraph(
-        GraphDSL.create(eventTargetActorSource, finishSink)(Keep.both) {
-          implicit builder => (events, finish) =>
-            import GraphDSL.Implicits._
+      .join(Flow.fromGraph(GraphDSL.create() { implicit builder =>
+        import GraphDSL.Implicits._
 
-            val eventTargetActor =
-              builder.materializedValue
-                .map(_._1)
-                .via(repeatFirst)
+        val commandHandler = builder.add(IDECommandHandler(nodeRegistry))
+        val buffer =
+          builder.add(Flow[IDEEvent].buffer(10, OverflowStrategy.fail))
 
-            val finishFuture = builder.materializedValue.map(_._2)
+        commandHandler.out ~> buffer.in
 
-            val commandsWithEventActor = builder.add(Zip[IDECommand, ActorRef])
-            val router = builder.add(Flow[(IDECommand, ActorRef)].map {
-              case (IDECommand.ListNodes, eventTargetActor) =>
-                nodeRegistry.tell(NodeRegistry.ListNodes, eventTargetActor)
-              case (IDECommand.Ping, eventTargetActor) =>
-                eventTargetActor ! IDEEvent.Pong
-            })
-            val formattedEvents = builder.add(Flow[Any].map {
-              case event: IDEEvent =>
-                event
-              case NodeRegistry.ListNodesResponse(nodes) =>
-                IDEEvent.AvailableNodes(
-                  nodes.map(node => ProgrammerNodeInfo(id = node.id)))
-              case NodeRegistry.ListNodesNodeAdded(node) =>
-                IDEEvent.AvailableNodeAdded(ProgrammerNodeInfo(id = node.id))
-              case NodeRegistry.ListNodesNodeRemoved(node) =>
-                IDEEvent.AvailableNodeRemoved(ProgrammerNodeInfo(id = node.id))
-            })
-            val coupler = builder.add(WatchFuture[Any, Done].named("coupler"))
-
-            eventTargetActor ~> commandsWithEventActor.in1
-            commandsWithEventActor.out ~> router ~> finish
-            events ~> coupler.in0
-            finishFuture ~> coupler.in1
-            coupler.out ~> formattedEvents
-
-            FlowShape(commandsWithEventActor.in0, formattedEvents.out)
-        }))
-  }
+        FlowShape(commandHandler.in, buffer.out)
+      }))
 }

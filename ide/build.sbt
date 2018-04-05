@@ -83,12 +83,14 @@ lazy val picoide = project
 lazy val picoserver = project
   .enablePlugins(WebScalaJSBundlerPlugin)
   .settings(
+    scalacOptions += "-Ypartial-unification",
     scalaJSProjects := Seq(picoide),
     Assets / pipelineStages := Seq(scalaJSDev),
     libraryDependencies ++= Seq(
       "org.webjars"       % "webjars-locator-core" % "0.35",
       "com.typesafe.akka" %% "akka-http"           % "10.1.0",
-      "com.typesafe.akka" %% "akka-stream"         % "2.5.11"
+      "com.typesafe.akka" %% "akka-stream"         % "2.5.11",
+      "org.typelevel"     %% "cats-core"           % "1.1.0"
     )
   )
   .dependsOn(picoideProtoJVM)
