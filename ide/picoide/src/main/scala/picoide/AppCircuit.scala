@@ -1,6 +1,7 @@
 package picoide
 
 import akka.stream.Materializer
+import akka.stream.scaladsl.SourceQueueWithComplete
 import diode.Action
 import diode.data.{Failed, Ready}
 
@@ -9,7 +10,7 @@ import diode.data.{Pot, PotAction, PotState}
 import diode.react.ReactConnector
 
 import picoide.net.IDEClient
-import picoide.proto.{DownloaderInfo, IDEEvent}
+import picoide.proto.{DownloaderInfo, IDECommand, IDEEvent}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -36,34 +37,37 @@ class AppCircuit(implicit materializer: Materializer)
                     downloadersHandler,
                     ideEventHandler)
 
-  def editorHandler = new ActionHandler(zoomTo(_.currentFile)) {
-    override def handle = {
-      case Actions.CurrentFile.Modify(newContent) =>
-        updated(value.copy(content = newContent))
+  def editorHandler =
+    new ActionHandler[Root, SourceFile](zoomTo(_.currentFile)) {
+      override def handle = {
+        case Actions.CurrentFile.Modify(newContent) =>
+          updated(SourceFile.content.set(newContent)(value))
+      }
     }
-  }
 
-  def commandQueueHandler = new ActionHandler(zoomTo(_.commandQueue)) {
-    override def handle = {
-      case action: Actions.CommandQueue.Update =>
-        import PotState._
-        action.handle {
-          case PotEmpty =>
-            updated(value.pending(),
-                    IDEClient.connectToCircuit("ws://localhost:8080/connect",
-                                               AppCircuit.this))
-          case PotPending =>
-            noChange
-          case PotReady =>
-            updated(action.potResult,
-                    Effect.action(Actions.Downloaders.Update(Pot.empty)))
-          case PotUnavailable =>
-            updated(value.unavailable())
-          case PotFailed =>
-            updated(value.fail(action.result.failed.get))
-        }
+  def commandQueueHandler =
+    new ActionHandler[Root, Pot[SourceQueueWithComplete[IDECommand]]](
+      zoomTo(_.commandQueue)) {
+      override def handle = {
+        case action: Actions.CommandQueue.Update =>
+          import PotState._
+          action.handle {
+            case PotEmpty =>
+              updated(value.pending(),
+                      IDEClient.connectToCircuit("ws://localhost:8080/connect",
+                                                 AppCircuit.this))
+            case PotPending =>
+              noChange
+            case PotReady =>
+              updated(action.potResult,
+                      Effect.action(Actions.Downloaders.Update(Pot.empty)))
+            case PotUnavailable =>
+              updated(value.unavailable())
+            case PotFailed =>
+              updated(value.fail(action.result.failed.get))
+          }
+      }
     }
-  }
 
   def downloadersHandler =
     new ActionHandler[Root, Pot[Downloaders]](zoomTo(_.downloaders)) {
