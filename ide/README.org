@@ -1,0 +1,19 @@
+* How to run
+
+To start the server, run:
+
+#+BEGIN_SRC bash
+$ sbt picoserver/run
+#+END_SRC
+
+To auto-reload whenever the code changes, run:
+
+#+BEGIN_SRC bash
+$ sbt \~picoserver/reStart
+#+END_SRC
+
+* Organization
+
+The primary entry points are ~picoserver~ for the server component, and ~picoide~
+for the client side. ~picoideProto~ defines the communication protocol between
+the two. ~picoasm~ contains the PicoASM AST and assembler.
