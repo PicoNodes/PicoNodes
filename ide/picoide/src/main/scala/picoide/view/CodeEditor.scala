@@ -8,6 +8,7 @@ import picoide.{Actions, SourceFile}
 import picoide.asm.PicoAsmFormatter
 import monocle.macros.Lenses
 import picoide.view.vendor.ReactCodeMirror
+import scala.scalajs.js
 
 object CodeEditor {
   @Lenses
