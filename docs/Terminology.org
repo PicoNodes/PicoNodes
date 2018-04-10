@@ -1,19 +1,21 @@
-- IDE: The graphical editor and debugger, code in `ide/picoide`
-- Server: Serves the IDE, stores all data, and controls the Downloaders, code in `ide/picoserver`
-- Downloader: Combined debugger and programmer, controls a single Node at a time
-- Motherboard: Connects all the Nodes to each other, and supplies power and a common clock
-- Node: Any component that is part of the target system, aside from the Motherboard
-- NodePlug:tm:: The connector between a Node and the Motherboard
-- Compute Node: A programmable Node running user-supplied code
-- PicoASM: The language Compute Nodes are programmed in
-- Peripheral Node: Any Node that is not a Compute Node
-- PicoTalk: The protocol for communication between Nodes
+* Names
 
-* Why `Downloader`?
+  - IDE: The graphical editor and debugger, code in `ide/picoide`
+  - Server: Serves the IDE, stores all data, and controls the Downloaders, code in `ide/picoserver`
+  - Downloader: Combined debugger and programmer, controls a single Node at a time
+  - Motherboard: Connects all the Nodes to each other, and supplies power and a common clock
+  - Node: Any component that is part of the target system, aside from the Motherboard
+  - NodePlug:tm:: The connector between a Node and the Motherboard
+  - Compute Node: A programmable Node running user-supplied code
+  - PicoASM: The language Compute Nodes are programmed in
+  - Peripheral Node: Any Node that is not a Compute Node
+  - PicoTalk: The protocol for communication between Nodes
 
-So far we've called these Programmers or Programmer Nodes, but both of these are confusing. As Mark mentioned, calling them `Programmer`s cheapens the act of /programming/ (which is what the users will be doing the rest of the time). They're also not Nodes, since they don't use the NodePlug, and don't use the Node<->Node protocol.
+** Why `Downloader`?
 
-Other options:
+   So far we've called these Programmers or Programmer Nodes, but both of these are confusing. As Mark mentioned, calling them `Programmer`s cheapens the act of /programming/ (which is what the users will be doing the rest of the time). They're also not Nodes, since they don't use the NodePlug, and don't use the Node<->Node protocol.
 
-- Controller
-- Debugger
+   Other options:
+
+   - Controller
+   - Debugger
