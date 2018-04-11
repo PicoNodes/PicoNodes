@@ -3,8 +3,10 @@ package picoide.proto
 import boopickle.Default._
 
 object IDEPicklers {
-  implicit val downloaderEventPickler   = compositePickler[DownloaderEvent]
+  implicit val downloaderEventPickler = compositePickler[DownloaderEvent]
+    .addConcreteType[DownloaderEvent.Version]
   implicit val downloaderCommandPickler = compositePickler[DownloaderCommand]
+    .addConcreteType[DownloaderCommand.GetVersion.type]
 
   implicit val ideEventPickler =
     compositePickler[IDEEvent]
