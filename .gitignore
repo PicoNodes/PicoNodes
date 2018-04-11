@@ -4,6 +4,8 @@ target
 *.drl
 Report.tex
 Report.pdf
+frågeformulär_lärare.tex
+frågeformulär_lärare.pdf
 ~$*
 *~
 .gdb_history
