@@ -10,6 +10,7 @@
   - PicoASM: The language Compute Nodes are programmed in
   - Peripheral Node: Any Node that is not a Compute Node
   - PicoTalk: The protocol for communication between Nodes
+  - PicoStorm: The protocol for communication between Nodes and the Downloader
 
 ** Why `Downloader`?
 
