@@ -7,6 +7,17 @@
 
 #+BEGIN_SRC ditaa :file Platform-architecture.svg :cmdline --svg
                                    +-----------------------------+
+                                   | IDE                         |
+                                   |                             |
+                                   |                             |
+                                   |                             |
+                                   |                             |
+                                   +-------------+---------------+
+                                                 |
+                                                 | PicoIDEProto (Websocket)
+                                                 |
+                                                 v
+                                   +-----------------------------+
                                    | Server                      |
                                    |                             |
                                    |                             |
@@ -14,7 +25,7 @@
                                    |                             |
                                    +-------------+---------------+
                                                  |
-                                                 | WiFi
+                                                 | PicoDownloaderProto (TLS/WiFi)
                                                  |
                                                  v
                                           +-----+---------+
