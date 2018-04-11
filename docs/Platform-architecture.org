@@ -1,0 +1,40 @@
+#+BEGIN_SRC emacs-lisp :results silent
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((ditaa . t))) ; this line activates ditaa
+  (setq org-ditaa-jar-path "lib/ditaa-0.11.0-standalone.jar")
+#+END_SRC
+
+#+BEGIN_SRC ditaa :file Platform-architecture.svg :cmdline --svg
+                                   +-----------------------------+
+                                   | Server                      |
+                                   |                             |
+                                   |                             |
+                                   |                             |
+                                   |                             |
+                                   +-------------+---------------+
+                                                 |
+                                                 | WiFi
+                                                 |
+                                                 v
+                                          +-----+---------+
+                                          | Downloader    |
+                                          | +-----------+ |
+                                          | |ESP32      | |
+                                          | +-----------+ |
+                                          +------+--------+
+                                                 |
+                                                 | PicoStorm (UART)
+           +-------------------------------------+-------------------------------------+
+           |                                     |                                     |
+           v                                     v                                     v
+  +-+-----------------+               +-------------------+               +-------------------------+
+  | Compute Node      |   PicoTalk    | Compute Node      |               | Peripheral Node (maybe) |
+  | +---------------+ +<------------->+ +---------------+ +   PicoTalk    + +---------------------+ |
+  | |STM32F030F4P6  | |               | |STM32F030F4P6  | |<------------->| |??? (TBD)            | |
+  | +---------------+ |               | +---------------+ |               | +-----------------+---+ |
+  +-------------------+               +-------------------+               +-------------------------+
+#+END_SRC
+
+#+RESULTS:
+[[file:Platform-architecture.svg]]
