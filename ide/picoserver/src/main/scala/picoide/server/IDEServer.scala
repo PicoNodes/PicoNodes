@@ -10,7 +10,7 @@ import org.webjars.WebJarAssetLocator
 import scala.concurrent.{ExecutionContext, Future}
 
 object IDEServer {
-  def start(nodeRegistry: ActorRef)(
+  def start(downloaderRegistry: ActorRef)(
       implicit actorSystem: ActorSystem,
       materializer: Materializer,
       executionContext: ExecutionContext): Future[ServerBinding] = {
@@ -23,7 +23,7 @@ object IDEServer {
         }
       } ~ path("connect") {
         handleWebSocketMessagesForProtocol(
-          IDEConnection.webSocketHandler(nodeRegistry),
+          IDEConnection.webSocketHandler(downloaderRegistry),
           "picoide")
       } ~ path("public" / Segment / Remaining) { (webJar, asset) =>
         get {

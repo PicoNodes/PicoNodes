@@ -8,10 +8,12 @@ import org.scalajs.dom.document
 import picoide.view.EditorView
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
+import picoide.view.PicoASMMode
 
 object Main {
   def main(args: Array[String]): Unit = {
     Style.load()
+    PicoASMMode.register()
 
     val config = ConfigFactory
       .parseString("""akka {

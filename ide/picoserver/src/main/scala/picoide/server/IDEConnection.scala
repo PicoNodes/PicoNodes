@@ -15,7 +15,13 @@ import akka.stream.scaladsl.{BidiFlow, Flow, Sink, Source}
 import akka.stream.stage.GraphStage
 import akka.util.ByteString
 import java.nio.ByteBuffer
-import picoide.proto.{IDECommand, IDEEvent, ProgrammerNodeInfo}
+import picoide.proto.{
+  DownloaderCommand,
+  DownloaderEvent,
+  DownloaderInfo,
+  IDECommand,
+  IDEEvent
+}
 import picoide.proto.IDEPicklers._
 import boopickle.Default._
 import scala.concurrent.Future
@@ -65,52 +71,43 @@ object IDEConnection {
       FlowShape(limitInput.in, splitter.out(1))
     })
 
-  def webSocketHandler(nodeRegistry: ActorRef)(
-      implicit mat: Materializer): Flow[Message, Message, NotUsed] = {
-    val eventTargetActorSource = Source.actorRef[Any](10, OverflowStrategy.fail)
-    val finishSink             = Sink.ignore
-
+  def webSocketHandler(downloaderRegistry: ActorRef)(
+      implicit mat: Materializer): Flow[Message, Message, NotUsed] =
     binaryMessagesFlow
       .atop(protocolPickler)
-      .join(Flow.fromGraph(
-        GraphDSL.create(eventTargetActorSource, finishSink)(Keep.both) {
-          implicit builder => (events, finish) =>
-            import GraphDSL.Implicits._
+      .join(Flow.fromGraph(GraphDSL.create() { implicit builder =>
+        import GraphDSL.Implicits._
 
-            val eventTargetActor =
-              builder.materializedValue
-                .map(_._1)
-                .via(repeatFirst)
+        val commandHandler   = builder.add(IDECommandHandler(downloaderRegistry))
+        val commandBroadcast = builder.add(Broadcast[IDECommand](2))
+        val eventMerger      = builder.add(Merge[IDEEvent](2))
+        val downloaderSwapper = builder.add(
+          new SwappableFlowAdapter[DownloaderCommand, DownloaderEvent])
 
-            val finishFuture = builder.materializedValue.map(_._2)
+        // The identity maps are to make it easy to comment out the log statements
+        val inLog =
+          builder.add(
+            Flow[IDECommand]
+            // .log("webSocketHandler.incoming")
+              .map(identity))
+        val outLog =
+          builder.add(
+            Flow[IDEEvent]
+            // .log("webSocketHandler.outgoing")
+              .map(identity))
 
-            val commandsWithEventActor = builder.add(Zip[IDECommand, ActorRef])
-            val router = builder.add(Flow[(IDECommand, ActorRef)].map {
-              case (IDECommand.ListNodes, eventTargetActor) =>
-                nodeRegistry.tell(NodeRegistry.ListNodes, eventTargetActor)
-              case (IDECommand.Ping, eventTargetActor) =>
-                eventTargetActor ! IDEEvent.Pong
-            })
-            val formattedEvents = builder.add(Flow[Any].map {
-              case event: IDEEvent =>
-                event
-              case NodeRegistry.ListNodesResponse(nodes) =>
-                IDEEvent.AvailableNodes(
-                  nodes.map(node => ProgrammerNodeInfo(id = node.id)))
-              case NodeRegistry.ListNodesNodeAdded(node) =>
-                IDEEvent.AvailableNodeAdded(ProgrammerNodeInfo(id = node.id))
-              case NodeRegistry.ListNodesNodeRemoved(node) =>
-                IDEEvent.AvailableNodeRemoved(ProgrammerNodeInfo(id = node.id))
-            })
-            val coupler = builder.add(WatchFuture[Any, Done].named("coupler"))
+        inLog ~> commandBroadcast ~> commandHandler.in
+        commandHandler.out.buffer(10, OverflowStrategy.fail) ~> eventMerger
+        commandHandler.switchDownloader ~> downloaderSwapper.in1
 
-            eventTargetActor ~> commandsWithEventActor.in1
-            commandsWithEventActor.out ~> router ~> finish
-            events ~> coupler.in0
-            finishFuture ~> coupler.in1
-            coupler.out ~> formattedEvents
+        commandBroadcast ~> Flow[IDECommand]
+          .collectType[IDECommand.ToDownloader]
+          .map(_.cmd) ~> downloaderSwapper.in0
+        downloaderSwapper.out ~> Flow[DownloaderEvent].map(
+          IDEEvent.FromDownloader(_)) ~> eventMerger
+        eventMerger ~> outLog
 
-            FlowShape(commandsWithEventActor.in0, formattedEvents.out)
-        }))
-  }
+        FlowShape(inLog.in, outLog.out)
+      }))
+      .named("ide-connection")
 }

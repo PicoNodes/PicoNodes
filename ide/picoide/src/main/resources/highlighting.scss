@@ -1,0 +1,23 @@
+@import '~codemirror/lib/codemirror.css';
+
+.CodeMirror {
+    .cm-instruction {
+        color: blue;
+    }
+
+    .cm-flags {
+        color: brown;
+    }
+
+    .cm-literal-int {
+        color: darkgreen;
+    }
+
+    .cm-register-io {
+        color: purple;
+        font-weight: bold;
+    }
+    .cm-register-mem {
+        color: purple;
+    }
+}

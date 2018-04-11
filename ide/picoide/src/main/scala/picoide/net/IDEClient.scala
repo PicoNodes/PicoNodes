@@ -14,7 +14,7 @@ import diode.{Circuit, Effect}
 import diode.data.{Pot, Ready}
 import java.nio.ByteBuffer
 import boopickle.Default._
-import picoide.proto.{IDECommand, IDEEvent, ProgrammerNodeInfo}
+import picoide.proto.{DownloaderInfo, IDECommand, IDEEvent}
 import picoide.proto.IDEPicklers._
 import picoide.Actions
 import scala.concurrent.{ExecutionContext, Future}
@@ -72,28 +72,28 @@ object IDEClient {
         .map(Actions.CommandQueue.Update)
     }
 
-  def requestNodeList(commandQueue: ModelRO[Pot[CommandQueue]])(
+  def requestDownloaderList(commandQueue: ModelRO[Pot[CommandQueue]])(
       implicit executionContext: ExecutionContext): Effect = Effect {
     commandQueue()
-      .fold[Future[Pot[Set[ProgrammerNodeInfo]]]](
-        Future.successful(Unavailable))(_.offer(IDECommand.ListNodes).map {
-        case QueueOfferResult.Enqueued =>
-          Pending()
-        case QueueOfferResult.Dropped =>
-          Failed(new BufferOverflowException("Request was dropped"))
-        case QueueOfferResult.Failure(ex) =>
-          Failed(ex)
-        case QueueOfferResult.QueueClosed =>
-          Unavailable
-      })
-      .map(Actions.ProgrammerNodes.Update(_))
+      .fold[Future[Pot[Set[DownloaderInfo]]]](Future.successful(Unavailable))(
+        _.offer(IDECommand.ListDownloaders).map {
+          case QueueOfferResult.Enqueued =>
+            Pending()
+          case QueueOfferResult.Dropped =>
+            Failed(new BufferOverflowException("Request was dropped"))
+          case QueueOfferResult.Failure(ex) =>
+            Failed(ex)
+          case QueueOfferResult.QueueClosed =>
+            Unavailable
+        })
+      .map(Actions.Downloaders.Update(_))
   }
 
-  def selectNode(node: Option[ProgrammerNodeInfo],
-                 commandQueue: ModelRO[Pot[CommandQueue]])(
+  def selectDownloader(downloader: Option[DownloaderInfo],
+                       commandQueue: ModelRO[Pot[CommandQueue]])(
       implicit ec: ExecutionContext): Effect = Effect {
     commandQueue().get
-      .offer(IDECommand.SelectNode(node.map(_.id)))
+      .offer(IDECommand.SelectDownloader(downloader.map(_.id)))
       .map(_ => NoAction)
   }
 }
