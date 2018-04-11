@@ -5,8 +5,10 @@ import boopickle.Default._
 object IDEPicklers {
   implicit val downloaderEventPickler = compositePickler[DownloaderEvent]
     .addConcreteType[DownloaderEvent.Version]
+    .addConcreteType[DownloaderEvent.DownloadedBytecode]
   implicit val downloaderCommandPickler = compositePickler[DownloaderCommand]
     .addConcreteType[DownloaderCommand.GetVersion.type]
+    .addConcreteType[DownloaderCommand.DownloadBytecode]
 
   implicit val ideEventPickler =
     compositePickler[IDEEvent]

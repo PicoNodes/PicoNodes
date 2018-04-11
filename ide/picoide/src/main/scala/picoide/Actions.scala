@@ -3,7 +3,8 @@ package picoide
 import akka.stream.scaladsl.SourceQueueWithComplete
 import diode.Action
 import diode.data.{Pot, PotAction}
-import picoide.proto.{DownloaderInfo, IDECommand, IDEEvent}
+import picoide.asm.Instruction
+import picoide.proto.{DownloaderEvent, DownloaderInfo, IDECommand, IDEEvent}
 
 object Actions {
   object IDEEvent {
@@ -30,6 +31,10 @@ object Actions {
 
     case class Select(downloader: Option[DownloaderInfo])   extends Action
     case class Selected(downloader: Option[DownloaderInfo]) extends Action
+
+    case class AddEvent(dlEvent: DownloaderEvent) extends Action
+
+    case class SendInstructions(instructions: Seq[Instruction]) extends Action
   }
 
   object CurrentFile {

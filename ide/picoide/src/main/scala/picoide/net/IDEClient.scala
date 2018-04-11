@@ -14,7 +14,8 @@ import diode.{Circuit, Effect}
 import diode.data.{Pot, Ready}
 import java.nio.ByteBuffer
 import boopickle.Default._
-import picoide.proto.{DownloaderInfo, IDECommand, IDEEvent}
+import picoide.asm.Instruction
+import picoide.proto.{DownloaderCommand, DownloaderInfo, IDECommand, IDEEvent}
 import picoide.proto.IDEPicklers._
 import picoide.Actions
 import scala.concurrent.{ExecutionContext, Future}
@@ -94,6 +95,15 @@ object IDEClient {
       implicit ec: ExecutionContext): Effect = Effect {
     commandQueue().get
       .offer(IDECommand.SelectDownloader(downloader.map(_.id)))
+      .map(_ => NoAction)
+  }
+
+  def sendBytecode(instructions: Seq[Instruction],
+                   commandQueue: ModelRO[Pot[CommandQueue]])(
+      implicit executionContext: ExecutionContext): Effect = Effect {
+    commandQueue().get
+      .offer(IDECommand.ToDownloader(
+        DownloaderCommand.DownloadBytecode(instructions.flatMap(_.assemble))))
       .map(_ => NoAction)
   }
 }
