@@ -8,6 +8,7 @@ import akka.stream.scaladsl.Tcp.IncomingConnection
 import akka.stream.scaladsl._
 import akka.stream.scaladsl.Tcp.ServerBinding
 import akka.util.ByteString
+import java.nio.ByteOrder
 import java.util.UUID
 import picoide.proto.{DownloaderCommand, DownloaderEvent}
 import scala.concurrent.{ExecutionContext, Future}
@@ -16,9 +17,18 @@ case class Downloader(id: UUID,
                       flow: Flow[DownloaderCommand, DownloaderEvent, NotUsed])
 
 object DownloaderServer {
-  def emitCommand(cmd: DownloaderCommand): ByteString = ???
+  implicit val byteOrder = ByteOrder.BIG_ENDIAN
+
+  def emitCommand(cmd: DownloaderCommand): ByteString =
+    cmd match {
+      case DownloaderCommand.DownloadBytecode(bytecode) =>
+        ByteString(1: Int) ++ // Type
+          ByteString(bytecode.length) ++
+          ByteString(bytecode: _*)
+    }
   def parseEvent(msg: ByteString): Either[String, DownloaderEvent] = {
     val buf = msg.asByteBuffer
+    buf.order(byteOrder)
     buf.getInt match {
       case unknownType =>
         Left(s"Unknown event of type $unknownType: $msg")
