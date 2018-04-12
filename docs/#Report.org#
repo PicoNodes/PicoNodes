@@ -13,11 +13,29 @@
 ** Methodology / Methods
 With the new course goals within the scools to educate in datalogical thinking 
 it is still in a very early stage where the scool is testing how they can implement 
-this. There are already some tools and aids in the
- market that tries to achive the goals but most of them, if not all is aporching 
+it. There are already some tools and aids in the market that tries to achive the goals
+but most of them, if not all is aporching 
 it with a software angle and a seriel-programming thinking. How can we get a product 
 that show the programming aspect from a more parallel and hardware perspective is 
-one of the questions this project is trying to anwser. The 
+one of the questions this project is trying to anwser. The aproach is a physiacal
+programming platform that can cover as much of the teaching goals as possible and is 
+pedagological for the for both the teachers and the students. When a prototype of the
+platform is ready, both teachers and students will test it and anwser a inquiry. This 
+inquiry is used in an evaluation of the product. This is made with an iterating process
+and the evaluation with improvements based on the feedback given, is made at least twice.
+
+*** Data selection
+The platform is developed for students in the age of 14-16 years. The instructions will be
+in english and the students have to be able to speak the language well. The main approach
+subjects in this case will be the teachers and not the students. This is because the
+teachers need to be confident with the tools given and feel that its pedagological enough
+for them and that they can master it. If this succeeds then the student will follow
+decisions made in selecting the data, the subjects and research settings you have
+examined.
+*** Research methods
+Tools and methods to identify and collect info
+
+
 The product will have the UI designed in the browser so the user wont be fixed
 to one plattform. This way eather a mobilephone or a laptop can be used for programming 
 the microcontrollers. The MCU of our choice is stm32f030f4p6. This MCU is chosen because
@@ -27,6 +45,7 @@ MCUs are also popular to program in Rust which make it easier to find documentat
 communications between the MCUs(4 pins), external clocksource and coarsegrain 
 syncronization clock. A server will be provided by Inicio which contains the drivers
 for communicating between the plattforms and the compiler for the bytecode.
+*** Practical limitation
 
 *** IDE and programming langueges 
 
