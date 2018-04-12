@@ -104,6 +104,11 @@ class AppCircuit(implicit materializer: Materializer)
             IDEClient.selectDownloader(downloader, zoomTo(_.commandQueue)))
         case Actions.Downloaders.Selected(downloader) =>
           updated(value.map(Downloaders.current.set(downloader)))
+        case Actions.Downloaders.AddEvent(event) =>
+          updated(value.map(Downloaders.events.modify(event +: _)))
+        case Actions.Downloaders.SendInstructions(instructions) =>
+          effectOnly(
+            IDEClient.sendBytecode(instructions, zoomTo(_.commandQueue)))
       }
     }
 
@@ -126,6 +131,8 @@ class AppCircuit(implicit materializer: Materializer)
               dler  <- state.all.get(id)
             } yield dler
           )
+        case IDEEvent.FromDownloader(dlEvent) =>
+          Actions.Downloaders.AddEvent(dlEvent)
       }
 
       override def handle = {

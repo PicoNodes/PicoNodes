@@ -1,0 +1,49 @@
+* Frågor till lärare för att ge ett underlag till utvecklingen av piconodes
+
+** Allmänt
+
++-------------------+---------------------+--------------------+-------------------+
+| 1. Hur uppfattar ni programmering?                                               |
++-------------------+---------------------+--------------------+-------------------+
+| A. Svårt          | B. Medel            | C. Lätt            | Ingen uppfattning |
++-------------------+---------------------+--------------------+-------------------+
+| 2. Är kursmålen för programmering tydliga?                                       |
++-------------------+---------------------+--------------------+-------------------+
+| A. Ja             | B. Nej              |                    | Ingen uppfattning |
++-------------------+---------------------+--------------------+-------------------+
+| 3. Tycker ni att det är svårt att lära ut programmering?                         |
++-------------------+---------------------+--------------------+-------------------+
+| A. Svårt          | B. Medel            | C. Lätt            | Ingen uppfattning |
++-------------------+---------------------+--------------------+-------------------+
+| 4. Tycker ni att det finns bra läromedel för att lära ut programmering?          |
++-------------------+---------------------+--------------------+-------------------+
+| A. Ja             | B. Nej              |                    | Ingen uppfattning |
++-------------------+---------------------+--------------------+-------------------+
+| 5. Har ni använt några av dessa läromedel för att lära ut programmering/         |
+|    datalogiskt tänkande?                                                         |
++-------------------+---------------------+--------------------+-------------------+
+| A. Bits                                 | B. Angry Birds                         |
++-------------------+---------------------+--------------------+-------------------+
+| 6. Tycker ni att dom läromedel som finns har pedagogiska instruktioner för       |
+|    lärarna?                                                                      |
++-------------------+---------------------+--------------------+-------------------+
+| A. Ja             | B. Nej              | C. Medel           | Ingen uppfattning |
++-------------------+---------------------+--------------------+-------------------+
+| 7. Tycker ni att de läromedel som finns är pedagogiska för eleverna?             |
++-------------------+---------------------+--------------------+-------------------+
+| A. Ja             | B. Nej              | C. Medel           | Ingen uppfattning |
++-------------------+---------------------+--------------------+-------------------+
+
+** Nu kommer frågor om hur ni önskar utformningen av ett läromedel för att uppnå kursmålen inom programmering/datalogiskt tänkande.
+
+** Frågor om piconodes som ett verktyg i skolorna för att lära ut programmering/datalogiskt tänkande.
+
++------------------------+---------------------+--------------------+----------------------+
+| 1. Hur uppfattar ni piconodes koncept? Fyll i alla som ni tycker stämmer in.             |
++------------------------+---------------------+--------------------+----------------------+
+| A. Enkelt att förstå   | B. Pedagogisk       | C. Rörig           | D. Otydlig           |
++------------------------+---------------------+--------------------+----------------------+
+| 2. Vilka egenskaper tycker du passar in på piconodes?                                    |
++------------------------+---------------------+--------------------+----------------------+
+| A.                     |                     |                    |                      |
++------------------------+---------------------+--------------------+----------------------+

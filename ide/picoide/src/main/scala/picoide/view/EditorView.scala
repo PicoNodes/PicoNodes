@@ -16,7 +16,17 @@ object EditorView {
             .apply(ConnectionStatusDialog.component(_)),
           model.connect(_.downloaders).apply(BoardPicker.component(_)),
           model.connect(_.currentFile).apply(CodeEditor.component(_)),
-          model.connect(_.currentFile).apply(BytecodeViewer.component(_))
+          model
+            .connect(state =>
+              DownloadButton.Props(
+                state.currentFile,
+                state.downloaders.toOption.flatMap(_.current),
+                state.commandQueue))
+            .apply(DownloadButton.component(_)),
+          model.connect(_.currentFile).apply(BytecodeViewer.component(_)),
+          model
+            .connect(_.downloaders.map(_.events).getOrElse(Seq()))
+            .apply(DownloaderLog.component(_))
       ))
       .build
 }
