@@ -15,7 +15,7 @@ object ConnectionStatusDialog {
         "ConnectionStatusDialog")
       .render_P(model =>
         <.div(
-          "Not connected".when(model().isEmpty),
+          ^.className := "connection-status",
           "Connecting...".when(model().isPending),
           "Disconnected".when(model().isUnavailable),
           "Connection failed".when(model().isFailed)

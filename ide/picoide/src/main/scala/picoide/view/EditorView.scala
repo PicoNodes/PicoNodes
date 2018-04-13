@@ -11,19 +11,13 @@ object EditorView {
       .builder[ModelProxy[Root]]("EditorView")
       .render_P(model =>
         <.div(
+          <.h1("PicoIDE"),
           model
             .connect(_.commandQueue)
             .apply(ConnectionStatusDialog.component(_)),
-          model.connect(_.downloaders).apply(DownloaderPicker.component(_)),
+          DownloaderPane.component(model),
           model.connect(_.currentFile).apply(CodeEditor.component(_)),
-          model
-            .connect(state =>
-              DownloadButton.Props(
-                state.currentFile,
-                state.downloaders.toOption.flatMap(_.current),
-                state.commandQueue))
-            .apply(DownloadButton.component(_)),
-          model.connect(_.currentFile).apply(BytecodeViewer.component(_)),
+          // model.connect(_.currentFile).apply(BytecodeViewer.component(_)),
           model
             .connect(_.downloaders.map(_.events).getOrElse(Seq()))
             .apply(DownloaderLog.component(_))

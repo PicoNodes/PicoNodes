@@ -13,7 +13,7 @@ object BytecodeViewer {
       .render_P { (file: ModelProxy[SourceFile]) =>
         val parser = new PicoAsmParser
         <.div(
-          <.h1("Bytecode"),
+          <.h2("Bytecode"),
           parser.parseAll(parser.instructions, file().content) match {
             case parser.Success(result, _) =>
               <.ol(

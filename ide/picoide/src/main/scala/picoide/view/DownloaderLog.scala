@@ -10,7 +10,8 @@ object DownloaderLog {
     .builder[ModelProxy[Seq[DownloaderEvent]]]("DownloaderLog")
     .render_P(
       events =>
-        <.div(<.h1("Events"),
+        <.div(^.className := "downloader-log",
+              <.h2("Log"),
               <.ul(
                 events()
                   .map(_.toString())

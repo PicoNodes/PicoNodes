@@ -1,11 +1,56 @@
 @import 'highlighting';
 
 body {
-    background-color: lightgray;
+    background-color: #eee;
+
+    #main-container {
+        max-width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+.spacer {
+    flex-grow: 1;
 }
 
 .code-editor {
     &, * {
         font-family: monospace;
+    }
+}
+
+.connection-status {
+    color: red;
+}
+
+.downloader-pane {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.downloader-log {
+    $log-height: 200px;
+
+    ul {
+        padding: 0;
+        background: white;
+        height: $log-height;
+        overflow-y: scroll;
+
+        &:empty::before {
+            content: 'Nothing here, try to download a program!';
+            display: block;
+            color: #777;
+            width: 100%;
+            min-height: 100%;
+            text-align: center;
+            vertical-align: middle;
+            line-height: $log-height;
+        }
+
+        li {
+            list-style: none;
+        }
     }
 }
