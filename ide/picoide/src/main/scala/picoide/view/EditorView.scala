@@ -14,7 +14,7 @@ object EditorView {
           model
             .connect(_.commandQueue)
             .apply(ConnectionStatusDialog.component(_)),
-          model.connect(_.downloaders).apply(BoardPicker.component(_)),
+          model.connect(_.downloaders).apply(DownloaderPicker.component(_)),
           model.connect(_.currentFile).apply(CodeEditor.component(_)),
           model
             .connect(state =>

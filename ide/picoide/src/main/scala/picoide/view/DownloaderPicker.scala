@@ -8,14 +8,14 @@ import java.util.UUID
 import picoide.{Actions, Downloaders, Root}
 import picoide.proto.DownloaderInfo
 
-object BoardPicker {
+object DownloaderPicker {
   val component =
     ScalaComponent
-      .builder[ModelProxy[Pot[Downloaders]]]("BoardPicker")
+      .builder[ModelProxy[Pot[Downloaders]]]("DownloaderPicker")
       .render_P(
         model =>
           <.div(
-            "Pick a downloader, any downloader:",
+            "Current downloader:",
             <.select(
               ^.disabled := !model().isReady,
               ^.value := (model().toOption
