@@ -1,3 +1,5 @@
+// -*- mode: rust; flycheck-rust-check-tests: nil; -*-
+
 #![feature(used)]
 #![no_std]
 
