@@ -29,7 +29,8 @@ object DownloadButton {
         "Download",
         ^.disabled := !props().queue.isReady || props().currentDownloader.isEmpty || parse(
           props().source).isEmpty,
-        ^.onClick --> upload(props))
+        ^.onClick --> upload(props)
+      )
   }
 
   val component =
