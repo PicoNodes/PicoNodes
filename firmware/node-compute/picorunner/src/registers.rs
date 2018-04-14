@@ -10,7 +10,7 @@
 
 //The struct will hold the value for the memory register
 pub struct Interpreter {
-    reg_acc: i8,
+    pub reg_acc: i8,
     prog_counter: u8,
 }
 
@@ -138,5 +138,15 @@ impl RegRead for MemRegister {
             MemRegister::Null => 0, //Reading from the null register.
         }
     }
+}
+
+//Implementing read func for the R/I.
+impl RegRead for RegisterOrImmediate { 	 		
+	fn read(self, interpreter: &Interpreter) -> i8 {
+		match self {
+			RegisterOrImmediate::Reg(reg) => reg.read(interpreter), 					//If self is a io reg then it calls for io regs read func.
+			RegisterOrImmediate::Immediate(var) => unimplemented!(),						//If self is a mem reg then it calls the mem regs read func.
+		}
+	}
 }
 
