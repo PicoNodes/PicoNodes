@@ -1,14 +1,4 @@
 [[package]]
-name = "bitmask"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
 name = "picorunner"
 version = "0.1.0"
-dependencies = [
- "bitmask 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
 
-[metadata]
-"checksum bitmask 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "75d1bb8cd5bd3fcce3dfb35a1c2e87f0ad303df1f49566e3cdc1a8f1f79f32bb"
