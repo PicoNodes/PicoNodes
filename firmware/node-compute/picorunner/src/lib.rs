@@ -47,23 +47,20 @@ fn decoding_instruction(bytecode: Bytecode) -> Instruction{
 	}
 }
 
-impl RegRead for RegisterOrImmediate {	
-	fn read(self, interpreter: &Interpreter) -> i8 {
-		match self {
-			RegisterOrImmediate::Reg(reg) => reg.read(interpreter), 					//If self is a io reg then it calls for io regs read func.
-			RegisterOrImmediate::Immediate(var) => unimplemented!(),						//If self is a mem reg then it calls the mem regs read func.
-		}
-	}
-}
 	
 fn run_instruction(instruction: Instruction, interpreter: &mut Interpreter) {
 	use Instruction::*;
 
-	
 	match instruction {
 		Mov(op_a, op_b) => {
 			let value = op_a;
 		}
+		Add(op_a) => {
+			interpreter.reg_acc += op_a;
+		},
+		Sub(op_a) => {
+			let_value = interpreter.reg_acc - op_a.rad;
+			interpreter.reg.acc = value;
 		_ => unimplemented!(),
 		/*Mov(op_a, op_b) => {
 			let value = op_a.read(interpreter);
