@@ -1,10 +1,11 @@
-package picoide.server
+package picoide.server.model
 
 import akka.NotUsed
 import akka.actor.{ActorContext, ActorRef, Kill, PoisonPill, Props}
 import akka.event.Logging
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Flow, Sink, Source}
+import picoide.server.net.DownloaderServer
 import scala.collection.mutable
 import akka.actor.Actor
 import java.util.UUID

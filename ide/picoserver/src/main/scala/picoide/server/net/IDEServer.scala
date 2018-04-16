@@ -1,4 +1,4 @@
-package picoide.server
+package picoide.server.net
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.Http

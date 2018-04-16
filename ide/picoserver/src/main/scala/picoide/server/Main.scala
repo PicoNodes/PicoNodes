@@ -3,6 +3,8 @@ package picoide.server
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
+import picoide.server.model.DownloaderRegistry
+import picoide.server.net.IDEServer
 
 object Main {
   def main(args: Array[String]): Unit = {

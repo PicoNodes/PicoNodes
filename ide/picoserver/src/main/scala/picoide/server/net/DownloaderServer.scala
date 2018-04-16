@@ -1,4 +1,4 @@
-package picoide.server
+package picoide.server.net
 
 import akka.NotUsed
 import akka.actor.ActorSystem
@@ -11,12 +11,8 @@ import akka.util.ByteString
 import java.nio.ByteOrder
 import java.util.UUID
 import picoide.proto.{DownloaderCommand, DownloaderEvent, DownloaderInfo}
+import picoide.server.model.Downloader
 import scala.concurrent.{ExecutionContext, Future}
-
-case class Downloader(info: DownloaderInfo,
-                      flow: Flow[DownloaderCommand, DownloaderEvent, NotUsed]) {
-  def id = info.id
-}
 
 object DownloaderServer {
   implicit val byteOrder = ByteOrder.BIG_ENDIAN

@@ -1,4 +1,4 @@
-package picoide.server
+package picoide.server.net
 
 import akka.stream.scaladsl.Keep
 import akka.{Done, NotUsed}
@@ -22,6 +22,8 @@ import picoide.proto.{
   IDECommand,
   IDEEvent
 }
+import picoide.server.utils.SwappableFlowAdapter
+import picoide.server.model.IDECommandHandler
 import picoide.proto.IDEPicklers._
 import boopickle.Default._
 import scala.concurrent.Future

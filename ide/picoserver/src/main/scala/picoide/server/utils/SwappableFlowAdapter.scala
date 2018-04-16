@@ -1,4 +1,4 @@
-package picoide.server
+package picoide.server.utils
 
 import akka.NotUsed
 import akka.stream.{OverflowStrategy, QueueOfferResult}

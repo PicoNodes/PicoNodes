@@ -1,4 +1,4 @@
-package picoide.server
+package picoide.server.utils
 
 import akka.stream.{FanInShape, FanInShape2}
 import akka.stream.stage.{GraphStageLogic, InHandler, OutHandler}

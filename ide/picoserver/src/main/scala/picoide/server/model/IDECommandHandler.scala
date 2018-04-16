@@ -1,4 +1,4 @@
-package picoide.server
+package picoide.server.model
 
 import akka.NotUsed
 import akka.pattern.{ask, pipe}

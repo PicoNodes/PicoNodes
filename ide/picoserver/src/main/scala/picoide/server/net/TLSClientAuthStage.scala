@@ -1,4 +1,4 @@
-package picoide.server
+package picoide.server.net
 
 import akka.stream.scaladsl.{BidiFlow, Flow, Keep}
 import akka.stream.stage.{InHandler, OutHandler}
