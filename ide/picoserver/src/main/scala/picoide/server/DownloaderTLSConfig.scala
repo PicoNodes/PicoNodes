@@ -34,6 +34,7 @@ object DownloaderTLSConfig {
     val config = AkkaSSLConfig()
 
     val params = sslContext.getDefaultSSLParameters
+    params.setNeedClientAuth(true)
 
     val protocols =
       config.configureProtocols(params.getProtocols, config.config)
@@ -47,6 +48,6 @@ object DownloaderTLSConfig {
       .withCipherSuites(cipherSuites: _*)
       .withProtocols(protocols: _*)
       .withParameters(params)
-      .withClientAuth(TLSClientAuth.None)
+      .withClientAuth(TLSClientAuth.Need)
   }
 }
