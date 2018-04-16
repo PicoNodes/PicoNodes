@@ -45,7 +45,7 @@ object DownloaderServer {
       val id = UUID.randomUUID()
 
       val toDownloader = Flow
-        .fromSinkAndSourceMat(
+        .fromSinkAndSourceCoupledMat(
           BroadcastHub.sink[DownloaderEvent],
           MergeHub.source[DownloaderCommand])((eventSource, commandSink) =>
           Downloader(id, Flow.fromSinkAndSource(commandSink, eventSource)))
