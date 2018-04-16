@@ -3,4 +3,3 @@ name = "picorunner"
 version = "0.1.0"
 authors = ["tke <tke@kth.se>"]
 
-[dependencies]
