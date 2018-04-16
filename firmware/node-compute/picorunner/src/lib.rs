@@ -13,8 +13,8 @@ use registers::*;
 //The Picoasm instructions structure
 enum Instruction {
     Mov(RegisterOrImmediate, Register), //Mov(RegisterOrImmediate, Register),(RegisterOrImmediate, Register)
-    Add(i8),
-    Sub(i8),
+    Add(i8), //Need to be Add(RegisterOrImmediate) to be able to get a value from both register and immediate
+    Sub(i8), //Need to be Sub(RegisterOrImmediate) to be able to get a value from both register and immediate or it can be decoded in the actions??
     Teq(RegisterOrImmediate, RegisterOrImmediate),
     Tgt(RegisterOrImmediate, RegisterOrImmediate),
     Tlt(RegisterOrImmediate, RegisterOrImmediate),
@@ -37,8 +37,8 @@ fn decoding_instruction(bytecode: Bytecode) -> Instruction{
 		
 	match op {
 		0 => Mov(registers::RegisterOrImmediate::from_i8(op_a), registers::Register::from_i8(op_b)),
-		1 if op_b == 0 => Add(op_a),
-		1 if op_b == 1 => Sub(op_a),
+		1 if op_b == 0 => Add(op_a), //Under construction! Add must also be able to get a value from a register
+		1 if op_b == 1 => Sub(op_a), //Same for Sub!
 		4 => Teq(registers::RegisterOrImmediate::from_i8(op_a), registers::RegisterOrImmediate::from_i8(op_b)),
 		5 => Tgt(registers::RegisterOrImmediate::from_i8(op_a), registers::RegisterOrImmediate::from_i8(op_b)),
 		6 => Tlt(registers::RegisterOrImmediate::from_i8(op_a), registers::RegisterOrImmediate::from_i8(op_b)),
