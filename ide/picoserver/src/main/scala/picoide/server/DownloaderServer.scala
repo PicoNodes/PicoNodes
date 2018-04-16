@@ -76,8 +76,13 @@ object DownloaderServer {
       conn.handleWith(protocol)
     }
 
+    val sslContext = DownloaderTLSConfig.sslContext
+
     Tcp()
-      .bind("0.0.0.0", 8081)
+      .bindTls("0.0.0.0",
+               8081,
+               sslContext,
+               DownloaderTLSConfig.negotiateNewSession(sslContext))
       .via(setupDownloader)
       .mapMaterializedValue(_.map { binding =>
         actorSystem.log.info("Downloader server listening on {}",
