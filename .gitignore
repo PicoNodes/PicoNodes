@@ -13,3 +13,6 @@ frågeformulär_lärare.pdf
 .#*
 .~lock*
 build
+sdkconfig.old
+tags
+TAGS
