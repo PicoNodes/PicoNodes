@@ -1,10 +1,3 @@
-def diode(subProject: String) = ProjectRef(
-  uri(
-    "https://github.com/PicoNodes/diode.git#b86426452e3b2f53630424800e18186689144632"),
-  subProject
-)
-lazy val diodeReact = diode("diodeReact")
-
 lazy val picoasm = crossProject
   .settings(
     libraryDependencies += "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.1.0"
@@ -44,6 +37,7 @@ lazy val picoide = project
   .enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalaJSWeb)
   .settings(
     libraryDependencies ++= Seq(
+      "io.suzaku"                         %%% "diode-react"       % "1.1.3.120",
       "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % "1.2.0",
       "com.github.julien-truffaut"        %%% "monocle-macro"     % "1.5.0-cats",
       "org.akka-js"                       %%% "akkajsactor"       % "1.2.5.11",
@@ -78,7 +72,7 @@ lazy val picoide = project
       "hard-source-webpack-plugin" -> "0.6.4"
     )
   )
-  .dependsOn(picoasmJS, picoideProtoJS, diodeReact)
+  .dependsOn(picoasmJS, picoideProtoJS)
 
 lazy val picoserver = project
   .enablePlugins(WebScalaJSBundlerPlugin)
@@ -110,17 +104,5 @@ ThisBuild / scalaVersion := "2.12.5"
 
 // ThisBuild / ensimeRepositoryUrls += "https://oss.sonatype.org/content/repositories/snapshots/"
 // ThisBuild / ensimeServerVersion := "3.0.0-SNAPSHOT"
-
-// Diode is still compiled using Scala 2.12.4
-diode("diodeJS") / ensimeIgnoreScalaMismatch := true
-diode("diodeJVM") / ensimeIgnoreScalaMismatch := true
-diode("diodeDataJS") / ensimeIgnoreScalaMismatch := true
-diode("diodeDataJVM") / ensimeIgnoreScalaMismatch := true
-diode("diodeCoreJS") / ensimeIgnoreScalaMismatch := true
-diode("diodeCoreJVM") / ensimeIgnoreScalaMismatch := true
-diode("diodeDevtoolsJS") / ensimeIgnoreScalaMismatch := true
-diode("diodeDevtoolsJVM") / ensimeIgnoreScalaMismatch := true
-diode("root") / ensimeIgnoreScalaMismatch := true
-diodeReact / ensimeIgnoreScalaMismatch := true
 
 ThisBuild / scalafmtOnCompile := true
