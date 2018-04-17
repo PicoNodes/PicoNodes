@@ -35,7 +35,7 @@ object ReactCodeMirror {
 
     def somethingSelected(): Boolean = js.native
 
-    def getLine(line: Int): String               = js.native
+    def getLine(line: Int): js.UndefOr[String]   = js.native
     def getRange(from: Coord, to: Coord): String = js.native
     def replaceRange(replacement: String, from: Coord, to: Coord): Unit =
       js.native
