@@ -31,7 +31,6 @@ class TLSClientAuthStage(authenticator: Principal => Future[DownloaderInfo])
           override def onPush(): Unit =
             grab(in) match {
               case bytes: TLSProtocol.SessionBytes =>
-                println(bytes.peerCertificates)
                 idPromise.completeWith(authenticator(bytes.peerPrincipal.get))
                 idPromise.future.foreach { _ =>
                   push(out, bytes)
@@ -45,7 +44,9 @@ class TLSClientAuthStage(authenticator: Principal => Future[DownloaderInfo])
 
       setHandler(out, new OutHandler {
         override def onPull(): Unit =
-          pull(in)
+          if (!hasBeenPulled(in)) {
+            pull(in)
+          }
 
       })
     }
