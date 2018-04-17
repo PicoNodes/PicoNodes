@@ -3,8 +3,15 @@
 #+AUTHOR: Therese Kennerberg, Teo Klestrup RÃ¶ijezon
 
 * Introduction
+The goal of this project outcome is to provide a "hands on", physical 
+and pedalogical education plattform for the schools. The plattform will 
+the new learning outcomes that is taking its place in june 2018 for the
+subjects computational thinking and programming. The plattform is directed
+for hardware close and parallel programming, using a own developed assembler 
+like language to teach computational thinking.
 ** Background
-*** Datalogical thinking
+*** 
+*** Computational thinking outcomes
 Computational thinking is, stated by Lindköpings university, to be
 a process of problemsolving which includes:
 - Formulating a problem in a way that makes it possible to use computers to solve it.
@@ -35,7 +42,7 @@ For this reason will the project have a focus on the teachers and how to prepare
 to use the tools the plattform provide. This will be in form of documents of concept,
 tutorials?, ...(this might fit some where else)
 
-
+*** Other tool for supporting computational thinking outcomes
 
 ***** Use references
 ** Problem
