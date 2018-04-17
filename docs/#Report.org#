@@ -19,13 +19,15 @@ the idea to motivate students.
 ** Methodology / Methods
 State the problem and underlying assumption.
 The National Agency for Education in Sweden are about to implement outcomes for
-computational thinking in june 2018. Their vision is that every student have 
-developed an significant competence for digital tecnology 
+computational thinking in june 2018. Their vision for 2020, is that every student have 
+developed an adequate competence for digital tecnology 
 https://liu.se/cetis/konferenser/documents-tis2017/m2-3-datalogiskt-tankande.pdf). 
-The question formulation in this thesis report is how you can implement computation thinking 
-with for an parallel and hardware close programming. A plattform was developed to support 
-this approach and methods were used to evaluate the pedalogical and effectivness of the 
-learning outcomes. 
+The question formulation in this thesis report is how can you implement computational thinking 
+for an parallel and hardware close programming. For the project, a plattform was developed to 
+be used as a tool in the scools education when teaching programming and was iterative developed
+during the last 3 weeks of the project from evaluation research. The avaluation of the plattform was based on research 
+with questionairs to the the teachers and students and feedback after they checked out the products 
+prototypse. 
 *** Data selection
 
 *** Tools
