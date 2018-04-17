@@ -12,7 +12,7 @@
 #define MBEDTLS_ERR_CHECK(name, expr) { \
     int err = expr; \
     if (err != 0) { \
-      printf("Failed to %s: %d\n", name, err); \
+      printf("Failed to %s: -0x%X\n", name, -err); \
       return err; \
     } \
   }
@@ -63,7 +63,7 @@ int main(void) {
     int err;
     while ((err = mbedtls_ssl_handshake(&ssl)) != 0) {
       if (err != MBEDTLS_ERR_SSL_WANT_READ && err != MBEDTLS_ERR_SSL_WANT_WRITE) {
-        printf("Failed to handshake: %d\n", err);
+        printf("Failed to handshake: -0x%X\n", -err);
         return err;
       }
     }
