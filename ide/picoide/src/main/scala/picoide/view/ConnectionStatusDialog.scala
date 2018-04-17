@@ -18,7 +18,12 @@ object ConnectionStatusDialog {
           ^.className := "connection-status",
           "Connecting...".when(model().isPending),
           "Disconnected".when(model().isUnavailable),
-          "Connection failed".when(model().isFailed)
+          "Connection failed".when(model().isFailed),
+          <.button(
+            ^.onClick --> model.dispatchCB(
+              Actions.CommandQueue.Update(Pot.empty)),
+            "Reconnect"
+          ).when(model().isEmpty || model().isFailed)
       ))
       .build
 }
