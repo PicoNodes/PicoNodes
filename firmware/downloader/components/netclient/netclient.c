@@ -11,14 +11,6 @@
 #define SERVER_ADDR "localhost"
 #define SERVER_PORT "8081"
 
-#define NETCLIENT_MBEDTLS_ERR_CHECK(name, expr) { \
-    int err = expr; \
-    if (err != 0) { \
-      printf("Failed to %s: -0x%X\n", name, -err); \
-      return err; \
-    } \
-  }
-
 static void my_debug( void *ctx, int level,
                       const char *file, int line, const char *str ) {
   ((void) level);
@@ -26,7 +18,7 @@ static void my_debug( void *ctx, int level,
   fflush(  (FILE *) ctx  );
 }
 
-int netclient_main() {
+typedef struct {
   mbedtls_net_context server_fd;
   mbedtls_entropy_context entropy;
   mbedtls_ctr_drbg_context ctr_drbg;
@@ -35,45 +27,69 @@ int netclient_main() {
   mbedtls_x509_crt ca_cert;
   mbedtls_x509_crt own_cert;
   mbedtls_pk_context own_key;
+} netclient_context;
 
-  mbedtls_net_init(&server_fd);
-  mbedtls_ssl_init(&ssl);
-  mbedtls_ssl_config_init(&conf);
-  mbedtls_x509_crt_init(&ca_cert);
-  mbedtls_x509_crt_init(&own_cert);
-  mbedtls_pk_init(&own_key);
-  mbedtls_ctr_drbg_init(&ctr_drbg);
+void netclient_init(netclient_context *ctx) {
+  mbedtls_net_init(&ctx->server_fd);
+  mbedtls_entropy_init(&ctx->entropy);
+  mbedtls_ctr_drbg_init(&ctx->ctr_drbg);
+  mbedtls_ssl_init(&ctx->ssl);
+  mbedtls_ssl_config_init(&ctx->conf);
+  mbedtls_x509_crt_init(&ctx->ca_cert);
+  mbedtls_x509_crt_init(&ctx->own_cert);
+  mbedtls_pk_init(&ctx->own_key);
+}
 
-  NETCLIENT_MBEDTLS_ERR_CHECK("load ca cert", mbedtls_x509_crt_parse_file(&ca_cert, "picoca.cer"));
-  NETCLIENT_MBEDTLS_ERR_CHECK("load own cert", mbedtls_x509_crt_parse_file(&own_cert, "client.cer"));
-  NETCLIENT_MBEDTLS_ERR_CHECK("load own key", mbedtls_pk_parse_keyfile(&own_key, "client.pkcs8", NULL));
+void netclient_free(netclient_context *ctx) {
+  mbedtls_pk_free(&ctx->own_key);
+  mbedtls_x509_crt_free(&ctx->own_cert);
+  mbedtls_x509_crt_free(&ctx->ca_cert);
+  mbedtls_ssl_config_free(&ctx->conf);
+  mbedtls_ssl_free(&ctx->ssl);
+  mbedtls_ctr_drbg_free(&ctx->ctr_drbg);
+  mbedtls_entropy_free(&ctx->entropy);
+  mbedtls_net_free(&ctx->server_fd);
+}
 
-  mbedtls_entropy_init(&entropy);
-  NETCLIENT_MBEDTLS_ERR_CHECK("init entropy", mbedtls_ctr_drbg_seed(&ctr_drbg, mbedtls_entropy_func, &entropy, NULL, 0));
+int netclient_load_keys(netclient_context *ctx) {
+  NETCLIENT_MBEDTLS_ERR_CHECK("load ca cert", mbedtls_x509_crt_parse_file(&ctx->ca_cert, "picoca.cer"));
+  NETCLIENT_MBEDTLS_ERR_CHECK("load own cert", mbedtls_x509_crt_parse_file(&ctx->own_cert, "client.cer"));
+  NETCLIENT_MBEDTLS_ERR_CHECK("load own key", mbedtls_pk_parse_keyfile(&ctx->own_key, "client.pkcs8", NULL));
 
-  NETCLIENT_MBEDTLS_ERR_CHECK("connect", mbedtls_net_connect(&server_fd, SERVER_ADDR, SERVER_PORT, MBEDTLS_NET_PROTO_TCP));
+  mbedtls_ssl_conf_authmode(&ctx->conf, MBEDTLS_SSL_VERIFY_REQUIRED);
+  mbedtls_ssl_conf_ca_chain(&ctx->conf, &ctx->ca_cert, NULL);
+  mbedtls_ssl_conf_own_cert(&ctx->conf, &ctx->own_cert, &ctx->own_key);
+
+  return 0;
+}
+
+int netclient_seed_rng(netclient_context *ctx) {
+  NETCLIENT_MBEDTLS_ERR_CHECK("init entropy", mbedtls_ctr_drbg_seed(&ctx->ctr_drbg, mbedtls_entropy_func, &ctx->entropy, NULL, 0));
+  mbedtls_ssl_conf_rng(&ctx->conf, mbedtls_ctr_drbg_random, &ctx->ctr_drbg);
+  return 0;
+}
+
+void netclient_setup_debug(netclient_context *ctx) {
+  mbedtls_ssl_conf_dbg(&ctx->conf, my_debug, stdout);
+}
+
+int netclient_connect(netclient_context *ctx) {
+  NETCLIENT_MBEDTLS_ERR_CHECK("connect", mbedtls_net_connect(&ctx->server_fd, SERVER_ADDR, SERVER_PORT, MBEDTLS_NET_PROTO_TCP));
 
   NETCLIENT_MBEDTLS_ERR_CHECK("init TLS",
-                    mbedtls_ssl_config_defaults(&conf,
-                                                MBEDTLS_SSL_IS_CLIENT,
-                                                MBEDTLS_SSL_TRANSPORT_STREAM,
-                                                MBEDTLS_SSL_PRESET_DEFAULT));
+                              mbedtls_ssl_config_defaults(&ctx->conf,
+                                                          MBEDTLS_SSL_IS_CLIENT,
+                                                          MBEDTLS_SSL_TRANSPORT_STREAM,
+                                                          MBEDTLS_SSL_PRESET_DEFAULT));
 
-  //FIXME: verify server certificate
-  mbedtls_ssl_conf_authmode(&conf, MBEDTLS_SSL_VERIFY_REQUIRED);
-  mbedtls_ssl_conf_ca_chain(&conf, &ca_cert, NULL);
-  mbedtls_ssl_conf_own_cert(&conf, &own_cert, &own_key);
 
-  mbedtls_ssl_conf_rng(&conf, mbedtls_ctr_drbg_random, &ctr_drbg);
-  mbedtls_ssl_conf_dbg(&conf, my_debug, stdout);
-
-  NETCLIENT_MBEDTLS_ERR_CHECK("setup TLS", mbedtls_ssl_setup(&ssl, &conf));
-  mbedtls_ssl_set_bio(&ssl, &server_fd, mbedtls_net_send, mbedtls_net_recv, NULL);
+  NETCLIENT_MBEDTLS_ERR_CHECK("setup TLS", mbedtls_ssl_setup(&ctx->ssl, &ctx->conf));
+  mbedtls_ssl_set_bio(&ctx->ssl, &ctx->server_fd, mbedtls_net_send, mbedtls_net_recv, NULL);
 
   printf("Starting handshake\n");
   {
     int err;
-    while ((err = mbedtls_ssl_handshake(&ssl)) != 0) {
+    while ((err = mbedtls_ssl_handshake(&ctx->ssl)) != 0) {
       if (err != MBEDTLS_ERR_SSL_WANT_READ && err != MBEDTLS_ERR_SSL_WANT_WRITE) {
         printf("Failed to handshake: -0x%X\n", -err);
         return err;
@@ -82,16 +98,24 @@ int netclient_main() {
   }
   printf("Ending handshake\n");
 
-  mbedtls_ssl_write(&ssl, "hello world", 11);
+  return 0;
+}
 
-  mbedtls_net_free(&server_fd);
-  mbedtls_ssl_free(&ssl);
-  mbedtls_ssl_config_free(&conf);
-  mbedtls_ctr_drbg_free(&ctr_drbg);
-  mbedtls_entropy_free(&entropy);
-  mbedtls_x509_crt_free(&ca_cert);
-  mbedtls_x509_crt_free(&own_cert);
-  mbedtls_pk_free(&own_key);
+int netclient_setup(netclient_context *ctx) {
+  netclient_setup_debug(ctx);
+  NETCLIENT_MBEDTLS_ERR_RET(netclient_load_keys(ctx));
+  NETCLIENT_MBEDTLS_ERR_RET(netclient_seed_rng(ctx));
+  return 0;
+}
 
+int netclient_main() {
+  netclient_context ctx;
+  netclient_init(&ctx);
+  NETCLIENT_MBEDTLS_ERR_RET(netclient_setup(&ctx));
+  NETCLIENT_MBEDTLS_ERR_RET(netclient_connect(&ctx));
+
+  mbedtls_ssl_write(&ctx.ssl, "hello world", 11);
+
+  netclient_free(&ctx);
   return 0;
 }
