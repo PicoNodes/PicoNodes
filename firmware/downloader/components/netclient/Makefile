@@ -4,14 +4,18 @@
 
 all: netclient
 
-include *.d
+netclient.d:
+standalone.d:
 
-CPPFLAGS += -Wall -MD -DSTANDALONE
+include netclient.d standalone.d
+
+CPPFLAGS += -Wall -MD -DSTANDALONE -Iinclude
 
 LDLIBS += -lmbedtls -lmbedcrypto -lmbedx509
 
 netclient: standalone.o netclient.o
 
 clean:
-	rm *.o
-	rm netclient
+	rm -f *.o
+	rm -f *.d
+	rm -f netclient
