@@ -1,9 +1,3 @@
-#include "mbedtls/net.h"
-#include "mbedtls/ssl.h"
-#include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
-#include "mbedtls/debug.h"
-
 #include <string.h>
 
 #include "netclient.h"
@@ -14,20 +8,9 @@
 static void my_debug( void *ctx, int level,
                       const char *file, int line, const char *str ) {
   ((void) level);
-  fprintf( (FILE *) ctx, "%s:%04d: %s", file, line, str );
+  fprintf( (FILE *) ctx, "NETCLIENT: %s:%04d: %s", file, line, str );
   fflush(  (FILE *) ctx  );
 }
-
-typedef struct {
-  mbedtls_net_context server_fd;
-  mbedtls_entropy_context entropy;
-  mbedtls_ctr_drbg_context ctr_drbg;
-  mbedtls_ssl_context ssl;
-  mbedtls_ssl_config conf;
-  mbedtls_x509_crt ca_cert;
-  mbedtls_x509_crt own_cert;
-  mbedtls_pk_context own_key;
-} netclient_context;
 
 void netclient_init(netclient_context *ctx) {
   mbedtls_net_init(&ctx->server_fd);
@@ -86,17 +69,23 @@ int netclient_connect(netclient_context *ctx) {
   NETCLIENT_MBEDTLS_ERR_CHECK("setup TLS", mbedtls_ssl_setup(&ctx->ssl, &ctx->conf));
   mbedtls_ssl_set_bio(&ctx->ssl, &ctx->server_fd, mbedtls_net_send, mbedtls_net_recv, NULL);
 
-  printf("Starting handshake\n");
+  printf("NETCLIENT: Starting handshake\n");
   {
     int err;
     while ((err = mbedtls_ssl_handshake(&ctx->ssl)) != 0) {
       if (err != MBEDTLS_ERR_SSL_WANT_READ && err != MBEDTLS_ERR_SSL_WANT_WRITE) {
-        printf("Failed to handshake: -0x%X\n", -err);
+        printf("NETCLIENT: Failed to handshake: -0x%X\n", -err);
         return err;
       }
     }
   }
-  printf("Ending handshake\n");
+  printf("NETCLIENT: Ending handshake\n");
+  printf("NETCLIENT: Sending HELLO\n");
+  unsigned char hello_msg[] = {
+    0, 0, 0, 0
+  };
+  NETCLIENT_MBEDTLS_ERR_RET(netclient_write(ctx, hello_msg, sizeof(hello_msg)));
+  printf("NETCLIENT: HELLO done\n");
 
   return 0;
 }
@@ -108,13 +97,26 @@ int netclient_setup(netclient_context *ctx) {
   return 0;
 }
 
+int netclient_write(netclient_context *ctx, const unsigned char *msg, int len) {
+  while (1) {
+    int ret = mbedtls_ssl_write(&ctx->ssl, msg, len);
+    if (ret >= len) {
+      return 0;
+    } else if (ret >= 0) {
+      msg += ret;
+      len -= ret;
+    } else if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
+      NETCLIENT_MBEDTLS_ERR_CHECK("write", ret);
+    }
+  }
+  return 0;
+}
+
 int netclient_main() {
   netclient_context ctx;
   netclient_init(&ctx);
   NETCLIENT_MBEDTLS_ERR_RET(netclient_setup(&ctx));
   NETCLIENT_MBEDTLS_ERR_RET(netclient_connect(&ctx));
-
-  mbedtls_ssl_write(&ctx.ssl, "hello world", 11);
 
   netclient_free(&ctx);
   return 0;

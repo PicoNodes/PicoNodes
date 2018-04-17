@@ -6,11 +6,11 @@ all: netclient
 
 include *.d
 
-CPPFLAGS += -Wall -MD
+CPPFLAGS += -Wall -MD -DSTANDALONE
 
 LDLIBS += -lmbedtls -lmbedcrypto -lmbedx509
 
-netclient: main.o netclient.o
+netclient: standalone.o netclient.o
 
 clean:
 	rm *.o
