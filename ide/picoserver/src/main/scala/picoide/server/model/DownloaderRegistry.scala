@@ -32,7 +32,7 @@ class DownloaderRegistry extends Actor {
   override def receive = {
     case AddDownloader(downloader) =>
       log.info(s"Adding downloader ${downloader.id}")
-      Source.empty
+      Source.maybe
         .via(downloader.flow)
         .to(Sink.onComplete(_ => self ! RemoveDownloader(downloader)))
         .run()
