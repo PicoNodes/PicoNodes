@@ -26,6 +26,47 @@ object Instruction {
     val opcode = 0
   }
 
+  sealed trait Arith extends Instruction {
+    val arithOp: Byte
+
+    override val opcode = 1
+    override val opB = Operand.Integer(arithOp)
+  }
+
+  case class Add(opA: Operand.Value, flags: Flags) extends Arith {
+    val name = "add"
+    val arithOp = 0
+  }
+
+  case class Sub(opA: Operand.Value, flags: Flags) extends Arith {
+    val name = "sub"
+    val arithOp = 0
+  }
+
+  case class Teq(opA: Operand.Value, opB: Operand.Value, flags: Flags)
+      extends Instruction {
+    val name   = "teq"
+    val opcode = 4
+  }
+
+  case class Tgt(opA: Operand.Value, opB: Operand.Value, flags: Flags)
+      extends Instruction {
+    val name   = "tgt"
+    val opcode = 5
+  }
+
+  case class Tlt(opA: Operand.Value, opB: Operand.Value, flags: Flags)
+      extends Instruction {
+    val name   = "tlt"
+    val opcode = 6
+  }
+
+  case class Tcp(opA: Operand.Value, opB: Operand.Value, flags: Flags)
+      extends Instruction {
+    val name   = "tcp"
+    val opcode = 7
+  }
+
   def decode(raw: RawInstruction): Either[DecodeError, Instruction] =
     raw match {
       case RawInstruction("mov", None, _, flags) =>
@@ -37,6 +78,65 @@ object Instruction {
           opA <- Operand.Value.decode(opARaw)
           opB <- Operand.Register.decode(opBRaw)
         } yield Mov(opA, opB, flags)
+
+      case RawInstruction("add", None, _, flags) =>
+        Left(DecodeError.OpRequired)
+      case RawInstruction("add", Some(opARaw), None, flags) =>
+        for {
+          opA <- Operand.Value.decode(opARaw)
+        } yield Add(opA, flags)
+      case RawInstruction("add", _, Some(_), flags) =>
+        Left(DecodeError.TooManyOps)
+
+      case RawInstruction("sub", None, _, flags) =>
+        Left(DecodeError.OpRequired)
+      case RawInstruction("sub", Some(opARaw), None, flags) =>
+        for {
+          opA <- Operand.Value.decode(opARaw)
+        } yield Sub(opA, flags)
+      case RawInstruction("sub", _, Some(_), flags) =>
+        Left(DecodeError.TooManyOps)
+
+      case RawInstruction("teq", None, _, flags) =>
+        Left(DecodeError.OpRequired)
+      case RawInstruction("teq", _, None, flags) =>
+        Left(DecodeError.OpRequired)
+      case RawInstruction("teq", Some(opARaw), Some(opBRaw), flags) =>
+        for {
+          opA <- Operand.Value.decode(opARaw)
+          opB <- Operand.Value.decode(opBRaw)
+        } yield Teq(opA, opB, flags)
+
+      case RawInstruction("tgt", None, _, flags) =>
+        Left(DecodeError.OpRequired)
+      case RawInstruction("tgt", _, None, flags) =>
+        Left(DecodeError.OpRequired)
+      case RawInstruction("tgt", Some(opARaw), Some(opBRaw), flags) =>
+        for {
+          opA <- Operand.Value.decode(opARaw)
+          opB <- Operand.Value.decode(opBRaw)
+        } yield Tgt(opA, opB, flags)
+
+      case RawInstruction("tlt", None, _, flags) =>
+        Left(DecodeError.OpRequired)
+      case RawInstruction("tlt", _, None, flags) =>
+        Left(DecodeError.OpRequired)
+      case RawInstruction("tlt", Some(opARaw), Some(opBRaw), flags) =>
+        for {
+          opA <- Operand.Value.decode(opARaw)
+          opB <- Operand.Value.decode(opBRaw)
+        } yield Tlt(opA, opB, flags)
+
+      case RawInstruction("tcp", None, _, flags) =>
+        Left(DecodeError.OpRequired)
+      case RawInstruction("tcp", _, None, flags) =>
+        Left(DecodeError.OpRequired)
+      case RawInstruction("tcp", Some(opARaw), Some(opBRaw), flags) =>
+        for {
+          opA <- Operand.Value.decode(opARaw)
+          opB <- Operand.Value.decode(opBRaw)
+        } yield Tcp(opA, opB, flags)
+
       case RawInstruction("", None, None, flags) =>
         Right(Mov(Operand.Register.Null, Operand.Register.Null, flags))
       case _ =>
@@ -48,6 +148,7 @@ sealed trait DecodeError
 object DecodeError {
   case object UnknownInstruction extends DecodeError
   case object OpRequired         extends DecodeError
+  case object TooManyOps extends DecodeError
   case object OpType             extends DecodeError
   case object OpRange            extends DecodeError
   case object OpIllegalRegister  extends DecodeError
