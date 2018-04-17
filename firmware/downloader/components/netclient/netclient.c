@@ -35,9 +35,9 @@ void netclient_free(netclient_context *ctx) {
 }
 
 int netclient_load_keys(netclient_context *ctx) {
-  NETCLIENT_MBEDTLS_ERR_CHECK("load ca cert", mbedtls_x509_crt_parse_file(&ctx->ca_cert, "picoca.cer"));
-  NETCLIENT_MBEDTLS_ERR_CHECK("load own cert", mbedtls_x509_crt_parse_file(&ctx->own_cert, "client.cer"));
-  NETCLIENT_MBEDTLS_ERR_CHECK("load own key", mbedtls_pk_parse_keyfile(&ctx->own_key, "client.pkcs8", NULL));
+  NETCLIENT_MBEDTLS_ERR_CHECK("load ca cert", mbedtls_x509_crt_parse_file(&ctx->ca_cert, "/config/picoca.cer"));
+  NETCLIENT_MBEDTLS_ERR_CHECK("load own cert", mbedtls_x509_crt_parse_file(&ctx->own_cert, "/config/client.cer"));
+  NETCLIENT_MBEDTLS_ERR_CHECK("load own key", mbedtls_pk_parse_keyfile(&ctx->own_key, "/config/client.pkcs8", NULL));
 
   mbedtls_ssl_conf_authmode(&ctx->conf, MBEDTLS_SSL_VERIFY_REQUIRED);
   mbedtls_ssl_conf_ca_chain(&ctx->conf, &ctx->ca_cert, NULL);
@@ -91,8 +91,11 @@ int netclient_connect(netclient_context *ctx) {
 }
 
 int netclient_setup(netclient_context *ctx) {
+  printf("debuggifying\n");
   netclient_setup_debug(ctx);
+  printf("loadifying\n");
   NETCLIENT_MBEDTLS_ERR_RET(netclient_load_keys(ctx));
+  printf("RNG!\n");
   NETCLIENT_MBEDTLS_ERR_RET(netclient_seed_rng(ctx));
   return 0;
 }

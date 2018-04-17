@@ -1,0 +1,3 @@
+[submodule "firmware/downloader/mkspiffs"]
+	path = firmware/downloader/vendor/mkspiffs
+	url = https://github.com/igrr/mkspiffs

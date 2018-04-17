@@ -17,3 +17,4 @@ build
 sdkconfig.old
 tags
 TAGS
+data.bin

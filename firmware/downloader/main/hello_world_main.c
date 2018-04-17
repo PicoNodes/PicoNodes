@@ -7,6 +7,7 @@
 #include "esp_wifi.h"
 #include "esp_event.h"
 #include "esp_event_loop.h"
+#include "esp_spiffs.h"
 #include "netclient.h"
 
 #define WIFI_SSID "TestAP"
@@ -16,6 +17,17 @@ esp_err_t event_handler(void *ctx, system_event_t *event) {
   switch(event->event_id) {
   case SYSTEM_EVENT_STA_GOT_IP:
     printf("Got IP!\n");
+    netclient_context *netclient = malloc(sizeof(netclient_context));
+    netclient_init(netclient);
+    printf("setupping\n");
+    if (netclient_setup(netclient) != 0) {
+      return ESP_OK;
+    }
+    printf("connectifying\n");
+    if (netclient_connect(netclient) != 0) {
+      return ESP_OK;
+    }
+    printf("Ready to roll!\n");
     break;
   default:
     break;
@@ -29,6 +41,14 @@ void app_main()
     ESP_ERROR_CHECK(nvs_flash_init());
     tcpip_adapter_init();
     ESP_ERROR_CHECK(esp_event_loop_init(event_handler, NULL));
+
+    esp_vfs_spiffs_conf_t spiffs = {
+      .base_path = "/config",
+      .partition_label = "config",
+      .max_files = 10,
+      .format_if_mount_failed = false
+    };
+    ESP_ERROR_CHECK(esp_vfs_spiffs_register(&spiffs));
 
     wifi_init_config_t config = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&config));
@@ -47,13 +67,4 @@ void app_main()
     printf("Connecting...\n");
     ESP_ERROR_CHECK(esp_wifi_connect());
 
-    netclient_context netclient;
-    netclient_init(&netclient);
-    if (netclient_setup(&netclient) != 0) {
-      return;
-    }
-    if (netclient_connect(&netclient) != 0) {
-      return;
-    }
-    printf("Ready to roll!");
 }
