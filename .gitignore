@@ -1,9 +1,10 @@
-target
+﻿target
 .ensime*
 *.gbr
 *.drl
 Report.tex
 Report.pdf
+Report.html
 frågeformulär_lärare.tex
 frågeformulär_lärare.pdf
 ~$*
