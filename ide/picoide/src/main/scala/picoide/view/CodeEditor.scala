@@ -66,6 +66,7 @@ object CodeEditor {
           case ((err, line)) =>
             val elem = dom.document.createElement("div")
             elem.textContent = err.msg
+            elem.classList.add("picoasm-error")
             editor.addLineWidget(line, elem)
         }
         $.setStateL(State.widgets)(errorWidgets.toList)

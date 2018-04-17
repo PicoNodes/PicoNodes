@@ -21,4 +21,19 @@
     .cm-register-mem {
         color: purple;
     }
+
+    .picoasm-error {
+        background-color: pink;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+        font-weight: bold;
+        padding: 5px;
+        margin-bottom: 8px;
+        font-size: 1.2em;
+
+        &::before {
+            content: '❌';
+            margin-right: 0.5em;
+        }
+    }
 }
