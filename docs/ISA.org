@@ -40,6 +40,9 @@ If an instruction has a given flag then the instruction is only executed if
 the corresponding VM flag is also true.
 
 ** Conditionals
+   :PROPERTIES:
+   :CUSTOM_ID: conditionals
+   :END:
 
 Conditionals set the ~+~ and ~-~ flags according to the following rules:
 
@@ -69,13 +72,13 @@ Conditionals set the ~+~ and ~-~ flags according to the following rules:
 - F: [[#flags][Flag(s)]]
 - <number>: Magical constant
 
-|             | 2 bits | 6 bits | 8 bits      | 8 bits         |
-| instruction | flags  | opcode | operand A   | operand B      |
-|-------------+--------+--------+-------------+----------------|
-| mov         | F      |      0 | R/I: source | R: destination |
-| add         | F      |      1 | R/I         | 0              |
-| sub         | F      |      1 | R/I         | 1              |
-| teq         | F      |      4 | R/I         | R/I            |
-| tgt         | F      |      5 | R/I         | R/I            |
-| tlt         | F      |      6 | R/I         | R/I            |
-| tcp         | F      |      7 | R/I         | R/I            |
+|             | 2 bits | 6 bits | 8 bits      | 8 bits         |                   |
+| instruction | flags  | opcode | operand A   | operand B      | pseudocode        |
+|-------------+--------+--------+-------------+----------------+-------------------|
+| mov         | F      |      0 | R/I: source | R: destination | B = A             |
+| add         | F      |      1 | R/I         | 0              | acc = acc + A     |
+| sub         | F      |      1 | R/I         | 1              | acc = acc - A     |
+| teq         | F      |      4 | R/I         | R/I            | See [[#conditionals]] |
+| tgt         | F      |      5 | R/I         | R/I            | See [[#conditionals]] |
+| tlt         | F      |      6 | R/I         | R/I            | See [[#conditionals]] |
+| tcp         | F      |      7 | R/I         | R/I            | See [[#conditionals]] |
