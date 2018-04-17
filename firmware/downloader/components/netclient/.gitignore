@@ -1,1 +1,3 @@
-main
+netclient
+*.o
+*.d
