@@ -17,7 +17,7 @@ object EditorView {
             .apply(ConnectionStatusDialog.component(_)),
           DownloaderPane.component(model),
           model.connect(_.currentFile).apply(CodeEditor.component(_)),
-          model.connect(_.currentFile).apply(BytecodeViewer.component(_)),
+          // model.connect(_.currentFile).apply(BytecodeViewer.component(_)),
           model
             .connect(_.downloaders.map(_.events).getOrElse(Seq()))
             .apply(DownloaderLog.component(_))
