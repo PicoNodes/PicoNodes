@@ -29,7 +29,7 @@ fn main() {
     unsafe {
         gpioa.moder.modify(|_, w| w.moder4().bits(1)); // output
     }
-
+	
     let mut interpreter = Interpreter::new();
 	let memreg = MemRegister::Acc;
 	memreg.write(&mut interpreter, 5);

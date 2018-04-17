@@ -41,13 +41,14 @@ pub enum MemRegister {
 
 //IO registers, one register for each node it can communicate with.
 #[derive(Clone, Copy)]
-enum IoRegister {
+pub enum IoRegister {
     Right,
     Left,
     Up,
     Down,
 }
 
+#[derive(Clone, Copy)]
 pub enum RegisterOrImmediate {
 	Reg(Register),
 	Immediate(i8),
@@ -114,7 +115,7 @@ impl RegRead for IoRegister {
 impl RegWrite for MemRegister {
     fn write(self, interpreter: &mut Interpreter, value: i8) {
         match self {
-            MemRegister::Acc => interpreter.reg_acc = value, //assagnes the vaue to the reg_acc in the interpreter.
+            MemRegister::Acc => interpreter.reg_acc = value, //assagnes the value to the reg_acc in the interpreter.
             MemRegister::Null => {} //felmedelande att det inte går att implementera
         }
     }
@@ -145,7 +146,7 @@ impl RegRead for RegisterOrImmediate {
 	fn read(self, interpreter: &Interpreter) -> i8 {
 		match self {
 			RegisterOrImmediate::Reg(reg) => reg.read(interpreter), 					//If self is a io reg then it calls for io regs read func.
-			RegisterOrImmediate::Immediate(var) => unimplemented!(),						//If self is a mem reg then it calls the mem regs read func.
+			RegisterOrImmediate::Immediate(var) => var,						//If self is a mem reg then it calls the mem regs read func.
 		}
 	}
 }
