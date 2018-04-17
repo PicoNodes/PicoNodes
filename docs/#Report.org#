@@ -5,7 +5,7 @@
 * Introduction
 ** Background
 *** Datalogical thinking
-Datalogical thinking is, stated by Lindköpings university, to be
+Computational thinking is, stated by Lindköpings university, to be
 a process of problemsolving which includes:
 - Formulating a problem in a way that makes it possible to use computers to solve it.
 - Break down complex problems in smaller parts.
@@ -26,8 +26,14 @@ selection and repetition.
 3. The years 12-14: Two or more programminglanguages, bools logic, binaries,
 connection between program and hardware.
 Source https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
-This project is directed to be used by student int he ages of 14-15, fitting the 
+This project is directed to be used by student in the ages of 14-15, fitting the 
 last key stage very well.
+One importans thing to consider in the process of educating computational thinking
+and programming is to have very clear guidence and conciderations for the teachers,
+who need to understand the learning concept fully to be able to teach it.
+For this reason will the project have a focus on the teachers and how to prepare them 
+to use the tools the plattform provide. This will be in form of documents of concept,
+tutorials?, ...(this might fit some where else)
 
 
 
