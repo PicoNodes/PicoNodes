@@ -4,6 +4,7 @@ import japgolly.scalajs.react._
 import scala.scalajs.js.annotation.{JSImport, ScalaJSDefined}
 import scala.scalajs.js.|
 import scala.scalajs.js
+import org.scalajs.dom
 
 object ReactCodeMirror {
   @JSImport("codemirror", JSImport.Default)
@@ -38,6 +39,13 @@ object ReactCodeMirror {
     def getRange(from: Coord, to: Coord): String = js.native
     def replaceRange(replacement: String, from: Coord, to: Coord): Unit =
       js.native
+
+    def addLineWidget(line: Int, node: dom.Element): LineWidget = js.native
+  }
+
+  @js.native
+  trait LineWidget extends js.Object {
+    def clear(): Unit = js.native
   }
 
   type SimpleState = js.Array[SimpleRule]
