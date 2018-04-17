@@ -4,6 +4,33 @@
 
 * Introduction
 ** Background
+*** Datalogical thinking
+Datalogical thinking is, stated by Lindköpings university, to be
+a process of problemsolving which includes:
+- Formulating a problem in a way that makes it possible to use computers to solve it.
+- Break down complex problems in smaller parts.
+- Find repeating patterns and use them.
+- Creates algortims to automate the solution of a problem.
+- Logical orginaze and analyze data.
+- Represent data throuh abstractions like models and simulation.
+- Identify, analyze and implement possible solutions to find the most 
+effective one in a combination of steps and resources.
+- To generalise and use this kind of problemsolving processes on other 
+kind of problems.
+Computing in scools will have three key stages,
+1. In the years 5-6: algorithms and intructions, to create and debugg simple
+programs and a focus will lay on logical thinking.
+2. The years 7-11: Develop and debugg greather problems
+with given goals and use programmingconcept with variables, sekvens, 
+selection and repetition.
+3. The years 12-14: Two or more programminglanguages, bools logic, binaries,
+connection between program and hardware.
+Source https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
+This project is directed to be used by student int he ages of 14-15, fitting the 
+last key stage very well.
+
+
+
 ***** Use references
 ** Problem
 *** Questions
@@ -27,8 +54,8 @@ for an parallel and hardware close programming. For the project, a plattform was
 be used as a tool in the scools education when teaching programming and was iterative developed
 during the last 3 weeks of the project from evaluation research. The avaluation of the plattform was based on research 
 with questionairs to the the teachers and students and feedback after they checked out the products 
-prototypse. 
-*** Data selection
+prototypes. 
+*** data selection
 
 *** Tools
 *** Analysing the data and procedcures
