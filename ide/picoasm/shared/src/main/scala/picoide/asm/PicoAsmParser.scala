@@ -17,7 +17,7 @@ class PicoAsmParser extends RegexParsers {
   def operand: Parser[RawOperand] =
     number ^^ RawOperand.Integer | name ^^ RawOperand.Name
   def rawInstruction: Parser[RawInstruction] =
-    flags ~ name.? ~ (operand).? ~ (operand).? ^^ {
+    flags ~ name.? ~ (operand).? ~ (operand).? <~ "" ^^ {
       case flags ~ name ~ opA ~ opB =>
         RawInstruction(name.getOrElse(""), opA, opB, flags)
     }
