@@ -13,18 +13,24 @@ import java.util.UUID
 import picoide.proto.DownloaderInfo
 import scala.concurrent.{Future, Promise}
 
-class TLSClientAuthStage(authenticator: Principal => Future[DownloaderInfo])
+class TLSClientAuthStage(
+    authenticator: Principal => Future[Option[DownloaderInfo]])
     extends GraphStageWithMaterializedValue[
       FlowShape[TLSProtocol.SslTlsInbound, TLSProtocol.SslTlsInbound],
-      Future[DownloaderInfo]] {
+      Future[Option[DownloaderInfo]]] {
   val in  = Inlet[TLSProtocol.SslTlsInbound]("in")
   val out = Outlet[TLSProtocol.SslTlsInbound]("out")
 
   val shape = FlowShape(in, out)
 
   def createLogicAndMaterializedValue(inheritedAttributes: Attributes) = {
-    val idPromise = Promise[DownloaderInfo]()
+    val idPromise = Promise[Option[DownloaderInfo]]()
     val logic = new GraphStageLogic(shape) {
+      override def postStop(): Unit =
+        if (!idPromise.isCompleted) {
+          idPromise.success(None)
+        }
+
       setHandler(
         in,
         new InHandler {
@@ -55,18 +61,18 @@ class TLSClientAuthStage(authenticator: Principal => Future[DownloaderInfo])
 }
 
 object TLSClientAuthStage {
-  def apply(authenticator: Principal => Future[DownloaderInfo])
+  def apply(authenticator: Principal => Future[Option[DownloaderInfo]])
     : Flow[TLSProtocol.SslTlsInbound,
            TLSProtocol.SslTlsInbound,
-           Future[DownloaderInfo]] =
+           Future[Option[DownloaderInfo]]] =
     Flow.fromGraph(new TLSClientAuthStage(authenticator))
 
-  def bidiBs(authenticator: Principal => Future[DownloaderInfo])
+  def bidiBs(authenticator: Principal => Future[Option[DownloaderInfo]])
     : BidiFlow[TLSProtocol.SslTlsInbound,
                ByteString,
                ByteString,
                TLSProtocol.SslTlsOutbound,
-               Future[DownloaderInfo]] =
+               Future[Option[DownloaderInfo]]] =
     BidiFlow.fromFlowsMat(
       this(authenticator).map {
         case TLSProtocol.SessionBytes(_, bytes) => bytes

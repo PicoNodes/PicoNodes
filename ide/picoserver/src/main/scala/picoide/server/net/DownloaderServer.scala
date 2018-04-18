@@ -39,8 +39,8 @@ object DownloaderServer {
     : Source[Downloader, Future[ServerBinding]] = {
     val log = Logging.apply(actorSystem, getClass)
 
-    val setupDownloader = Flow[IncomingConnection].mapAsyncUnordered(10) {
-      conn =>
+    val setupDownloader = Flow[IncomingConnection]
+      .mapAsyncUnordered(10) { conn =>
         val toDownloader = Flow
           .fromSinkAndSourceCoupledMat(
             BroadcastHub.sink[DownloaderEvent],
@@ -71,7 +71,7 @@ object DownloaderServer {
             .named("protocol")
 
         val authenticator = TLSClientAuthStage.bidiBs(_ =>
-          Future.successful(DownloaderInfo(UUID.randomUUID())))
+          Future.successful(Some(DownloaderInfo(UUID.randomUUID()))))
 
         val sslContext = DownloaderTLSConfig.sslContext
         val encrypted =
@@ -79,14 +79,17 @@ object DownloaderServer {
               DownloaderTLSConfig.negotiateNewSession(sslContext),
               TLSRole.server).reversed
             .atopMat(authenticator)(Keep.right)
-            .joinMat(protocol)((info, flow) => info.map(Downloader(_, flow)))
+            .joinMat(protocol)((info, flow) =>
+              info.map(_.map(Downloader(_, flow))))
 
         conn.handleWith(encrypted)
-    }
+      }
 
     Tcp()
       .bind("0.0.0.0", 8081)
       .via(setupDownloader)
+      .log("new-downloader")
+      .mapConcat(_.toList)
       .mapMaterializedValue(_.map { binding =>
         actorSystem.log.info("Downloader server listening on {}",
                              binding.localAddress)
