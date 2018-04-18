@@ -12,6 +12,7 @@
 pub struct Interpreter {
     pub reg_acc: i8,
     prog_counter: u8,
+	pub flag: Flag,
 }
 
 impl Interpreter {
@@ -19,28 +20,42 @@ impl Interpreter {
         Interpreter {
             reg_acc: 0,
             prog_counter: 0,
+			flag: Flag::Neather,
         }
     }
 }
 
+impl Interpreter {
+	pub fn set_flag(&mut self, state: bool) {
+		if state == true {
+			self.flag = Flag::True;
+		}else if state == false {
+			self.flag = Flag::False;
+		}else {
+			self.flag = Flag::Neather;
+		}
+	}
+}
+
+
 /***************************** Register Enums *****************************/
 
 //different types of registers.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd)]
 pub enum Register {
     Mem(MemRegister),
     Io(IoRegister),
 }
 
 //memory register
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd)]
 pub enum MemRegister {
     Acc,
     Null,
 }
 
 //IO registers, one register for each node it can communicate with.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd)]
 pub enum IoRegister {
     Right,
     Left,
@@ -48,10 +63,17 @@ pub enum IoRegister {
     Down,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd)]				//Look into if the derive is redundant
 pub enum RegisterOrImmediate {
 	Reg(Register),
 	Immediate(i8),
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)] 				//Adding traits
+pub enum Flag {
+	True,
+	False,
+	Neather,
 }
 
 /****************************** Register Traits ******************************/
@@ -106,7 +128,7 @@ impl RegWrite for Register {
 
 //implementing the read func for the io registers.
 impl RegRead for IoRegister {
-    fn read(self, interpeter: &Interpreter) -> i8 {
+    fn read(self, interpreter: &Interpreter) -> i8 {
         unimplemented!()
     }
 }

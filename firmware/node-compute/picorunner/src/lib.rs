@@ -12,15 +12,30 @@ pub use registers::*;
 
 //The Picoasm instructions structure
 enum Instruction {
-    Mov(RegisterOrImmediate, Register), //Mov(RegisterOrImmediate, Register),(RegisterOrImmediate, Register)
-    Add(RegisterOrImmediate), //Need to be Add(RegisterOrImmediate) to be able to get a value from both register and immediate
-    Sub(RegisterOrImmediate), //Need to be Sub(RegisterOrImmediate) to be able to get a value from both register and immediate or it can be decoded in the actions??
-    Teq(RegisterOrImmediate, RegisterOrImmediate),
-    Tgt(RegisterOrImmediate, RegisterOrImmediate),
-    Tlt(RegisterOrImmediate, RegisterOrImmediate),
-    Tcp(RegisterOrImmediate, RegisterOrImmediate),
+    Mov(Flag, RegisterOrImmediate, Register), //Mov(RegisterOrImmediate, Register),(RegisterOrImmediate, Register)
+    Add(Flag, RegisterOrImmediate), //Need to be Add(RegisterOrImmediate) to be able to get a value from both register and immediate
+    Sub(Flag, RegisterOrImmediate), //Need to be Sub(RegisterOrImmediate) to be able to get a value from both register and immediate or it can be decoded in the actions??
+    Teq(Flag, RegisterOrImmediate, RegisterOrImmediate),
+    Tgt(Flag, RegisterOrImmediate, RegisterOrImmediate),
+    Tlt(Flag, RegisterOrImmediate, RegisterOrImmediate),
+    Tcp(Flag, RegisterOrImmediate, RegisterOrImmediate),  
 }
-	
+
+impl Instruction {
+	fn get_flag(&self) -> Flag {
+		use Instruction::*;
+		use registers::Flag::*;
+		match self {
+			Mov(flag, _, _) => *flag,
+			Add(flag,_) => *flag,
+			Sub(flag,_) => *flag,
+			Teq(flag, _, _) => *flag,
+			Tgt(flag, _, _) => *flag,
+			Tlt(flag, _, _) => *flag,
+			Tcp(flag, _, _) => *flag,
+		}
+	}
+}
 
 //Decoding the Bytecode in the format flag(2 bits), op(6 bits), operand A(8 bits), operand B(8 bits)
 struct Bytecode{
@@ -30,41 +45,74 @@ struct Bytecode{
 
 fn decoding_instruction(bytecode: Bytecode) -> Instruction{
 	use Instruction::*;
+	use registers::Flag::*;
 	let flags = (bytecode.bytecode[0] & 0xC0) >> 6;
 	let op = bytecode.bytecode[0] & 0x3F;
 	let op_a = bytecode.bytecode[1] as i8;
 	let op_b = bytecode.bytecode[2] as i8;
-		
+	let mut flag = Flag::Neather;
+
+	//Checking the intruction flags exclusions
+	match flags {
+		2 => flag = True,
+		1 => flag = False,
+		_ => flag = Neather,
+	};
+	
 	match op {
-		0 => Mov(registers::RegisterOrImmediate::from_i8(op_a), registers::Register::from_i8(op_b)),
-		1 if op_b == 0 => Add(registers::RegisterOrImmediate::from_i8(op_a)), //Under construction! Add must also be able to get a value from a register
-		1 if op_b == 1 => Sub(registers::RegisterOrImmediate::from_i8(op_a)), //Same for Sub!
-		4 => Teq(registers::RegisterOrImmediate::from_i8(op_a), registers::RegisterOrImmediate::from_i8(op_b)),
-		5 => Tgt(registers::RegisterOrImmediate::from_i8(op_a), registers::RegisterOrImmediate::from_i8(op_b)),
-		6 => Tlt(registers::RegisterOrImmediate::from_i8(op_a), registers::RegisterOrImmediate::from_i8(op_b)),
-		7 => Tcp(registers::RegisterOrImmediate::from_i8(op_a), registers::RegisterOrImmediate::from_i8(op_b)),
+		0 => Mov(flag, registers::RegisterOrImmediate::from_i8(op_a), registers::Register::from_i8(op_b)),
+		1 if op_b == 0 => Add(flag, registers::RegisterOrImmediate::from_i8(op_a)), //Under construction! Add must also be able to get a value from a register
+		1 if op_b == 1 => Sub(flag, registers::RegisterOrImmediate::from_i8(op_a)), //Same for Sub!
+		4 => Teq(flag, registers::RegisterOrImmediate::from_i8(op_a), registers::RegisterOrImmediate::from_i8(op_b)),
+		5 => Tgt(flag, registers::RegisterOrImmediate::from_i8(op_a), registers::RegisterOrImmediate::from_i8(op_b)),
+		6 => Tlt(flag, registers::RegisterOrImmediate::from_i8(op_a), registers::RegisterOrImmediate::from_i8(op_b)),
+		7 => Tcp(flag, registers::RegisterOrImmediate::from_i8(op_a), registers::RegisterOrImmediate::from_i8(op_b)),
 		_ => panic!("Not an instruction!"),
 	}
 }
 
+
 //The func takes the decoded instruction and do actions depending on the operation	
 fn run_instruction(instruction: Instruction, interpreter: &mut Interpreter) {
 	use Instruction::*;
-	match instruction {
-		Mov(op_a, op_b) => {
-			let value = op_a.read(interpreter);
-			op_b.write(interpreter, value);					//write structure is write(self, interpeter, value) let value = op_a;
+	let flag = instruction.get_flag();
+	if flag == interpreter.flag {
+		match instruction {
+			Mov(_, op_a, op_b) => {
+				let value = op_a.read(interpreter);
+				op_b.write(interpreter, value);					//write structure is write(self, interpeter, value) let value = op_a;
+			}
+			Add(_, op_a) => {										//intruction structure is Instruction::Add(RegisterOrImmediate)
+				let value = interpreter.reg_acc;
+				interpreter.reg_acc = value + op_a.read(interpreter);   
+			},
+			Sub(_, op_a) => {
+				let value = interpreter.reg_acc;
+				interpreter.reg_acc = value - op_a.read(interpreter);
+			},
+			Teq(_, op_a, op_b) => {
+				let state = (op_a.read(interpreter) == op_b.read(interpreter));
+				interpreter.set_flag(state);
+			},
+			Tgt(_, op_a, op_b) => {
+				let state = (op_a.read(interpreter) > op_b.read(interpreter));
+				interpreter.set_flag(state);
+			},
+			Tlt(_, op_a, op_b) => {
+				let state = (op_a.read(interpreter) < op_b.read(interpreter));
+				interpreter.set_flag(state);
+			},
+			Tcp(_, op_a, op_b) => {
+				if op_a == op_b {
+					interpreter.flag = Flag::Neather;
+				} else if op_a < op_b {
+					interpreter.flag = Flag::False;
+				} else {
+					interpreter.flag = Flag::True;
+				}
+			},
+			_ => unimplemented!(),
 		}
-		Add(op_a) => {										//intruction structure is Instruction::Add(RegisterOrImmediate)
-			let value = interpreter.reg_acc;
-			interpreter.reg_acc = value + op_a.read(interpreter);   
-		},
-		Sub(op_a) => {
-			let value = interpreter.reg_acc;
-			interpreter.reg_acc = value - op_a.read(interpreter);
-		},
-		_ => 
-			unimplemented!(),
 	}
 }
 
