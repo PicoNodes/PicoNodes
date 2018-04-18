@@ -8,6 +8,8 @@
 #include "esp_event.h"
 #include "esp_event_loop.h"
 #include "esp_spiffs.h"
+#include "esp_intr.h"
+#include "driver/uart.h"
 #include "netclient.h"
 
 #define WIFI_SSID "TestAP"
@@ -27,21 +29,41 @@ typedef struct {
 
 typedef struct {
   QueueHandle_t queue;
-  netclient_context *netclient;
-} task_netclient_subtask_ctx;
+  uart_port_t uart;
+} task_uart_subtask_ctx;
 
-void task_netclient_write(void *parameters) {
-  task_netclient_subtask_ctx ctx = *(task_netclient_subtask_ctx *)parameters;
+void task_uart_read(void *parameters) {
+  task_uart_subtask_ctx ctx = *(task_uart_subtask_ctx *)parameters;
   free(parameters);
 
   downloader_queue_buf next_item;
   while (1) {
-    next_item.len = netclient_read(ctx.netclient, next_item.buf, DOWNLOADER_QUEUE_BUF_LEN);
-    xQueueSend(ctx.queue, &next_item, portMAX_DELAY);
+    next_item.len = uart_read_bytes(ctx.uart, next_item.buf, DOWNLOADER_QUEUE_BUF_LEN, 5);
+    if (next_item.len > 0) {
+      xQueueSend(ctx.queue, &next_item, portMAX_DELAY);
+    }
   }
 
   vTaskDelete(NULL);
 }
+
+void task_uart_write(void *parameters) {
+  task_uart_subtask_ctx ctx = *(task_uart_subtask_ctx *)parameters;
+  free(parameters);
+
+  downloader_queue_buf next_item;
+  while (1) {
+    xQueueReceive(ctx.queue, &next_item, portMAX_DELAY);
+    uart_write_bytes(ctx.uart, (const char *) next_item.buf, next_item.len);
+  }
+
+  vTaskDelete(NULL);
+}
+
+typedef struct {
+  QueueHandle_t queue;
+  netclient_context *netclient;
+} task_netclient_subtask_ctx;
 
 void task_netclient_read(void *parameters) {
   task_netclient_subtask_ctx ctx = *(task_netclient_subtask_ctx *)parameters;
@@ -49,7 +71,26 @@ void task_netclient_read(void *parameters) {
 
   downloader_queue_buf next_item;
   while (1) {
-    xQueueReceive(ctx.queue, &next_item, portMAX_DELAY);
+    int len = netclient_read(ctx.netclient, next_item.buf, DOWNLOADER_QUEUE_BUF_LEN);
+    next_item.len = len;
+    if (len < 0) {
+      esp_restart();
+    }
+    xQueueSend(ctx.queue, &next_item, portMAX_DELAY);
+  }
+
+  vTaskDelete(NULL);
+}
+
+void task_netclient_write(void *parameters) {
+  task_netclient_subtask_ctx ctx = *(task_netclient_subtask_ctx *)parameters;
+  free(parameters);
+
+  downloader_queue_buf next_item;
+  while (1) {
+    if (xQueueReceive(ctx.queue, &next_item, portMAX_DELAY) < 0) {
+      esp_restart();
+    }
     netclient_write(ctx.netclient, next_item.buf, next_item.len);
   }
 
@@ -58,6 +99,7 @@ void task_netclient_read(void *parameters) {
 
 void task_netclient(void *parameters) {
   downloader_queues *queues = parameters;
+
   netclient_context *netclient = malloc(sizeof(netclient_context));
   netclient_init(netclient);
   printf("setupping\n");
@@ -109,8 +151,41 @@ void app_main() {
 
     downloader_queues *queues = malloc(sizeof(downloader_queues));
     queues->command_queue = xQueueCreate(1, sizeof(downloader_queue_buf));
-    queues->event_queue = queues->command_queue;
-    /* queues->event_queue = xQueueCreate(1, sizeof(downloader_queue_buf)); */
+    queues->event_queue = xQueueCreate(1, sizeof(downloader_queue_buf));
+
+    uart_config_t uart_config = {
+      .baud_rate = 115200,
+      .data_bits = UART_DATA_8_BITS,
+      .parity = UART_PARITY_DISABLE,
+      .stop_bits = UART_STOP_BITS_1,
+      .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+      .rx_flow_ctrl_thresh = 0,
+      .use_ref_tick = 0
+    };
+    ESP_ERROR_CHECK(uart_param_config(UART_NUM_1, &uart_config));
+    ESP_ERROR_CHECK(uart_set_pin(UART_NUM_1,
+                                 17,                   // TX
+                                 16,                   // RX
+                                 UART_PIN_NO_CHANGE,   // RTS
+                                 UART_PIN_NO_CHANGE)); // CTS
+    ESP_ERROR_CHECK(uart_driver_install(UART_NUM_1,
+                                        1024, // RX buffer
+                                        1024, // TX buffer
+                                        0,    // event queue depth
+                                        NULL, // event queue
+                                        ESP_INTR_FLAG_LOWMED
+                                        ));
+
+    task_uart_subtask_ctx *uart_writer_ctx = malloc(sizeof(task_uart_subtask_ctx));
+    uart_writer_ctx->queue = queues->command_queue;
+    uart_writer_ctx->uart = UART_NUM_1;
+
+    task_uart_subtask_ctx *uart_reader_ctx = malloc(sizeof(task_uart_subtask_ctx));
+    uart_reader_ctx->queue = queues->event_queue;
+    uart_reader_ctx->uart = UART_NUM_1;
+
+    xTaskCreate(&task_uart_write, "task_uart_write", 16384, uart_writer_ctx, 1, NULL);
+    xTaskCreate(&task_uart_read, "task_uart_read", 16384, uart_reader_ctx, 1, NULL);
 
     ESP_ERROR_CHECK(esp_event_loop_init(event_handler, queues));
 
