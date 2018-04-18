@@ -13,7 +13,51 @@
 #define WIFI_SSID "TestAP"
 #define WIFI_PASSWORD "verysecret"
 
+#define DOWNLOADER_QUEUE_BUF_LEN (512)
+
+typedef struct {
+  uint16_t len;
+  unsigned char buf[DOWNLOADER_QUEUE_BUF_LEN];
+} downloader_queue_buf;
+
+typedef struct {
+  QueueHandle_t command_queue;
+  QueueHandle_t event_queue;
+} downloader_queues;
+
+typedef struct {
+  QueueHandle_t queue;
+  netclient_context *netclient;
+} task_netclient_subtask_ctx;
+
+void task_netclient_write(void *parameters) {
+  task_netclient_subtask_ctx ctx = *(task_netclient_subtask_ctx *)parameters;
+  free(parameters);
+
+  downloader_queue_buf next_item;
+  while (1) {
+    next_item.len = netclient_read(ctx.netclient, next_item.buf, DOWNLOADER_QUEUE_BUF_LEN);
+    xQueueSend(ctx.queue, &next_item, portMAX_DELAY);
+  }
+
+  vTaskDelete(NULL);
+}
+
+void task_netclient_read(void *parameters) {
+  task_netclient_subtask_ctx ctx = *(task_netclient_subtask_ctx *)parameters;
+  free(parameters);
+
+  downloader_queue_buf next_item;
+  while (1) {
+    xQueueReceive(ctx.queue, &next_item, portMAX_DELAY);
+    netclient_write(ctx.netclient, next_item.buf, next_item.len);
+  }
+
+  vTaskDelete(NULL);
+}
+
 void task_netclient(void *parameters) {
+  downloader_queues *queues = parameters;
   netclient_context *netclient = malloc(sizeof(netclient_context));
   netclient_init(netclient);
   printf("setupping\n");
@@ -31,14 +75,26 @@ void task_netclient(void *parameters) {
   }
   printf("Ready to roll!\n");
 
+  task_netclient_subtask_ctx *writer_ctx = malloc(sizeof(task_netclient_subtask_ctx));
+  writer_ctx->queue = queues->event_queue;
+  writer_ctx->netclient = netclient;
+
+  task_netclient_subtask_ctx *reader_ctx = malloc(sizeof(task_netclient_subtask_ctx));
+  reader_ctx->queue = queues->command_queue;
+  reader_ctx->netclient = netclient;
+
+  xTaskCreate(&task_netclient_write, "task_netclient_write", 16384, writer_ctx, 1, NULL);
+  xTaskCreate(&task_netclient_read, "task_netclient_read", 16384, reader_ctx, 1, NULL);
+
   vTaskDelete(NULL);
 }
 
 esp_err_t event_handler(void *ctx, system_event_t *event) {
+  downloader_queues *queues = ctx;
   switch(event->event_id) {
   case SYSTEM_EVENT_STA_GOT_IP:
     printf("Got IP!\n");
-    xTaskCreate(&task_netclient, "task_netclient", 16384, NULL, 1, NULL);
+    xTaskCreate(&task_netclient, "task_netclient", 16384, queues, 1, NULL);
     break;
   default:
     break;
@@ -50,7 +106,13 @@ void app_main() {
     printf("Hello world!\n");
     ESP_ERROR_CHECK(nvs_flash_init());
     tcpip_adapter_init();
-    ESP_ERROR_CHECK(esp_event_loop_init(event_handler, NULL));
+
+    downloader_queues *queues = malloc(sizeof(downloader_queues));
+    queues->command_queue = xQueueCreate(1, sizeof(downloader_queue_buf));
+    queues->event_queue = queues->command_queue;
+    /* queues->event_queue = xQueueCreate(1, sizeof(downloader_queue_buf)); */
+
+    ESP_ERROR_CHECK(esp_event_loop_init(event_handler, queues));
 
     esp_vfs_spiffs_conf_t spiffs = {
       .base_path = "/config",
