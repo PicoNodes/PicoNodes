@@ -6,12 +6,14 @@ import akka.stream.{Attributes, FlowShape}
 import akka.stream.stage.{GraphStageLogic, GraphStageWithMaterializedValue}
 import akka.stream.{BidiShape, Inlet, Outlet, TLSProtocol}
 import akka.stream.stage.GraphStage
-import akka.util.ByteString
+import akka.util.{ByteString, Timeout}
 import java.io.IOException
 import java.security.Principal
 import java.util.UUID
 import picoide.proto.DownloaderInfo
 import scala.concurrent.{Future, Promise}
+import scala.concurrent.duration._
+import scala.util.{Failure, Success}
 
 class TLSClientAuthStage(
     authenticator: Principal => Future[Option[DownloaderInfo]])
@@ -25,11 +27,25 @@ class TLSClientAuthStage(
 
   def createLogicAndMaterializedValue(inheritedAttributes: Attributes) = {
     val idPromise = Promise[Option[DownloaderInfo]]()
+    val idFuture  = idPromise.future
+
     val logic = new GraphStageLogic(shape) {
+      override def preStart(): Unit = {
+        materializer.scheduleOnce(2.seconds, () => idPromise.trySuccess(None))
+
+        val failAsync = getAsyncCallback(failStage)
+        idFuture.onComplete {
+          case Failure(ex) =>
+            failAsync.invoke(ex)
+          case Success(None) =>
+            failAsync.invoke(
+              new IllegalAccessError("Client failed to authenticate"))
+          case Success(Some(_)) =>
+        }(materializer.executionContext)
+      }
+
       override def postStop(): Unit =
-        if (!idPromise.isCompleted) {
-          idPromise.success(None)
-        }
+        idPromise.trySuccess(None)
 
       setHandler(
         in,
@@ -37,11 +53,14 @@ class TLSClientAuthStage(
           override def onPush(): Unit =
             grab(in) match {
               case bytes: TLSProtocol.SessionBytes =>
-                idPromise.completeWith(authenticator(bytes.peerPrincipal.get))
-                idPromise.future.foreach { _ =>
-                  push(out, bytes)
-                  passAlong(in, out)
-                }(materializer.executionContext)
+                idPromise.tryCompleteWith(
+                  authenticator(bytes.peerPrincipal.get))
+                idFuture.foreach(getAsyncCallback[Option[DownloaderInfo]] {
+                  case Some(_) =>
+                    push(out, bytes)
+                    passAlong(in, out)
+                  case None =>
+                }.invoke)(materializer.executionContext)
               case trunc: TLSProtocol.SessionTruncated =>
                 push(out, trunc)
             }
@@ -56,7 +75,7 @@ class TLSClientAuthStage(
 
       })
     }
-    (logic, idPromise.future)
+    (logic, idFuture)
   }
 }
 
