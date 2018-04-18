@@ -117,7 +117,17 @@ int netclient_write(netclient_context *ctx, const unsigned char *msg, int len) {
       NETCLIENT_MBEDTLS_ERR_CHECK("write", ret);
     }
   }
-  return 0;
+}
+
+int netclient_read(netclient_context *ctx, unsigned char *buf, int len) {
+  while (1) {
+    int ret = mbedtls_ssl_read(&ctx->ssl, buf, len);
+    if (ret >= 0) {
+      return ret;
+    } else if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
+      NETCLIENT_MBEDTLS_ERR_CHECK("read", ret);
+    }
+  }
 }
 
 int netclient_main() {

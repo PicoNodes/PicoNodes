@@ -39,6 +39,7 @@ void netclient_init(netclient_context *ctx);
 void netclient_free(netclient_context *ctx);
 int netclient_setup(netclient_context *ctx);
 int netclient_connect(netclient_context *ctx);
+int netclient_read(netclient_context *ctx, unsigned char *buf, int len);
 int netclient_write(netclient_context *ctx, const unsigned char *msg, int len);
 
 #endif
