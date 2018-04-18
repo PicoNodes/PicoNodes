@@ -3,15 +3,87 @@
 #+AUTHOR: Therese Kennerberg, Teo Klestrup RÃ¶ijezon
 
 * Introduction
+The goal of this project outcome is to provide a "hands on", physical 
+and pedalogical education plattform for the schools. The plattform will 
+the new learning outcomes that is taking its place in june 2018 for the
+subjects computational thinking and programming. The plattform is directed
+for hardware close and parallel programming, using a own developed assembler 
+like language to teach computational thinking.
 ** Background
+*** 
+*** Computational thinking in the Swedish scools
+Computational thinking is, stated by Lindköpings university, to be
+a process of problemsolving which includes:
+- Formulating a problem in a way that makes it possible to use computers to solve it.
+- Break down complex problems in smaller parts.
+- Find repeating patterns and use them.
+- Creates algortims to automate the solution of a problem.
+- Logical orginaze and analyze data.
+- Represent data throuh abstractions like models and simulation.
+- Identify, analyze and implement possible solutions to find the most 
+effective one in a combination of steps and resources.
+- To generalise and use this kind of problemsolving processes on other 
+kind of problems.
+Computing in scools will have three key stages,
+1. In the years 5-6: algorithms and intructions, to create and debugg simple
+programs and a focus will lay on logical thinking.
+2. The years 7-11: Develop and debugg greather problems
+with given goals and use programmingconcept with variables, sekvens, 
+selection and repetition.
+3. The years 12-14: Two or more programminglanguages, bools logic, binaries,
+connection between program and hardware.
+Source https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
+This project is directed to be used by student in the ages of 14-15, fitting the 
+last key stage very well.
+The importance of computational thinking and programming in scools is stated by Mannila and Heintz 
+from Linköpings universitet to be the problemsolving processes which include describe, analyse 
+and state the problem in a way so computers can help solving the problem. This ability will 
+evolve skills in handling coplex problems, perseverence when working on big problems,
+tolerans for ambiguity, ability to handle open stated problems and ability to communicate
+and cooperate with others https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
+One importans thing to consider in the process of educating computational thinking
+and programming is to have very clear guidence and conciderations for the teachers,
+who need to understand the learning concept fully to be able to teach it.
+In a inquiry made by Microsoft and CAS, 68% of the teachers is worried that the 
+students have more understanding for the subject then they do and that 81%
+of the teachers wish for more agile training and material for the subject https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
+For this reason will the project have a focus on the teachers and how to prepare them 
+to use the tools the plattform provide. This will be in form of documents of concept,
+tutorials?, ...(this might fit some where else)
+
+*** Other tool for supporting computational thinking outcomes
+
 ***** Use references
 ** Problem
+*** Questions
+The study have examend following question:
+1. How to implement the new outcomes for computational thinking
+2. Implementatin of a plattform to teach students to do hardware close programming
+3. Evaluation of the pedalogicalness of the plattform and how you can implement 
+the idea to motivate students.
 ***** Use references
 ** Purpose
 ** Goal
 *** Benefits, Ethics and Sustainability
 ** Methodology / Methods
+State the problem and underlying assumption.
+The National Agency for Education in Sweden are about to implement outcomes for
+computational thinking in june 2018. Their vision for 2020, is that every student have 
+developed an adequate competence for digital tecnology 
+https://liu.se/cetis/konferenser/documents-tis2017/m2-3-datalogiskt-tankande.pdf). 
+The question formulation in this thesis report is how can you implement computational thinking 
+for an parallel and hardware close programming. For the project, a plattform was developed to 
+be used as a tool in the scools education when teaching programming and was iterative developed
+during the last 3 weeks of the project from evaluation research. The avaluation of the plattform was based on research 
+with questionairs to the the teachers and students and feedback after they checked out the products
+prototypes. The questionair is formed so the answers can give us a foundations for developing a
+pedalogical and motivating tool the student can use to achieve the outcomes for computational thinking.
+ 
+*** data selection
 
+*** Tools
+*** Analysing the data and procedcures
+*** Specific research tools and strategies
 The product will have the UI designed in the browser so the user wont be fixed to one plattform. This way eather a mobilephone or a laptop can be used for programming the microcontrollers. The MCU of our choice is stm32f030f4p6. This MCU is chosen because it got enough I/Os and memoryspace for the application and is reasonable cheep. This MCUs are also popular to program in Rust which make it easier to find documentation and support. At least 8 I/O is needed. UART communication(two pins for Tx and Rx), communications between the MCUs(4 pins), external clocksource and coarsegrain syncronization clock. A server will be provided by Inicio which contains the drivers for communicating between the plattforms and the compiler for the bytecode.
 
 *** IDE and programming langueges 
