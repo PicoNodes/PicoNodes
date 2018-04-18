@@ -8,7 +8,11 @@
 static void my_debug( void *ctx, int level,
                       const char *file, int line, const char *str ) {
   ((void) level);
-  fprintf( (FILE *) ctx, "NETCLIENT: %s:%04d: %s", file, line, str );
+  // The stack overflows if one printf gets too large... :/
+  fprintf( (FILE *) ctx, "NETCLIENT: ");
+  fputs(file, (FILE *) ctx);
+  fprintf( (FILE *) ctx, ":%04d: ", line);
+  fputs(str, (FILE *) ctx);
   fflush(  (FILE *) ctx  );
 }
 
@@ -54,6 +58,7 @@ int netclient_seed_rng(netclient_context *ctx) {
 
 void netclient_setup_debug(netclient_context *ctx) {
   mbedtls_ssl_conf_dbg(&ctx->conf, my_debug, stdout);
+  /* mbedtls_debug_set_threshold(3); */
 }
 
 int netclient_connect(netclient_context *ctx) {

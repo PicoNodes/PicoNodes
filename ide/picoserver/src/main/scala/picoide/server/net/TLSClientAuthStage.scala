@@ -1,7 +1,7 @@
 package picoide.server.net
 
 import akka.stream.scaladsl.{BidiFlow, Flow, Keep}
-import akka.stream.stage.{InHandler, OutHandler}
+import akka.stream.stage.{InHandler, OutHandler, StageLogging}
 import akka.stream.{Attributes, FlowShape}
 import akka.stream.stage.{GraphStageLogic, GraphStageWithMaterializedValue}
 import akka.stream.{BidiShape, Inlet, Outlet, TLSProtocol}
@@ -29,9 +29,14 @@ class TLSClientAuthStage(
     val idPromise = Promise[Option[DownloaderInfo]]()
     val idFuture  = idPromise.future
 
-    val logic = new GraphStageLogic(shape) {
+    val logic = new GraphStageLogic(shape) with StageLogging {
       override def preStart(): Unit = {
-        materializer.scheduleOnce(2.seconds, () => idPromise.trySuccess(None))
+        materializer.scheduleOnce(
+          5.seconds,
+          () =>
+            if (idPromise.trySuccess(None)) {
+              log.debug("Connection closed due to auth timeout")
+          })
 
         val failAsync = getAsyncCallback(failStage)
         idFuture.onComplete {

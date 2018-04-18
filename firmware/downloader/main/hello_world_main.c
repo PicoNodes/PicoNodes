@@ -13,21 +13,32 @@
 #define WIFI_SSID "TestAP"
 #define WIFI_PASSWORD "verysecret"
 
+void task_netclient(void *parameters) {
+  netclient_context *netclient = malloc(sizeof(netclient_context));
+  netclient_init(netclient);
+  printf("setupping\n");
+  if (netclient_setup(netclient) != 0) {
+    printf("setupping failed\n");
+    vTaskDelete(NULL);
+    return;
+  }
+  printf("setupped, waiting for IP\n");
+  printf("connectifying\n");
+  if (netclient_connect(netclient) != 0) {
+    printf("connectifying failed\n");
+    vTaskDelete(NULL);
+    return;
+  }
+  printf("Ready to roll!\n");
+
+  vTaskDelete(NULL);
+}
+
 esp_err_t event_handler(void *ctx, system_event_t *event) {
   switch(event->event_id) {
   case SYSTEM_EVENT_STA_GOT_IP:
     printf("Got IP!\n");
-    netclient_context *netclient = malloc(sizeof(netclient_context));
-    netclient_init(netclient);
-    printf("setupping\n");
-    if (netclient_setup(netclient) != 0) {
-      return ESP_OK;
-    }
-    printf("connectifying\n");
-    if (netclient_connect(netclient) != 0) {
-      return ESP_OK;
-    }
-    printf("Ready to roll!\n");
+    xTaskCreate(&task_netclient, "task_netclient", 16384, NULL, 1, NULL);
     break;
   default:
     break;
@@ -35,8 +46,7 @@ esp_err_t event_handler(void *ctx, system_event_t *event) {
   return ESP_OK;
 }
 
-void app_main()
-{
+void app_main() {
     printf("Hello world!\n");
     ESP_ERROR_CHECK(nvs_flash_init());
     tcpip_adapter_init();
@@ -66,5 +76,4 @@ void app_main()
     ESP_ERROR_CHECK(esp_wifi_start());
     printf("Connecting...\n");
     ESP_ERROR_CHECK(esp_wifi_connect());
-
 }

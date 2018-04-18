@@ -24,14 +24,17 @@ object DownloaderServer {
           ByteString(bytecode.length) ++
           ByteString(bytecode: _*)
     }
-  def parseEvent(msg: ByteString): Either[String, DownloaderEvent] = {
-    val buf = msg.asByteBuffer
-    buf.order(byteOrder)
-    buf.getInt match {
-      case unknownType =>
-        Left(s"Unknown event of type $unknownType: $msg")
+  def parseEvent(msg: ByteString): Either[String, Option[DownloaderEvent]] =
+    if (msg.isEmpty) {
+      Right(None)
+    } else {
+      val buf = msg.asByteBuffer
+      buf.order(byteOrder)
+      buf.getInt match {
+        case unknownType =>
+          Left(s"Unknown event of type $unknownType: $msg")
+      }
     }
-  }
 
   def start()(implicit actorSystem: ActorSystem,
               materializer: Materializer,
@@ -55,7 +58,7 @@ object DownloaderServer {
               log.warning(s"Invalid message from ${conn.remoteAddress}: $err")
               List.empty
             case Right(event) =>
-              List(event)
+              event.toList
           }
           .named("parseEvents")
 
