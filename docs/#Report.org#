@@ -11,7 +11,7 @@ for hardware close and parallel programming, using a own developed assembler
 like language to teach computational thinking.
 ** Background
 *** 
-*** Computational thinking outcomes
+*** Computational thinking in the Swedish scools
 Computational thinking is, stated by Lindköpings university, to be
 a process of problemsolving which includes:
 - Formulating a problem in a way that makes it possible to use computers to solve it.
@@ -35,9 +35,18 @@ connection between program and hardware.
 Source https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
 This project is directed to be used by student in the ages of 14-15, fitting the 
 last key stage very well.
+The importance of computational thinking and programming in scools is stated by Mannila and Heintz 
+from Linköpings universitet to be the problemsolving processes which include describe, analyse 
+and state the problem in a way so computers can help solving the problem. This ability will 
+evolve skills in handling coplex problems, perseverence when working on big problems,
+tolerans for ambiguity, ability to handle open stated problems and ability to communicate
+and cooperate with others https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
 One importans thing to consider in the process of educating computational thinking
 and programming is to have very clear guidence and conciderations for the teachers,
 who need to understand the learning concept fully to be able to teach it.
+In a inquiry made by Microsoft and CAS, 68% of the teachers is worried that the 
+students have more understanding for the subject then they do and that and that 81%
+of the teachers wish for more agile training and material for the subject https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
 For this reason will the project have a focus on the teachers and how to prepare them 
 to use the tools the plattform provide. This will be in form of documents of concept,
 tutorials?, ...(this might fit some where else)
