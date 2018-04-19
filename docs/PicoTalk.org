@@ -28,51 +28,80 @@
     unit high back then revieves the message. To recieve the message it need
     to check for the preamble to know when the message start.
 
-* Timing diagrams
+* Timing diagram
 
-  Throughout this document, ~0~ is high impedence, /not/ active low. A
-  pull-down resistor is responsible for pulling it low while idle.
+  #+BEGIN_SRC plantuml :file PicoTalk-timing.svg
+    @startuml
+    concise "Status" as Status
+    concise "Transmitter" as TX
+    concise "Receiver" as RX
 
-** Handshake
+    Status is Idle
+    TX is Z
+    RX is Z
 
-   #+BEGIN_SRC plantuml :file PicoTalk-handshake.svg
-     @startuml
-     concise "Status" as Status
-     robust "Transmitter" as TX
-     robust "Receiver" as RX
+    @0
 
-     Status is Idle
-     TX is 0
-     RX is 0
+    @+1
+    Status is "Failing handshake (no RX)"
+    TX is 1
 
-     @0
+    @+2
+    TX is Z
 
-     @+1
-     Status is "Failing handshake (no RX)"
-     TX is 1
+    @+4
+    Status is Handshake
+    TX is 1
 
-     @+2
-     TX is 0
+    @+2
+    TX is Z
 
-     @+4
-     Status is Handshake
-     TX is 1
+    @+1
+    RX is 1
 
-     @+2
-     TX is 0
+    @+1
+    RX is Z
 
-     @+1
-     RX is 1
+    @+2
+    Status is Preamble
+    TX is 1
 
-     @+1
-     RX is 0
+    @+1
+    TX is Z
 
-     @+2
-     Status is "Preamble (see below)"
-     TX is 1
+    @+1
+    TX is 1
 
-     @enduml
-   #+END_SRC
+    @+1
+    TX is Z
 
-   #+RESULTS:
-   [[file:PicoTalk-handshake.svg]]
+    @+1
+    TX is 1
+
+    @+1
+    Status is Message
+    TX is "M[0]"
+    @+1
+    TX is "M[1]"
+    @+1
+    TX is "M[2]"
+    @+1
+    TX is "M[3]"
+    @+1
+    TX is "M[4]"
+    @+1
+    TX is "M[5]"
+    @+1
+    TX is "M[6]"
+    @+1
+    TX is "M[7]"
+
+    @+1
+    Status is Idle
+    TX is Z
+
+    @enduml
+  #+END_SRC
+
+  #+RESULTS:
+  [[file:PicoTalk-timing.svg]]
