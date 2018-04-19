@@ -1,13 +1,107 @@
+#+BEGIN_SRC emacs-lisp :results silent
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((ditaa . t)
+     (plantuml . t)))
+  (setq
+   org-ditaa-jar-path "lib/ditaa-0.11.0-standalone.jar"
+   org-plantuml-jar-path "lib/plantuml.1.2018.3.jar")
+#+END_SRC
+
 * PicoTalk - A protocol between nodes
-PicoTalk is a transmission protocol used for the PicoNodes to send and
-recieve data among eathother over the motherboard connections. The communication
-goes along an  onewired bus, meaning the same link is recieving and transmitting
-the data. 
+
+  PicoTalk is a transmission protocol used for the PicoNodes to send and
+  recieve data among eathother over the motherboard connections. The communication
+  goes along an  onewired bus, meaning the same link is recieving and transmitting
+  the data.
+
 ** Transmitting and receiving message
+
 *** Message length
-Messsage length is 13 total, 5 high bits preamble and 8 bits for the value
-it process.
+
+    Messsage length is 13 total, 5 high bits preamble and 8 bits for the value
+    it process.
+
 *** Handshake
-The reciever wait to recieve two time units high, then transmit one time
-unit high back then revieves the message. To recieve the message it need 
-to check for the preamble to know when the message start. 
+
+    The reciever wait to recieve two time units high, then transmit one time
+    unit high back then revieves the message. To recieve the message it need
+    to check for the preamble to know when the message start.
+
+* Timing diagram
+
+  #+BEGIN_SRC plantuml :file PicoTalk-timing.svg
+    @startuml
+    concise "Status" as Status
+    concise "Transmitter" as TX
+    concise "Receiver" as RX
+
+    Status is Idle
+    TX is Z
+    RX is Z
+
+    @0
+
+    @+1
+    Status is "Failing handshake (no RX)"
+    TX is 1
+
+    @+2
+    TX is Z
+
+    @+4
+    Status is Handshake
+    TX is 1
+
+    @+2
+    TX is Z
+
+    @+1
+    RX is 1
+
+    @+1
+    RX is Z
+
+    @+2
+    Status is Preamble
+    TX is 1
+
+    @+1
+    TX is Z
+
+    @+1
+    TX is 1
+
+    @+1
+    TX is Z
+
+    @+1
+    TX is 1
+
+    @+1
+    Status is Message
+    TX is "M[0]"
+    @+1
+    TX is "M[1]"
+    @+1
+    TX is "M[2]"
+    @+1
+    TX is "M[3]"
+    @+1
+    TX is "M[4]"
+    @+1
+    TX is "M[5]"
+    @+1
+    TX is "M[6]"
+    @+1
+    TX is "M[7]"
+
+    @+1
+    Status is Idle
+    TX is Z
+
+    @enduml
+  #+END_SRC
+
+  #+RESULTS:
+  [[file:PicoTalk-timing.svg]]
