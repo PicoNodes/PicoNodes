@@ -108,7 +108,7 @@ fn run_instruction(instruction: Instruction, interpreter: &mut Interpreter) {
 				} else if op_a < op_b {
 					interpreter.flag = Flag::False;
 				} else {
-					interpreter.flag = Flag::True;
+					interpreter.flag = Flag::True;			
 				}
 			},
 			_ => unimplemented!(),
@@ -130,20 +130,30 @@ mod tests {
 	
 	#[test]
 	fn test_instructions() {
-		let reg_b = Register::Mem(MemRegister::Acc);
-		let instruction_mov = Instruction::Mov(RegisterOrImmediate::Immediate(3), reg_b);
-		let instruction_add = Instruction::Add(RegisterOrImmediate::Immediate(2));
-		let instruction_sub = Instruction::Sub(RegisterOrImmediate::Immediate(2));
+		let reg_a = RegisterOrImmediate::Reg(Register::Io(IoRegister::Up));
+		let reg_b = RegisterOrImmediate::Reg(Register::Mem(MemRegister::Acc));
+		let reg_c = Register::Mem(MemRegister::Acc);
+		
+		let instr_mov = Instruction::Mov(Flag::Neather, RegisterOrImmediate::Immediate(3), reg_c);
+		let instr_add_1 = Instruction::Add(Flag::False, RegisterOrImmediate::Immediate(4));
+		let instr_add_2 = Instruction::Add(Flag::True, RegisterOrImmediate::Immediate(34));
+		let instr_sub = Instruction::Sub(Flag::True, RegisterOrImmediate::Immediate(37));
+		let instr_teq = Instruction::Teq(Flag::Neather, RegisterOrImmediate::Immediate(6), reg_b);
+		let instr_tgt = Instruction::Tgt(Flag::False, RegisterOrImmediate::Immediate(9), reg_b);
+		let instr_tlt = Instruction::Tlt(Flag::True, RegisterOrImmediate::Immediate(11), reg_a);
+		let instr_tcp = Instruction::Tcp(Flag::True, RegisterOrImmediate::Immediate(34), reg_a);
 		let mut interp = Interpreter::new();
-		//Testing the Mov intruction
-		run_instruction(instruction_mov, &mut interp);
+		
+		run_instruction(instr_mov, &mut interp);
 		assert_eq!(reg_b.read(&interp), 3);
-		//Testing the Add instruction
-		run_instruction(instruction_add, &mut interp);
-		assert_eq!(reg_b.read(&interp), 5);
-		//Testing the Sub instruction
-		run_instruction(instruction_sub, &mut interp);
-		assert_eq!(reg_b.read(&interp), 3);
+
+		run_instruction(instr_teq, &mut interp);
+		run_instruction(instr_add_1, &mut interp);
+		assert_eq!(reg_b.read(&interp), 7);
+		
+		run_instruction(instr_tgt, &mut interp);
+		run_instruction(instr_sub, &mut interp);
+		assert_eq!(reg_b.read(&interp), -30);
 		
 	}
 }
