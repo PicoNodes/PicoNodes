@@ -1,0 +1,13 @@
+* PicoTalk - A protocol between nodes
+PicoTalk is a transmission protocol used for the PicoNodes to send and
+recieve data among eathother over the motherboard connections. The communication
+goes along an  onewired bus, meaning the same link is recieving and transmitting
+the data. 
+** Transmitting and receiving message
+*** Message length
+Messsage length is 13 total, 5 high bits preamble and 8 bits for the value
+it process.
+*** Handshake
+The reciever wait to recieve two time units high, then transmit one time
+unit high back then revieves the message. To recieve the message it need 
+to check for the preamble to know when the message start. 
