@@ -1,0 +1,56 @@
+#+BEGIN_SRC emacs-lisp :results silent
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((ditaa . t)
+     (plantuml . t)))
+  (setq
+   org-ditaa-jar-path "lib/ditaa-0.11.0-standalone.jar"
+   org-plantuml-jar-path "lib/plantuml.1.2018.3.jar")
+#+END_SRC
+
+Throughout this document, ~0~ is high impedence, /not/ low. A pull-down resistor is responsible for
+pulling it low while idle.
+
+* Handshake
+
+#+BEGIN_SRC plantuml :file PicoTalk-handshake.svg
+  @startuml
+  concise "Status" as Status
+  robust "Transmitter" as TX
+  robust "Receiver" as RX
+
+  Status is Idle
+  TX is 0
+  RX is 0
+
+  @0
+
+  @+1
+  Status is "Failing handshake (no RX)"
+  TX is 1
+
+  @+2
+  TX is 0
+
+  @+4
+  Status is Handshake
+  TX is 1
+
+  @+2
+  TX is 0
+
+  @+1
+  RX is 1
+
+  @+1
+  RX is 0
+
+  @+2
+  Status is "Preamble (see below)"
+  TX is 1
+
+  @enduml
+#+END_SRC
+
+#+RESULTS:
+[[file:PicoTalk-handshake.svg]]
