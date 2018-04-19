@@ -1,0 +1,13 @@
+[package]
+name = "picotalk"
+version = "0.1.0"
+authors = ["Therese Kennerberg <tke@kth.se>"]
+
+[dependencies]
+cortex-m = "0.4"
+cortex-m-semihosting = "0.2"
+panic-semihosting = "0.1.0"
+
+[dependencies.stm32f0x0-hal]
+version = "0.1.2"
+features = ["rt", "unproven"]

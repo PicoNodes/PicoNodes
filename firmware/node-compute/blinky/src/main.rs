@@ -8,6 +8,7 @@ extern crate cortex_m_rt;
 extern crate cortex_m_semihosting;
 extern crate panic_semihosting;
 extern crate picorunner;
+extern crate picotalk;
 extern crate stm32f0x0;
 
 use cortex_m::asm;
