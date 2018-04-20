@@ -10,18 +10,38 @@ extern crate panic_semihosting;
 extern crate picorunner;
 extern crate picotalk;
 extern crate stm32f0x0;
+extern crate stm32f0x0_hal;
 
 use cortex_m::asm;
 
 use core::fmt::Write;
 use cortex_m_semihosting::hio;
+use stm32f0x0_hal::prelude::*;
+use stm32f0x0_hal::delay::Delay;
+use stm32f0x0_hal::stm32f0x0::{CorePeripherals, Peripherals};
 
-use stm32f0x0::Peripherals;
-
+use picotalk::*;
 use picorunner::*;
 
 fn main() {
     let mut out = hio::hstdout().unwrap();
+    let peripherals = Peripherals::take().unwrap();
+    let core_peripherals = CorePeripherals::take().unwrap();
+    let mut flash = peripherals.FLASH.constrain();
+    let mut rcc = peripherals.RCC.constrain();
+    let clocks = rcc.cfgr.freeze(&mut flash.acr);
+
+    let mut gpioa = peripherals.GPIOA.split(&mut rcc.ahb);
+    let mut delay = Delay::new(core_peripherals.SYST, clocks);
+
+    let mut pa4 = gpioa.pa4.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
+	let value = 15;
+	
+	loop {
+	write_pin(&mut pa4, value, &mut delay);
+	}
+	
+    /*let mut out = hio::hstdout().unwrap();
     let peripherals = Peripherals::take().unwrap();
     let gpioa = peripherals.GPIOA;
     let rcc = peripherals.RCC;
@@ -35,9 +55,6 @@ fn main() {
 	let memreg = MemRegister::Acc;
 	memreg.write(&mut interpreter, 5);
     let mut state = false;
-
-
-
     //writeln!(out, "The value is {}", memreg.read(&interpreter));
 	
     if memreg.read(&mut interpreter) == 5 {
@@ -50,5 +67,5 @@ fn main() {
                 //asm::nop();
             }
         }
-    }
+    }*/
 }

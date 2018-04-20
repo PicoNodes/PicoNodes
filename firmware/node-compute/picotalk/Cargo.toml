@@ -11,3 +11,7 @@ panic-semihosting = "0.1.0"
 [dependencies.stm32f0x0-hal]
 version = "0.1.2"
 features = ["rt", "unproven"]
+
+[dependencies.embedded-hal]
+version = "0.1.2"
+features = ["unproven"]
