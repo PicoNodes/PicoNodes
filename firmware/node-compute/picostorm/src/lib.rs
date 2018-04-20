@@ -4,17 +4,17 @@
 #[macro_use]
 extern crate std;
 
-extern crate heapless;
 extern crate embedded_hal;
+extern crate heapless;
 #[macro_use]
 extern crate nb;
 extern crate byteorder;
 
 use core::convert::From;
 
-use heapless::{Vec, BufferFullError};
-use embedded_hal::serial;
 use byteorder::{BigEndian, ByteOrder};
+use embedded_hal::serial;
+use heapless::{BufferFullError, Vec};
 
 #[derive(Debug)]
 pub enum DecodeError {
@@ -25,6 +25,17 @@ pub enum DecodeError {
 impl From<BufferFullError> for DecodeError {
     fn from(_err: BufferFullError) -> DecodeError {
         DecodeError::TooLargeMessage
+    }
+}
+
+#[derive(Debug)]
+pub enum EncodeError {
+    TooLargeMessage,
+}
+
+impl From<BufferFullError> for EncodeError {
+    fn from(_err: BufferFullError) -> EncodeError {
+        EncodeError::TooLargeMessage
     }
 }
 
@@ -40,22 +51,35 @@ impl<R: serial::Read<u8>> From<DecodeError> for ReadError<R> {
     }
 }
 
+#[derive(Debug)]
+pub enum WriteError<W: serial::Write<u8>> {
+    Serial(W::Error),
+    Encode(EncodeError),
+}
+
+impl<W: serial::Write<u8>> From<EncodeError> for WriteError<W> {
+    fn from(err: EncodeError) -> WriteError<W> {
+        WriteError::Encode(err)
+    }
+}
+
 struct RawMessage {
-    bytes: Vec<u8, [u8; 64]>
+    bytes: Vec<u8, [u8; 64]>,
 }
 
 impl RawMessage {
     fn read<R: serial::Read<u8>>(reader: &mut R) -> Result<RawMessage, ReadError<R>> {
-        let length = RawMessage::read_u32(reader).map_err(|x| ReadError::Serial(x))?;
+        let length = RawMessage::read_u32(reader).map_err(ReadError::Serial)?;
         let mut bytes = Vec::new();
         bytes.resize(length as usize, 0).unwrap();
-        RawMessage::read_into_slice(reader, &mut bytes).map_err(|x| ReadError::Serial(x))?;
-        Ok(RawMessage {
-            bytes
-        })
+        RawMessage::read_into_slice(reader, &mut bytes).map_err(ReadError::Serial)?;
+        Ok(RawMessage { bytes })
     }
 
-    fn read_into_slice<R: serial::Read<u8>>(reader: &mut R, slice: &mut [u8]) -> Result<(), R::Error> {
+    fn read_into_slice<R: serial::Read<u8>>(
+        reader: &mut R,
+        slice: &mut [u8],
+    ) -> Result<(), R::Error> {
         for value in slice {
             *value = block!(reader.read())?;
         }
@@ -67,11 +91,32 @@ impl RawMessage {
         RawMessage::read_into_slice(reader, &mut buf)?;
         Ok(BigEndian::read_u32(&buf))
     }
+
+    fn write<W: serial::Write<u8>>(self, writer: &mut W) -> Result<(), WriteError<W>> {
+        RawMessage::write_u32(writer, self.bytes.len() as u32).map_err(WriteError::Serial)?;
+        RawMessage::write_from_slice(writer, &self.bytes).map_err(WriteError::Serial)
+    }
+
+    fn write_from_slice<W: serial::Write<u8>>(
+        writer: &mut W,
+        slice: &[u8],
+    ) -> Result<(), W::Error> {
+        for value in slice {
+            block!(writer.write(*value))?;
+        }
+        Ok(())
+    }
+
+    fn write_u32<W: serial::Write<u8>>(writer: &mut W, value: u32) -> Result<(), W::Error> {
+        let mut buf = [0; 4];
+        BigEndian::write_u32(&mut buf, value);
+        RawMessage::write_from_slice(writer, &buf)
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Command {
-    DownloadBytecode(Vec<u8, [u8; 60]>),
+    DownloadBytecode { bytecode: Vec<u8, [u8; 60]> },
 }
 
 impl Command {
@@ -82,22 +127,47 @@ impl Command {
             1 => {
                 let mut content = Vec::new();
                 content.extend_from_slice(&bytes[4..])?;
-                Ok(Command::DownloadBytecode(content))
-            },
+                Ok(Command::DownloadBytecode { bytecode: content })
+            }
             _ => Err(DecodeError::InvalidType),
         }
     }
 
     pub fn read<R: serial::Read<u8>>(reader: &mut R) -> Result<Command, ReadError<R>> {
         let raw = RawMessage::read(reader)?;
-        Command::from_raw(raw).map_err(|x| ReadError::Decode(x))
+        Command::from_raw(raw).map_err(ReadError::Decode)
+    }
+}
+
+pub enum Event {
+    DownloadedBytecode { checksum: u8 },
+}
+
+impl Event {
+    fn into_raw(self) -> Result<RawMessage, EncodeError> {
+        let mut content = Vec::new();
+        match self {
+            Event::DownloadedBytecode { checksum } => content.extend_from_slice(&[
+                0,
+                0,
+                0,
+                1, // Type
+                checksum,
+            ]),
+        }?;
+        Ok(RawMessage { bytes: content })
+    }
+
+    pub fn write<W: serial::Write<u8>>(self, writer: &mut W) -> Result<(), WriteError<W>> {
+        let raw = self.into_raw()?;
+        raw.write(writer)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use heapless::Vec;
     use embedded_hal::serial;
+    use heapless::Vec;
     use nb;
 
     use std::collections::VecDeque;
@@ -107,14 +177,16 @@ mod tests {
         buf: VecDeque<u8>,
     }
     impl BufSerial {
+        fn new() -> BufSerial {
+            BufSerial::from_slice(&[])
+        }
+
         fn from_slice(slice: &[u8]) -> BufSerial {
             let mut buf = VecDeque::new();
             for i in slice {
                 buf.push_back(*i);
             }
-            BufSerial {
-                buf
-            }
+            BufSerial { buf }
         }
     }
 
@@ -145,15 +217,51 @@ mod tests {
     #[test]
     fn read_download_bytecode_command() {
         let cmd = [
-            0, 0, 0, 9, // Length
-            0, 0, 0, 1, // Type: 1 (DownloadBytecode)
-            1, 2, 3, 4, 5,
+            0,
+            0,
+            0,
+            9, // Length
+            0,
+            0,
+            0,
+            1, // Type: 1 (DownloadBytecode)
+            1,
+            2,
+            3,
+            4,
+            5,
         ];
         let mut serial = BufSerial::from_slice(&cmd);
         let decoded = ::Command::read(&mut serial).unwrap();
 
         let mut instr_buf = Vec::new();
         instr_buf.extend_from_slice(&[1, 2, 3, 4, 5]).unwrap();
-        assert_eq!(::Command::DownloadBytecode(instr_buf), decoded);
+        assert_eq!(
+            ::Command::DownloadBytecode {
+                bytecode: instr_buf
+            },
+            decoded
+        );
+    }
+
+    #[test]
+    fn write_downloaded_bytecode_event() {
+        let evt = ::Event::DownloadedBytecode { checksum: 42 };
+        let mut serial = BufSerial::new();
+        evt.write(&mut serial).unwrap();
+
+        let expected = [
+            0,
+            0,
+            0,
+            5, // Length
+            0,
+            0,
+            0,
+            1, // Type: 1 (DownloadedBytecode)
+            42,
+        ];
+
+        assert_eq!(serial.buf, expected);
     }
 }
