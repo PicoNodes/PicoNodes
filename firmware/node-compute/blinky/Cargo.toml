@@ -30,3 +30,7 @@ path = "../picorunner"
 
 [dependencies.picotalk]
 path = "../picotalk"
+
+[dependencies.stm32f0x0-hal]
+version = "0.1.3"
+features = ["rt", "unproven", "unproven_opendrain_input"]
