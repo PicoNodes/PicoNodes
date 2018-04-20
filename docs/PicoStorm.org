@@ -1,0 +1,55 @@
+* Messages
+
+All PicoStorm messages consist of three fields, the length, the type, and the payload.
+
+Messages moving towards the Node are called Commands, while messages moving
+towards the server are called Events.
+
+** Endianness
+
+All PicoStorm messages are big-endian.
+
+** Length
+
+The length is a 32-bit (4-byte) unsigned integer, defining the total length of
+the type and payload fields (but /not/ the length field itself).
+
+*** Limitations
+
+The server will reject any message with a length field greater than 1024, while the
+Nodes will reject any message with a length greater than 60. This is subject to
+change.
+
+** Type
+
+The type is a 32-bit (4-byte) unsigned integer, identifying which kind of message
+it is. The type namespaces are /separate/ for Commands and Events.
+
+** Payload
+
+The rest of the message is called the payload, and depends on the message in question.
+
+* Commands
+
+** Download Bytecode (Type = 1)
+   :PROPERTIES:
+   :CUSTOM_ID: command-download-bytecode
+   :END:
+
+Instructs the node to download the bytecode stored in the payload. The node
+/should/ respond with [[#event-downloaded-bytecode][Downloaded Bytecode]] once done.
+
+* Events
+
+** Downloaded Bytecode (Type = 1)
+   :PROPERTIES:
+   :CUSTOM_ID: event-downloaded-bytecode
+   :END:
+
+The node is done downloading the bytecode. The payload contains a checksum of
+the saved bytecode, and the server should respond with a new [[#command-downloaded-bytecode][Download Bytecode]]
+message if it does not match.
+
+*** Checksum
+
+The checksum is the CRC32 of the downloaded bytecode.
