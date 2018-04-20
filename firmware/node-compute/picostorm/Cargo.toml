@@ -1,0 +1,16 @@
+[package]
+name = "picostorm"
+version = "0.1.0"
+authors = ["Teo Klestrup Röijezon <teo@nullable.se>"]
+
+[dependencies]
+heapless = "0.2.7"
+embedded-hal = "0.1.2"
+
+[dependencies.nb]
+version = "0.1.0"
+# features = ["unstable"]
+
+[dependencies.byteorder]
+version = "1.2.2"
+default-features = false

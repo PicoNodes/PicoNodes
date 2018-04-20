@@ -1,0 +1,47 @@
+[[package]]
+name = "byteorder"
+version = "1.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "embedded-hal"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "nb 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "heapless"
+version = "0.2.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "untagged-option 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "nb"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "picostorm"
+version = "0.1.0"
+dependencies = [
+ "byteorder 1.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "embedded-hal 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "heapless 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nb 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "untagged-option"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[metadata]
+"checksum byteorder 1.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "73b5bdfe7ee3ad0b99c9801d58807a9dbc9e09196365b0203853b99889ab3c87"
+"checksum embedded-hal 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "684b1fa3196f78342296d04edc2a6e5d053729d1b64a819dcb072810d706e267"
+"checksum heapless 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)" = "235aaa7f0c6d44d90018003f02983ae5cd73402343e11ff0e2cf247eb9efcb28"
+"checksum nb 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "69f380b5fe9fab8c0d7a6a99cda23e2cc0463bedb2cbc3aada0813b98496ecdc"
+"checksum untagged-option 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "89553f60895e868761e18120e72077da22920614562d2f4fe98fa707fbb12fe6"

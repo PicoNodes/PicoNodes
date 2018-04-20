@@ -21,7 +21,6 @@ object DownloaderServer {
     cmd match {
       case DownloaderCommand.DownloadBytecode(bytecode) =>
         ByteString(1: Int) ++ // Type
-          ByteString(bytecode.length) ++
           ByteString(bytecode: _*)
     }
   def parseEvent(msg: ByteString): Either[String, Option[DownloaderEvent]] =
