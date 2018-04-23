@@ -11,6 +11,7 @@ extern crate nb;
 extern crate byteorder;
 
 use core::convert::From;
+use core::fmt::{self, Debug};
 
 use byteorder::{BigEndian, ByteOrder};
 use embedded_hal::serial;
@@ -39,10 +40,29 @@ impl From<BufferFullError> for EncodeError {
     }
 }
 
-#[derive(Debug)]
 pub enum ReadError<R: serial::Read<u8>> {
     Serial(R::Error),
     Decode(DecodeError),
+}
+
+impl<R: serial::Read<u8>> Debug for ReadError<R>
+where
+    R::Error: Debug,
+{
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        match (&*self,) {
+            (&ReadError::Serial(ref inner),) => {
+                let mut dbg_builder = fmt.debug_tuple("Serial");
+                let _ = dbg_builder.field(inner);
+                dbg_builder.finish()
+            }
+            (&ReadError::Decode(ref inner),) => {
+                let mut dbg_builder = fmt.debug_tuple("Decode");
+                let _ = dbg_builder.field(inner);
+                dbg_builder.finish()
+            }
+        }
+    }
 }
 
 impl<R: serial::Read<u8>> From<DecodeError> for ReadError<R> {
