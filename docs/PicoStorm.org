@@ -29,6 +29,11 @@ it is. The type namespaces are /separate/ for Commands and Events.
 
 The rest of the message is called the payload, and depends on the message in question.
 
+** Empty messages
+
+Empty messages (consisting of a length field, but no type or payload) are allowed, and
+MUST be ignored by the recipient.
+
 * Commands
 
 ** Download Bytecode (Type = 1)
