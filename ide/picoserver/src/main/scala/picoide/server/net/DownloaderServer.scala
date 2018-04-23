@@ -20,15 +20,16 @@ object DownloaderServer {
   def emitCommand(cmd: DownloaderCommand): ByteString =
     cmd match {
       case DownloaderCommand.DownloadBytecode(bytecode) =>
-        ByteString(1: Int) ++ // Type
-          ByteString(bytecode: _*)
+        ByteString.newBuilder
+          .putInt(1) // Type
+          .putBytes(bytecode.toArray)
+          .result()
     }
   def parseEvent(msg: ByteString): Either[String, Option[DownloaderEvent]] =
     if (msg.isEmpty) {
       Right(None)
     } else {
-      val buf = msg.asByteBuffer
-      buf.order(byteOrder)
+      val buf = msg.iterator
       buf.getInt match {
         case unknownType =>
           Left(s"Unknown event of type $unknownType: $msg")
