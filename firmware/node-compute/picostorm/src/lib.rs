@@ -136,20 +136,25 @@ impl RawMessage {
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Command {
+    Ping,
     DownloadBytecode { bytecode: Vec<u8, [u8; 60]> },
 }
 
 impl Command {
     fn from_raw(raw: RawMessage) -> Result<Command, DecodeError> {
         let bytes = raw.bytes;
-        let tpe = BigEndian::read_u32(&bytes[0..4]);
-        match tpe {
-            1 => {
-                let mut content = Vec::new();
-                content.extend_from_slice(&bytes[4..])?;
-                Ok(Command::DownloadBytecode { bytecode: content })
+        if bytes.len() > 0 {
+            let tpe = BigEndian::read_u32(&bytes[0..4]);
+            match tpe {
+                1 => {
+                    let mut content = Vec::new();
+                    content.extend_from_slice(&bytes[4..])?;
+                    Ok(Command::DownloadBytecode { bytecode: content })
+                }
+                _ => Err(DecodeError::InvalidType(tpe)),
             }
-            _ => Err(DecodeError::InvalidType(tpe)),
+        } else {
+            Ok(Command::Ping)
         }
     }
 

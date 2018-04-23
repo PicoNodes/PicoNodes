@@ -13,6 +13,7 @@ import java.util.UUID
 import picoide.proto.{DownloaderCommand, DownloaderEvent, DownloaderInfo}
 import picoide.server.model.Downloader
 import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration._
 
 object DownloaderServer {
   implicit val byteOrder = ByteOrder.BIG_ENDIAN
@@ -24,6 +25,8 @@ object DownloaderServer {
           .putInt(1) // Type
           .putBytes(bytecode.toArray)
           .result()
+      case DownloaderCommand.Ping =>
+        ByteString()
     }
   def parseEvent(msg: ByteString): Either[String, Option[DownloaderEvent]] =
     if (msg.isEmpty) {
@@ -63,7 +66,10 @@ object DownloaderServer {
           .named("parseEvents")
 
         val emitCommands =
-          Flow[DownloaderCommand].map(emitCommand).named("parseEvents")
+          Flow[DownloaderCommand]
+            .keepAlive(10.seconds, () => DownloaderCommand.Ping)
+            .map(emitCommand)
+            .named("parseEvents")
 
         val protocol =
           Framing
