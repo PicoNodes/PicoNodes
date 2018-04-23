@@ -19,7 +19,7 @@ use heapless::{BufferFullError, Vec};
 
 #[derive(Debug)]
 pub enum DecodeError {
-    InvalidType,
+    InvalidType(u32),
     TooLargeMessage,
 }
 
@@ -149,7 +149,7 @@ impl Command {
                 content.extend_from_slice(&bytes[4..])?;
                 Ok(Command::DownloadBytecode { bytecode: content })
             }
-            _ => Err(DecodeError::InvalidType),
+            _ => Err(DecodeError::InvalidType(tpe)),
         }
     }
 
