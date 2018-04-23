@@ -166,6 +166,7 @@ dependencies = [
  "cortex-m-rtfm 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "cortex-m-semihosting 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "embedded-hal 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nb 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "panic-semihosting 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "picostorm 0.1.0",
  "stm32f0x0-hal 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
