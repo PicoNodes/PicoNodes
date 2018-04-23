@@ -18,6 +18,7 @@ cortex-m-semihosting = "0.2"
 panic-semihosting = "0.1.0"
 cortex-m-rtfm = "0.3.2"
 nb = "0.1.1"
+picostorm = { path = "../picostorm/" }
 
 [dependencies.cortex-m-rt]
 version = "0.4.0"
@@ -31,6 +32,3 @@ features = ["rt", "unproven", "unproven_opendrain_input"]
 [dependencies.embedded-hal]
 version = "0.1.2"
 features = ["unproven"]
-
-[dependencies.picostorm]
-path = "../picostorm"

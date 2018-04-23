@@ -10,6 +10,7 @@ extern crate cortex_m_semihosting;
 extern crate panic_semihosting;
 extern crate stm32f0x0_hal;
 extern crate embedded_hal;
+extern crate picostorm;
 
 #[macro_use]
 extern crate nb;
@@ -26,6 +27,15 @@ use stm32f0x0_hal::stm32f0x0;
 use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent};
 use stm32f0x0_hal::gpio::{Output, OpenDrain, gpioa::PA4};
 use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
+
+fn echo_incoming(_t: &mut Threshold, r: USART1::Resources) {
+    let mut rx = r.SERIAL1_RX;
+
+    let cmd = picostorm::Command::read(&mut *rx).unwrap();
+
+    let mut out = hio::hstdout().unwrap();
+    writeln!(out, "{:?}", cmd).unwrap();
+}
 
 fn loopback(_t: &mut Threshold, r: USART1::Resources) {
     let mut rx = r.SERIAL1_RX;
@@ -93,7 +103,7 @@ app! {
     },
     tasks: {
         USART1: {
-            path: loopback,
+            path: echo_incoming,
             resources: [SERIAL1_RX, SERIAL1_TX],
             priority: 2,
         },
