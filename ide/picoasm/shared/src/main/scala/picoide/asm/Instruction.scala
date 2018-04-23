@@ -27,7 +27,7 @@ object Instruction {
   }
 
   sealed trait Arith extends Instruction {
-    val arithOp: Byte
+    def arithOp: Byte
 
     override val opcode = 1
     override val opB = Operand.Integer(arithOp)
@@ -35,12 +35,12 @@ object Instruction {
 
   case class Add(opA: Operand.Value, flags: Flags) extends Arith {
     val name = "add"
-    val arithOp = 0
+    lazy val arithOp = 0
   }
 
   case class Sub(opA: Operand.Value, flags: Flags) extends Arith {
     val name = "sub"
-    val arithOp = 0
+    lazy val arithOp = 1
   }
 
   case class Teq(opA: Operand.Value, opB: Operand.Value, flags: Flags)
