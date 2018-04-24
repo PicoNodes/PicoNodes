@@ -58,25 +58,20 @@ class IDECommandHandler(downloaderRegistry: ActorRef)
       case class SwapCurrentDownloader(downloader: Option[Downloader])
 
       override def preStart(): Unit = {
-        def formatDownloader(downloader: Downloader) =
-          DownloaderInfo(downloader.id)
         getStageActor {
           case (_, DownloaderRegistry.ListDownloadersResponse(downloaders)) =>
-            push(
-              out,
-              IDEEvent.AvailableDownloaders(downloaders.map(formatDownloader)))
+            push(out,
+                 IDEEvent.AvailableDownloaders(downloaders.map(_.info.toProto)))
           case (
               _,
               DownloaderRegistry.ListDownloadersDownloaderAdded(downloader)) =>
-            push(
-              out,
-              IDEEvent.AvailableDownloaderAdded(formatDownloader(downloader)))
+            push(out,
+                 IDEEvent.AvailableDownloaderAdded(downloader.info.toProto))
           case (_,
                 DownloaderRegistry.ListDownloadersDownloaderRemoved(
                   downloader)) =>
-            push(
-              out,
-              IDEEvent.AvailableDownloaderRemoved(formatDownloader(downloader)))
+            push(out,
+                 IDEEvent.AvailableDownloaderRemoved(downloader.info.toProto))
           case (_, SwapCurrentDownloader(downloader)) =>
             push(
               switchDownloader,

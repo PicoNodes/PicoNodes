@@ -34,9 +34,12 @@ object DownloaderPicker {
               TagMod(
                 model()
                   .fold(Seq[DownloaderInfo]())(_.all.values.toSeq)
-                  .map(downloader =>
-                    <.option(^.value := downloader.id.toString(),
-                             downloader.toString())): _*
+                  .map(
+                    downloader =>
+                      <.option(^.value := downloader.id.toString(),
+                               downloader.label
+                                 .getOrElse(s"Unknown (${downloader.id})")
+                                 .toString())): _*
               )
             )
         )
