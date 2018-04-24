@@ -3,17 +3,22 @@ package picoide.server
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Sink
-import picoide.server.model.DownloaderRegistry
+import picoide.server.model.{DownloaderRegistry, DownloaderStore}
+import picoide.server.model.PgProfile.api._
 import picoide.server.net.IDEServer
 
 object Main {
   def main(args: Array[String]): Unit = {
+    implicit val database = Database.forConfig("db")
+
     implicit val actorSystem  = ActorSystem("picoserver")
     implicit val materializer = ActorMaterializer()
     implicit val dispatcher   = actorSystem.dispatcher
 
-    // DownloaderServer.start().to(Sink.ignore).run()
-    val downloaderRegistry = actorSystem.actorOf(DownloaderRegistry.props)
+    val downloaderStore = new DownloaderStore()
+
+    val downloaderRegistry =
+      actorSystem.actorOf(DownloaderRegistry.props(downloaderStore))
     IDEServer.start(downloaderRegistry)
   }
 }

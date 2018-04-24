@@ -1,7 +1,12 @@
+def commonSettings = Seq(
+  scalacOptions ++= Seq("-feature", "-deprecation")
+)
+
 lazy val picoasm = crossProject
   .settings(
     libraryDependencies += "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.1.0"
   )
+  .settings(commonSettings: _*)
   .jvmSettings(
     // For some reason neo-sbt-scalafmt does not normally format the shared src directory...
     Compile / scalafmt / sourceDirectories ++= CrossType.Full
@@ -17,6 +22,7 @@ lazy val picoideProto = crossProject
       "io.suzaku" %%% "boopickle" % "1.3.0"
     )
   )
+  .settings(commonSettings: _*)
   .jsSettings(
     libraryDependencies ++= Seq(
       "org.akka-js" %%% "akkajsactorstream" % "1.2.5.11"
@@ -35,6 +41,7 @@ lazy val picoideProtoJS  = picoideProto.js
 
 lazy val picoide = project
   .enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalaJSWeb)
+  .settings(commonSettings: _*)
   .settings(
     libraryDependencies ++= Seq(
       "io.suzaku"                         %%% "diode-react"       % "1.1.3.120",
@@ -75,17 +82,27 @@ lazy val picoide = project
   .dependsOn(picoasmJS, picoideProtoJS)
 
 lazy val picoserver = project
-  .enablePlugins(WebScalaJSBundlerPlugin)
+  .enablePlugins(WebScalaJSBundlerPlugin, FlywayPlugin)
+  .settings(commonSettings: _*)
   .settings(
     scalacOptions += "-Ypartial-unification",
     scalaJSProjects := Seq(picoide),
     Assets / pipelineStages := Seq(scalaJSDev),
     libraryDependencies ++= Seq(
-      "org.webjars"       % "webjars-locator-core" % "0.35",
-      "com.typesafe.akka" %% "akka-http"           % "10.1.0",
-      "com.typesafe.akka" %% "akka-stream"         % "2.5.11",
-      "org.typelevel"     %% "cats-core"           % "1.1.0"
-    )
+      "org.webjars"         % "webjars-locator-core" % "0.35",
+      "com.typesafe.akka"   %% "akka-http"           % "10.1.0",
+      "com.typesafe.akka"   %% "akka-stream"         % "2.5.11",
+      "org.typelevel"       %% "cats-core"           % "1.1.0",
+      "com.github.tminglei" %% "slick-pg"            % "0.16.1",
+      "com.typesafe.slick"  %% "slick-hikaricp"      % "3.2.3",
+      "ch.qos.logback"      % "logback-classic"      % "1.2.3",
+      "org.cryptacular"     % "cryptacular"          % "1.2.1"
+    ),
+    addCompilerPlugin(
+      "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
+    flywayUrl := "jdbc:postgresql:///piconodes",
+    flywayUser := "piconodes",
+    flywayLocations := Seq("db/migration")
   )
   .dependsOn(picoideProtoJVM)
 

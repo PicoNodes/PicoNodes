@@ -11,22 +11,23 @@ import java.io.IOException
 import java.security.Principal
 import java.util.UUID
 import picoide.proto.DownloaderInfo
+import picoide.server.model.ServerDownloaderInfo
 import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 class TLSClientAuthStage(
-    authenticator: Principal => Future[Option[DownloaderInfo]])
+    authenticator: Principal => Future[Option[ServerDownloaderInfo]])
     extends GraphStageWithMaterializedValue[
       FlowShape[TLSProtocol.SslTlsInbound, TLSProtocol.SslTlsInbound],
-      Future[Option[DownloaderInfo]]] {
+      Future[Option[ServerDownloaderInfo]]] {
   val in  = Inlet[TLSProtocol.SslTlsInbound]("in")
   val out = Outlet[TLSProtocol.SslTlsInbound]("out")
 
   val shape = FlowShape(in, out)
 
   def createLogicAndMaterializedValue(inheritedAttributes: Attributes) = {
-    val idPromise = Promise[Option[DownloaderInfo]]()
+    val idPromise = Promise[Option[ServerDownloaderInfo]]()
     val idFuture  = idPromise.future
 
     val logic = new GraphStageLogic(shape) with StageLogging {
@@ -60,12 +61,13 @@ class TLSClientAuthStage(
               case bytes: TLSProtocol.SessionBytes =>
                 idPromise.tryCompleteWith(
                   authenticator(bytes.peerPrincipal.get))
-                idFuture.foreach(getAsyncCallback[Option[DownloaderInfo]] {
-                  case Some(_) =>
-                    push(out, bytes)
-                    passAlong(in, out)
-                  case None =>
-                }.invoke)(materializer.executionContext)
+                idFuture.foreach(
+                  getAsyncCallback[Option[ServerDownloaderInfo]] {
+                    case Some(_) =>
+                      push(out, bytes)
+                      passAlong(in, out)
+                    case None =>
+                  }.invoke)(materializer.executionContext)
               case trunc: TLSProtocol.SessionTruncated =>
                 push(out, trunc)
             }
@@ -85,18 +87,18 @@ class TLSClientAuthStage(
 }
 
 object TLSClientAuthStage {
-  def apply(authenticator: Principal => Future[Option[DownloaderInfo]])
+  def apply(authenticator: Principal => Future[Option[ServerDownloaderInfo]])
     : Flow[TLSProtocol.SslTlsInbound,
            TLSProtocol.SslTlsInbound,
-           Future[Option[DownloaderInfo]]] =
+           Future[Option[ServerDownloaderInfo]]] =
     Flow.fromGraph(new TLSClientAuthStage(authenticator))
 
-  def bidiBs(authenticator: Principal => Future[Option[DownloaderInfo]])
+  def bidiBs(authenticator: Principal => Future[Option[ServerDownloaderInfo]])
     : BidiFlow[TLSProtocol.SslTlsInbound,
                ByteString,
                ByteString,
                TLSProtocol.SslTlsOutbound,
-               Future[Option[DownloaderInfo]]] =
+               Future[Option[ServerDownloaderInfo]]] =
     BidiFlow.fromFlowsMat(
       this(authenticator).map {
         case TLSProtocol.SessionBytes(_, bytes) => bytes

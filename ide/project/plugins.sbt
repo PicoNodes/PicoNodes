@@ -9,3 +9,5 @@ addSbtPlugin("io.spray" % "sbt-revolver" % "0.9.1")
 addSbtPlugin("org.ensime" % "sbt-ensime" % "2.5.1")
 
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.0")
+
+addSbtPlugin("io.github.davidmweber" % "flyway-sbt" % "5.0.0")

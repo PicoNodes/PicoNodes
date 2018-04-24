@@ -11,7 +11,7 @@ import akka.util.ByteString
 import java.nio.ByteOrder
 import java.util.UUID
 import picoide.proto.{DownloaderCommand, DownloaderEvent, DownloaderInfo}
-import picoide.server.model.Downloader
+import picoide.server.model.{Downloader, DownloaderStore}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 
@@ -39,9 +39,10 @@ object DownloaderServer {
       }
     }
 
-  def start()(implicit actorSystem: ActorSystem,
-              materializer: Materializer,
-              executionContext: ExecutionContext)
+  def start(downloaderStore: DownloaderStore)(
+      implicit actorSystem: ActorSystem,
+      materializer: Materializer,
+      executionContext: ExecutionContext)
     : Source[Downloader, Future[ServerBinding]] = {
     val log = Logging.apply(actorSystem, getClass)
 
@@ -79,8 +80,8 @@ object DownloaderServer {
             .joinMat(toDownloader)(Keep.right)
             .named("protocol")
 
-        val authenticator = TLSClientAuthStage.bidiBs(_ =>
-          Future.successful(Some(DownloaderInfo(UUID.randomUUID()))))
+        val authenticator =
+          TLSClientAuthStage.bidiBs(downloaderStore.find(_).map(Some(_)))
 
         val sslContext = DownloaderTLSConfig.sslContext
         val encrypted =

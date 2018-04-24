@@ -10,7 +10,7 @@ import scala.collection.mutable
 import akka.actor.Actor
 import java.util.UUID
 
-class DownloaderRegistry extends Actor {
+class DownloaderRegistry(downloaderStore: DownloaderStore) extends Actor {
   import DownloaderRegistry._
   import context._
 
@@ -21,7 +21,7 @@ class DownloaderRegistry extends Actor {
 
   override def preStart(): Unit =
     DownloaderServer
-      .start()
+      .start(downloaderStore)
       .map(DownloaderRegistry.AddDownloader)
       .to(Sink.actorRef(self, onCompleteMessage = PoisonPill))
       .run()
@@ -53,7 +53,8 @@ class DownloaderRegistry extends Actor {
 }
 
 object DownloaderRegistry {
-  def props: Props = Props[DownloaderRegistry]()
+  def props(downloaderStore: DownloaderStore): Props =
+    Props(new DownloaderRegistry(downloaderStore))
 
   sealed trait Command
   sealed trait Response
