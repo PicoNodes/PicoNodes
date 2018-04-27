@@ -1,0 +1,25 @@
+#+BEGIN_SRC dot :file PicoTalk-Tx-FSM.svg
+  digraph g {
+    // rankdir = LR
+    node [shape=box]
+
+    Idle -> "HS-Advertise(0)" -> "HS-Advertise(1)" -> "HS-Listen(0)"
+    "HS-Listen(0)" -> "HS-Listen(1)" [label=1]
+    "HS-Listen(0)" -> "HS-CheckRx" [label=0]
+    "HS-Listen(1)" -> "HS-Listen(2)" [label=1]
+    "HS-Listen(1)" -> "HS-CheckRx" [label=0]
+    "HS-Listen(2)" -> "HS-WaitRetry(0)" [label=1]
+    "HS-Listen(2)" -> "HS-CheckRx" [label=0]
+    "HS-WaitRetry(0)" -> "HS-WaitRetry(1)" -> "HS-Advertise(0)"
+    "HS-CheckRx" -> "HS-WaitTx(0)" [label=1]
+    "HS-WaitTx(0)" -> "HS-WaitTx(1)" -> "Preamble(0)"
+    "HS-CheckRx" -> Error [label=0]
+
+    "Preamble(0)" -> "Preamble(1)" -> "Preamble(2)" -> "Preamble(3)" -> "Preamble(4)" -> "Data(0)"
+    "Data(0)" -> "Data(1)" -> "Data(2)" [rankdir=RL]
+    "Data(2)" -> "Data(3)" -> "Data(4)" -> "Data(5)" -> "Data(6)" -> "Data(7)" -> Idle
+  }
+#+END_SRC
+
+#+RESULTS:
+[[file:PicoTalk-Tx-FSM.svg]]
