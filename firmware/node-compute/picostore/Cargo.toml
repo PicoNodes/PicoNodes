@@ -1,0 +1,7 @@
+[package]
+name = "picostore"
+version = "0.1.0"
+authors = ["Teo Klestrup Röijezon <teo@nullable.se>"]
+
+[dependencies]
+stm32f0x0 = "0.1.0"
