@@ -18,7 +18,7 @@ const PICOSTORE_BYTES: usize = 60;
 const PICOSTORE_HALFWORDS: usize = PICOSTORE_BYTES / 2 + PICOSTORE_BYTES % 2;
 
 #[link_section = ".data.picostore"]
-static mut PICOSTORE_CODE: [u8; PICOSTORE_BYTES] = [0; PICOSTORE_BYTES];
+static mut PICOSTORE_CODE: [u16; PICOSTORE_HALFWORDS] = [0; PICOSTORE_HALFWORDS];
 
 static mut TAKEN: bool = false;
 
@@ -40,7 +40,7 @@ impl PicoStore {
         }
     }
 
-    pub fn borrow(&self) -> &[u8] {
+    pub fn borrow(&self) -> &[u16] {
         unsafe {
             &PICOSTORE_CODE
         }
@@ -83,18 +83,14 @@ impl PicoStore {
                  flash.cr.read().bits()).unwrap();
         // asm::bkpt();
         unsafe {
-            let code_halfwords = transmute::<&mut [u8; PICOSTORE_BYTES], &mut [u16; PICOSTORE_HALFWORDS]>(&mut PICOSTORE_CODE);
-            for i in 0..PICOSTORE_BYTES {
-                writeln!(out, "{:X} {:X}", new[i], &PICOSTORE_CODE[i]).unwrap();
-                if i % 2 == 0 {
-                    code_halfwords[i/2] = (new[i] as u16);
-                } else {
-                    code_halfwords[i/2] = ((new[i] as u16) << 8);
-                }
+            for i in 0..PICOSTORE_HALFWORDS {
+                let reg = (&mut PICOSTORE_CODE[i] as *mut u16);
+                writeln!(out, "{:X} {:X}", new[i], reg.read_volatile()).unwrap();
+                reg.write_volatile(0x125);
                 wait_while_busy(&flash.sr);
-                writeln!(out, "{:X} {:X}", new[i], &PICOSTORE_CODE[i]).unwrap();
+                writeln!(out, "{:X} {:X}", new[i], reg.read_volatile()).unwrap();
 
-                assert_eq!(flash.sr.read().eop().bit(), true);
+                // assert_eq!(flash.sr.read().eop().bit(), true);
                 flash.sr.modify(|_,w| w.eop().clear_bit());
             }
         }
