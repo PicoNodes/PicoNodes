@@ -36,11 +36,13 @@ fn main() {
 
     let mut pa4 = gpioa.pa4.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
 	let value = 15;
-	
+    let mut state = TransmitState::HandshakeAdvertise(0);
+
 	loop {
-	write_pin(&mut pa4, value, &mut delay);
+	    transmitting_value(&mut pa4, &mut state, value);
+        delay.delay_ms(1u16);
 	}
-	
+
     /*let mut out = hio::hstdout().unwrap();
     let peripherals = Peripherals::take().unwrap();
     let gpioa = peripherals.GPIOA;
@@ -50,13 +52,13 @@ fn main() {
     unsafe {
         gpioa.moder.modify(|_, w| w.moder4().bits(1)); // output
     }
-	
+
     let mut interpreter = Interpreter::new();
 	let memreg = MemRegister::Acc;
 	memreg.write(&mut interpreter, 5);
     let mut state = false;
     //writeln!(out, "The value is {}", memreg.read(&interpreter));
-	
+
     if memreg.read(&mut interpreter) == 5 {
         loop {
             state = !state;
