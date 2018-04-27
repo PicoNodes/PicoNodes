@@ -10,7 +10,7 @@ incremental = false
 [profile.release]
 opt-level = "z"
 lto = true
-debug = false
+debug = true
 
 [dependencies]
 cortex-m = "0.4"

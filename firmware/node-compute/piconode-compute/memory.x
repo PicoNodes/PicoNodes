@@ -9,7 +9,7 @@ RAM : ORIGIN = 0x20000000, LENGTH = 4K
 
 SECTIONS
 {
-  .data.picostore ORIGIN(PICOSTORE) : ALIGN(4)
+  .data.picostore ORIGIN(PICOSTORE) (NOLOAD) : ALIGN(1K)
   {
     KEEP(*(.data.picostore));
   } > PICOSTORE

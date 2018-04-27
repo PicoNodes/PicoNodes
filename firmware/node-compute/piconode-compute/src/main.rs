@@ -10,6 +10,7 @@ extern crate cortex_m_semihosting;
 extern crate stm32f0x0_hal;
 extern crate embedded_hal;
 extern crate picostorm;
+extern crate picostore;
 
 #[cfg(feature = "debug")]
 extern crate panic_semihosting;
@@ -33,13 +34,29 @@ use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent};
 use stm32f0x0_hal::gpio::{Output, OpenDrain, gpioa::PA4};
 use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
 
+use picostore::PicoStore;
+
 fn echo_incoming(_t: &mut Threshold, r: USART1::Resources) {
     let mut rx = r.SERIAL1_RX;
+    let mut store = r.STORE;
+
+    // embedded-hal doesn't have a flash abstraction yet :(
+    let flash = unsafe { (stm32f0x0::FLASH::ptr() as *mut stm32f0x0::flash::RegisterBlock).as_mut().unwrap() };
 
     let cmd = picostorm::Command::read(&mut *rx).unwrap();
 
     let mut out = hio::hstdout().unwrap();
-    writeln!(out, "{:?}", cmd).unwrap();
+    match cmd {
+        picostorm::Command::DownloadBytecode { ref bytecode } => {
+            writeln!(out, "dlb").unwrap();
+            store.replace(bytecode, flash);
+            writeln!(out, "{:?}", cmd).unwrap();
+            writeln!(out, "{:?}", store.borrow()).unwrap();
+        },
+        picostorm::Command::Ping => {
+            writeln!(out, "ping!").unwrap();
+        },
+    }
 }
 
 fn loopback(_t: &mut Threshold, r: USART1::Resources) {
@@ -87,6 +104,7 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
         SERIAL1_TX: tx,
         BLINKY_TIMER: tim3,
         BLINKY_PIN: pa4,
+        STORE: PicoStore::take().unwrap(),
     }
 }
 
@@ -105,11 +123,13 @@ app! {
         static BLINKY_TIMER: Timer<stm32f0x0::TIM3>;
         static BLINKY_STATE: bool = false;
         static BLINKY_PIN: PA4<Output<OpenDrain>>;
+
+        static STORE: PicoStore;
     },
     tasks: {
         USART1: {
             path: echo_incoming,
-            resources: [SERIAL1_RX, SERIAL1_TX],
+            resources: [SERIAL1_RX, SERIAL1_TX, STORE],
             priority: 2,
         },
 
