@@ -22,6 +22,14 @@ pub fn write_pin<P: OutputPin>(pin: &mut P, value: i8, delay: &mut Delay) {
 	//Can only send i8 values between 100..-100
     let mut state = true;
 	let mut n = 1;
+	
+	//Preamble is 5 delays high pin so the reciever know when the message start
+	for n in 0..5 {
+		pin.set_high();
+		delay.delay_ms(5*500u16);
+		pin.set_low();
+	}
+	
 	for i in 0..8 {
 		if n & value == 0 {
 			pin.set_low();
