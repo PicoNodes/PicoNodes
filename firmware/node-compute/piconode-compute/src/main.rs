@@ -10,6 +10,8 @@ extern crate cortex_m_semihosting;
 extern crate stm32f0x0_hal;
 extern crate embedded_hal;
 extern crate picostorm;
+extern crate picotalk;
+extern crate picorunner;
 
 #[cfg(feature = "debug")]
 extern crate panic_semihosting;
@@ -20,6 +22,12 @@ extern crate panic_abort;
 #[macro_use]
 extern crate nb;
 
+use stm32f0x0_hal::delay::Delay;
+use stm32f0x0_hal::stm32f0x0::{CorePeripherals, Peripherals};
+
+use picotalk::*;
+use picorunner::*;
+
 use core::fmt::Write;
 use cortex_m_semihosting::hio;
 
@@ -28,12 +36,32 @@ use rtfm::{app, Threshold};
 use cortex_m::asm;
 
 use stm32f0x0_hal::prelude::*;
-use stm32f0x0_hal::stm32f0x0;
-use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent};
+//use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent};
 use stm32f0x0_hal::gpio::{Output, OpenDrain, gpioa::PA4};
 use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
 
-fn echo_incoming(_t: &mut Threshold, r: USART1::Resources) {
+fn main() {
+    let mut out = hio::hstdout().unwrap();
+    let peripherals = Peripherals::take().unwrap();
+    let core_peripherals = CorePeripherals::take().unwrap();
+    let mut flash = peripherals.FLASH.constrain();
+    let mut rcc = peripherals.RCC.constrain();
+    let clocks = rcc.cfgr.freeze(&mut flash.acr);
+
+    let mut gpioa = peripherals.GPIOA.split(&mut rcc.ahb);
+    let mut delay = Delay::new(core_peripherals.SYST, clocks);
+
+    let mut pa4 = gpioa.pa4.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let value = 15;
+    let mut state = TransmitState::HandshakeAdvertise(0);
+
+    loop {
+        transmitting_value(&mut pa4, &mut state, value);
+        delay.delay_ms(1u16);
+    }
+}
+
+/*fn echo_incoming(_t: &mut Threshold, r: USART1::Resources) {
     let mut rx = r.SERIAL1_RX;
 
     let cmd = picostorm::Command::read(&mut *rx).unwrap();
@@ -119,4 +147,4 @@ app! {
             priority: 1,
         }
     }
-}
+}*/

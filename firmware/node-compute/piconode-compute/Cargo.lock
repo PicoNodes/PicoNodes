@@ -183,10 +183,16 @@ dependencies = [
  "nb 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "panic-abort 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "panic-semihosting 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "picorunner 0.1.0",
  "picostore 0.1.0",
  "picostorm 0.1.0",
+ "picotalk 0.1.0",
  "stm32f0x0-hal 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
+
+[[package]]
+name = "picorunner"
+version = "0.1.0"
 
 [[package]]
 name = "picostore"
@@ -203,6 +209,17 @@ dependencies = [
  "embedded-hal 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "heapless 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "nb 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "picotalk"
+version = "0.1.0"
+dependencies = [
+ "cortex-m 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cortex-m-semihosting 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "embedded-hal 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "panic-semihosting 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "stm32f0x0-hal 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
