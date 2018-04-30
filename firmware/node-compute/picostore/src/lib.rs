@@ -3,15 +3,12 @@
 
 extern crate byteorder;
 extern crate cortex_m;
-extern crate cortex_m_semihosting;
 extern crate stm32f0x0;
 
-use core::fmt::Write;
 use core::slice;
 use core::ops::Deref;
-use cortex_m_semihosting::hio;
 
-use stm32f0x0::flash;
+use stm32f0x0::{flash, crc};
 
 use byteorder::{NativeEndian, ByteOrder};
 
@@ -51,6 +48,14 @@ impl PicoStore {
         }
     }
 
+    pub fn crc(&self, crc: &mut crc::RegisterBlock) -> u32 {
+        crc.cr.write(|w| w.reset().set_bit());
+        for byte in self.iter() {
+            crc.dr.write(|w| unsafe { w.dr().bits(*byte as u32) });
+        }
+        crc.dr.read().dr().bits()
+    }
+
     fn unlock(&mut self, flash: &mut flash::RegisterBlock) {
         if flash.cr.read().lock().bit() {
             unsafe {
@@ -76,7 +81,6 @@ impl PicoStore {
     }
 
     pub fn replace(&mut self, new: &[u8], flash: &mut flash::RegisterBlock) {
-        let mut out = hio::hstdout().unwrap();
         self.unlock(flash);
         self.erase(flash);
 

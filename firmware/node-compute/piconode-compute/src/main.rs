@@ -41,15 +41,22 @@ use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
 fn picotalk_tick(_t: &mut Threshold, r: TIM3::Resources) {
     let mut state = r.PICOTALK_STATE;
     let mut pin = r.PICOTALK_PIN;
+    let mut timer = r.PICOTALK_TIMER;
+
+    timer.wait().unwrap();
     picotalk::transmit_value(&mut *pin, &mut state, 15);
 }
 
 fn handle_picostorm_msg(_t: &mut Threshold, r: USART1::Resources) {
     let mut rx = r.SERIAL1_RX;
+    let mut tx = r.SERIAL1_TX;
     let mut store = r.STORE;
 
     // embedded-hal doesn't have a flash abstraction yet :(
     let flash = unsafe { (stm32f0x0::FLASH::ptr() as *mut stm32f0x0::flash::RegisterBlock).as_mut().unwrap() };
+
+    // embedded-hal doesn't have a crc abstraction yet :(
+    let crc_peripheral = unsafe { (stm32f0x0::CRC::ptr() as *mut stm32f0x0::crc::RegisterBlock).as_mut().unwrap() };
 
     let cmd = picostorm::Command::read(&mut *rx).unwrap();
 
@@ -58,6 +65,9 @@ fn handle_picostorm_msg(_t: &mut Threshold, r: USART1::Resources) {
         picostorm::Command::DownloadBytecode { ref bytecode } => {
             writeln!(out, "download bytecode").unwrap();
             store.replace(bytecode, flash);
+            let crc = store.crc(crc_peripheral);
+            let done_event = picostorm::Event::DownloadedBytecode { crc };
+            done_event.write(&mut *tx).unwrap();
         },
         picostorm::Command::Ping => {
             writeln!(out, "ping!").unwrap();
@@ -66,7 +76,10 @@ fn handle_picostorm_msg(_t: &mut Threshold, r: USART1::Resources) {
 }
 
 fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
-    let mut rcc = p.device.RCC.constrain();
+    let rcc = p.device.RCC;
+    rcc.ahbenr.modify(|_,w| w.crcen().set_bit());
+
+    let mut rcc = rcc.constrain();
     let mut flash = p.device.FLASH.constrain();
     let clocks = rcc.cfgr.freeze(&mut flash.acr);
     let mut gpioa = p.device.GPIOA.split(&mut rcc.ahb);
@@ -87,6 +100,7 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
         SERIAL1_RX: rx,
         SERIAL1_TX: tx,
         PICOTALK_PIN: pa4,
+        PICOTALK_TIMER: tim3,
         STORE: PicoStore::take().unwrap(),
     }
 }
@@ -105,6 +119,7 @@ app! {
 
         static PICOTALK_PIN: PA4<Output<OpenDrain>>;
         static PICOTALK_STATE: picotalk::TransmitState = picotalk::TransmitState::HandshakeAdvertise(0);
+        static PICOTALK_TIMER: Timer<stm32f0x0::TIM3>;
 
         static STORE: PicoStore;
     },
@@ -117,7 +132,7 @@ app! {
 
         TIM3: {
             path: picotalk_tick,
-            resources: [PICOTALK_PIN, PICOTALK_STATE],
+            resources: [PICOTALK_PIN, PICOTALK_STATE, PICOTALK_TIMER],
             priority: 1,
         },
     }

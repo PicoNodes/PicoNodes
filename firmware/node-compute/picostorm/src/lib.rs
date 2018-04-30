@@ -50,13 +50,13 @@ where
     R::Error: Debug,
 {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        match (&*self,) {
-            (&ReadError::Serial(ref inner),) => {
+        match self {
+            &ReadError::Serial(ref inner) => {
                 let mut dbg_builder = fmt.debug_tuple("Serial");
                 let _ = dbg_builder.field(inner);
                 dbg_builder.finish()
             }
-            (&ReadError::Decode(ref inner),) => {
+            &ReadError::Decode(ref inner) => {
                 let mut dbg_builder = fmt.debug_tuple("Decode");
                 let _ = dbg_builder.field(inner);
                 dbg_builder.finish()
@@ -71,10 +71,29 @@ impl<R: serial::Read<u8>> From<DecodeError> for ReadError<R> {
     }
 }
 
-#[derive(Debug)]
 pub enum WriteError<W: serial::Write<u8>> {
     Serial(W::Error),
     Encode(EncodeError),
+}
+
+impl<W: serial::Write<u8>> Debug for WriteError<W>
+where
+    W::Error: Debug,
+{
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &WriteError::Serial(ref inner) => {
+                let mut dbg_builder = fmt.debug_tuple("Serial");
+                let _ = dbg_builder.field(inner);
+                dbg_builder.finish()
+            }
+            &WriteError::Encode(ref inner) => {
+                let mut dbg_builder = fmt.debug_tuple("Encode");
+                let _ = dbg_builder.field(inner);
+                dbg_builder.finish()
+            }
+        }
+    }
 }
 
 impl<W: serial::Write<u8>> From<EncodeError> for WriteError<W> {
@@ -165,20 +184,24 @@ impl Command {
 }
 
 pub enum Event {
-    DownloadedBytecode { checksum: u8 },
+    DownloadedBytecode { crc: u32 },
 }
 
 impl Event {
     fn into_raw(self) -> Result<RawMessage, EncodeError> {
         let mut content = Vec::new();
         match self {
-            Event::DownloadedBytecode { checksum } => content.extend_from_slice(&[
-                0,
-                0,
-                0,
-                1, // Type
-                checksum,
-            ]),
+            Event::DownloadedBytecode { crc } => {
+                let mut crc_bytes = [0u8; 4];
+                BigEndian::write_u32(&mut crc_bytes, crc);
+                content.extend_from_slice(&[
+                    0,
+                    0,
+                    0,
+                    1, // Type
+                ])?;
+                content.extend_from_slice(&crc_bytes)
+            },
         }?;
         Ok(RawMessage { bytes: content })
     }
@@ -271,7 +294,7 @@ mod tests {
 
     #[test]
     fn write_downloaded_bytecode_event() {
-        let evt = ::Event::DownloadedBytecode { checksum: 42 };
+        let evt = ::Event::DownloadedBytecode { crc: 42 };
         let mut serial = BufSerial::new();
         evt.write(&mut serial).unwrap();
 
@@ -279,12 +302,15 @@ mod tests {
             0,
             0,
             0,
-            5, // Length
+            8, // Length
             0,
             0,
             0,
             1, // Type: 1 (DownloadedBytecode)
-            42,
+            0,
+            0,
+            0,
+            42, // Checksum: 42
         ];
 
         assert_eq!(serial.buf, expected);
