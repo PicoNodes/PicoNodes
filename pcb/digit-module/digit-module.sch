@@ -1,0 +1,129 @@
+EESchema Schematic File Version 4
+LIBS:digit-module-cache
+EELAYER 26 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 2
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Sheet
+S 6350 2350 1000 800 
+U 5AE7218A
+F0 "led_matrix" 60
+F1 "led_matrix.sch" 60
+F2 "led_01" I L 6350 2550 60 
+F3 "led_23" I L 6350 2650 60 
+F4 "led_45" I L 6350 2750 60 
+F5 "gnd_odd" O R 7350 2750 60 
+F6 "gnd_even" O R 7350 2650 60 
+F7 "led_67" I L 6350 2850 60 
+F8 "led_89" I L 6350 2950 60 
+$EndSheet
+$Comp
+L stm32:STM32F030F4Px U1
+U 1 1 5AE88544
+P 3400 3150
+F 0 "U1" H 3400 2164 50  0000 C CNN
+F 1 "STM32F030F4Px" H 3400 2073 50  0000 C CNN
+F 2 "Housings_SSOP:TSSOP-20_4.4x6.5mm_Pitch0.65mm" H 5000 4025 50  0001 R TNN
+F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/DM00088500.pdf" H 3400 3150 50  0001 C CNN
+	1    3400 3150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Transistor_BJT:PN2222A Q1
+U 1 1 5AE75159
+P 7300 3350
+F 0 "Q1" H 7491 3396 50  0000 L CNN
+F 1 "PN2222A" H 7491 3305 50  0000 L CNN
+F 2 "Package_TO_SOT_THT:TO-92" H 7500 3450 50  0001 C CNN
+F 3 "" H 7300 3350 50  0001 C CNN
+	1    7300 3350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7400 3150 7400 2750
+Wire Wire Line
+	7400 2750 7350 2750
+$Comp
+L Transistor_BJT:PN2222A Q2
+U 1 1 5AE7533B
+P 7550 3700
+F 0 "Q2" H 7741 3746 50  0000 L CNN
+F 1 "PN2222A" H 7741 3655 50  0000 L CNN
+F 2 "Package_TO_SOT_THT:TO-92" H 7750 3800 50  0001 C CNN
+F 3 "" H 7550 3700 50  0001 C CNN
+	1    7550 3700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7650 3500 7650 2650
+Wire Wire Line
+	7650 2650 7350 2650
+Wire Wire Line
+	7400 3550 7400 3900
+Wire Wire Line
+	7400 3900 7650 3900
+$Comp
+L power:GND #PWR0101
+U 1 1 5AE7568B
+P 7400 3900
+F 0 "#PWR0101" H 7400 3650 50  0001 C CNN
+F 1 "GND" H 7405 3727 50  0000 C CNN
+F 2 "" H 7400 3900 50  0001 C CNN
+F 3 "" H 7400 3900 50  0001 C CNN
+	1    7400 3900
+	1    0    0    -1  
+$EndComp
+Connection ~ 7400 3900
+Wire Wire Line
+	5100 2550 5750 2550
+Wire Wire Line
+	5750 2550 5750 3350
+Wire Wire Line
+	5750 3350 7100 3350
+Wire Wire Line
+	5100 2650 5700 2650
+Wire Wire Line
+	5700 2650 5700 3700
+Wire Wire Line
+	5700 3700 7350 3700
+Wire Wire Line
+	5100 2750 5800 2750
+Wire Wire Line
+	5800 2550 6350 2550
+Wire Wire Line
+	5800 2550 5800 2750
+Wire Wire Line
+	5100 2850 5850 2850
+Wire Wire Line
+	5850 2850 5850 2650
+Wire Wire Line
+	5850 2650 6350 2650
+Wire Wire Line
+	5100 2950 5900 2950
+Wire Wire Line
+	5900 2950 5900 2750
+Wire Wire Line
+	5900 2750 6350 2750
+Wire Wire Line
+	6350 2850 5950 2850
+Wire Wire Line
+	5950 2850 5950 3050
+Wire Wire Line
+	5950 3050 5100 3050
+Wire Wire Line
+	6350 2950 6000 2950
+Wire Wire Line
+	6000 2950 6000 3150
+Wire Wire Line
+	6000 3150 5100 3150
+$EndSCHEMATC

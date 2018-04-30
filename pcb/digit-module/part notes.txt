@@ -1,0 +1,14 @@
+Vdd = 3.3V
+
+LED forward current = 20mA
+LED forward voltage = 2V
+
+MCU max current = 25mA
+MCU voltage = 3.3V
+
+# From https://www.sparkfun.com/tutorials/219
+LED resistor = (Vs - Vf) / If = (3.3 - 2) / 0.02 = 1.3 / 0.02 = 65Ohm
+
+# From https://electronicsclub.info/transistorcircuits.htm
+Lc(max) must be > LED current = 20mA
+hFE(min) must be < 5 * LED current / max IC current = 5 * 0.02 / 0.025 = 0.1 / 0.025 = 4
