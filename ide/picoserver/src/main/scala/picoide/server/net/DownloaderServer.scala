@@ -34,6 +34,8 @@ object DownloaderServer {
     } else {
       val buf = msg.iterator
       buf.getInt match {
+        case 1 =>
+          Right(Some(DownloaderEvent.DownloadedBytecode(crc = buf.getInt)))
         case unknownType =>
           Left(s"Unknown event of type $unknownType: $msg")
       }
