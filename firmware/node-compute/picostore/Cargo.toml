@@ -5,3 +5,9 @@ authors = ["Teo Klestrup Röijezon <teo@nullable.se>"]
 
 [dependencies]
 stm32f0x0 = "0.1.0"
+cortex-m = "0.4.3"
+cortex-m-semihosting = "0.2.1"
+
+[dependencies.byteorder]
+version = "1.2.2"
+default-features = false

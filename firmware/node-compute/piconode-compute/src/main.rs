@@ -12,6 +12,7 @@ extern crate embedded_hal;
 extern crate picostorm;
 extern crate picotalk;
 extern crate picorunner;
+extern crate picostore;
 
 #[cfg(feature = "debug")]
 extern crate panic_semihosting;
@@ -22,11 +23,9 @@ extern crate panic_abort;
 #[macro_use]
 extern crate nb;
 
-use stm32f0x0_hal::delay::Delay;
-use stm32f0x0_hal::stm32f0x0::{CorePeripherals, Peripherals};
-
 use picotalk::*;
 use picorunner::*;
+use picostore::PicoStore;
 
 use core::fmt::Write;
 use cortex_m_semihosting::hio;
@@ -36,59 +35,35 @@ use rtfm::{app, Threshold};
 use cortex_m::asm;
 
 use stm32f0x0_hal::prelude::*;
-//use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent};
+use stm32f0x0_hal::stm32f0x0;
+use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent};
 use stm32f0x0_hal::gpio::{Output, OpenDrain, gpioa::PA4};
 use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
 
-fn main() {
-    let mut out = hio::hstdout().unwrap();
-    let peripherals = Peripherals::take().unwrap();
-    let core_peripherals = CorePeripherals::take().unwrap();
-    let mut flash = peripherals.FLASH.constrain();
-    let mut rcc = peripherals.RCC.constrain();
-    let clocks = rcc.cfgr.freeze(&mut flash.acr);
-
-    let mut gpioa = peripherals.GPIOA.split(&mut rcc.ahb);
-    let mut delay = Delay::new(core_peripherals.SYST, clocks);
-
-    let mut pa4 = gpioa.pa4.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
-    let value = 15;
-    let mut state = TransmitState::HandshakeAdvertise(0);
-
-    loop {
-        transmitting_value(&mut pa4, &mut state, value);
-        delay.delay_ms(1u16);
-    }
+fn picotalk_tick(_t: &mut Threshold, r: TIM3::Resources) {
+    let mut state = r.PICOTALK_STATE;
+    let mut pin = r.PICOTALK_PIN;
+    transmitting_value(&mut *pin, &mut state, 15);
 }
 
-/*fn echo_incoming(_t: &mut Threshold, r: USART1::Resources) {
+fn echo_incoming(_t: &mut Threshold, r: USART1::Resources) {
     let mut rx = r.SERIAL1_RX;
+    let mut store = r.STORE;
+
+    // embedded-hal doesn't have a flash abstraction yet :(
+    let flash = unsafe { (stm32f0x0::FLASH::ptr() as *mut stm32f0x0::flash::RegisterBlock).as_mut().unwrap() };
 
     let cmd = picostorm::Command::read(&mut *rx).unwrap();
 
     let mut out = hio::hstdout().unwrap();
-    writeln!(out, "{:?}", cmd).unwrap();
-}
-
-fn loopback(_t: &mut Threshold, r: USART1::Resources) {
-    let mut rx = r.SERIAL1_RX;
-    let mut tx = r.SERIAL1_TX;
-
-    block!(tx.write(rx.read().unwrap())).unwrap();
-}
-
-fn blink(_t: &mut Threshold, r: TIM3::Resources) {
-    let mut timer = r.BLINKY_TIMER;
-    let mut state = r.BLINKY_STATE;
-    let mut pin = r.BLINKY_PIN;
-
-    timer.wait().unwrap();
-
-    *state = !*state;
-    if *state {
-        pin.set_high();
-    } else {
-        pin.set_low();
+    match cmd {
+        picostorm::Command::DownloadBytecode { ref bytecode } => {
+            writeln!(out, "download bytecode").unwrap();
+            store.replace(bytecode, flash);
+        },
+        picostorm::Command::Ping => {
+            writeln!(out, "ping!").unwrap();
+        },
     }
 }
 
@@ -113,8 +88,8 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     init::LateResources {
         SERIAL1_RX: rx,
         SERIAL1_TX: tx,
-        BLINKY_TIMER: tim3,
-        BLINKY_PIN: pa4,
+        PICOTALK_PIN: pa4,
+        STORE: PicoStore::take().unwrap(),
     }
 }
 
@@ -130,21 +105,22 @@ app! {
         static SERIAL1_RX: Rx<stm32f0x0::USART1>;
         static SERIAL1_TX: Tx<stm32f0x0::USART1>;
 
-        static BLINKY_TIMER: Timer<stm32f0x0::TIM3>;
-        static BLINKY_STATE: bool = false;
-        static BLINKY_PIN: PA4<Output<OpenDrain>>;
+        static PICOTALK_PIN: PA4<Output<OpenDrain>>;
+        static PICOTALK_STATE: TransmitState = TransmitState::HandshakeAdvertise(0);
+
+        static STORE: PicoStore;
     },
     tasks: {
         USART1: {
             path: echo_incoming,
-            resources: [SERIAL1_RX, SERIAL1_TX],
+            resources: [SERIAL1_RX, SERIAL1_TX, STORE],
             priority: 2,
         },
 
         TIM3: {
-            path: blink,
-            resources: [BLINKY_TIMER, BLINKY_STATE, BLINKY_PIN],
+            path: picotalk_tick,
+            resources: [PICOTALK_PIN, PICOTALK_STATE],
             priority: 1,
-        }
+        },
     }
-}*/
+}
