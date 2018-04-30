@@ -48,10 +48,8 @@ fn echo_incoming(_t: &mut Threshold, r: USART1::Resources) {
     let mut out = hio::hstdout().unwrap();
     match cmd {
         picostorm::Command::DownloadBytecode { ref bytecode } => {
-            writeln!(out, "dlb").unwrap();
+            writeln!(out, "download bytecode").unwrap();
             store.replace(bytecode, flash);
-            writeln!(out, "{:?}", cmd).unwrap();
-            writeln!(out, "{:?}", store.borrow()).unwrap();
         },
         picostorm::Command::Ping => {
             writeln!(out, "ping!").unwrap();
@@ -137,6 +135,6 @@ app! {
             path: blink,
             resources: [BLINKY_TIMER, BLINKY_STATE, BLINKY_PIN],
             priority: 1,
-        }
+        },
     }
 }

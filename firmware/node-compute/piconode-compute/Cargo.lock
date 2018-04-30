@@ -195,6 +195,7 @@ dependencies = [
 name = "picostore"
 version = "0.1.0"
 dependencies = [
+ "byteorder 1.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "cortex-m 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "cortex-m-semihosting 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "stm32f0x0 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",

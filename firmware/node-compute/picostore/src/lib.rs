@@ -1,24 +1,29 @@
 #![no_std]
 #![feature(asm)]
 
-extern crate stm32f0x0;
+extern crate byteorder;
 extern crate cortex_m;
 extern crate cortex_m_semihosting;
+extern crate stm32f0x0;
 
 use core::fmt::Write;
-use core::mem::transmute;
+use core::slice;
+use core::ops::Deref;
 use cortex_m_semihosting::hio;
 
-use cortex_m::asm;
 use stm32f0x0::flash;
 
-// This MUST MATCH the page that PICOSTORE_CODE is placed in
-const PICOSTORE_PAGE: u32 = 15;
+use byteorder::{NativeEndian, ByteOrder};
+
 const PICOSTORE_BYTES: usize = 60;
 const PICOSTORE_HALFWORDS: usize = PICOSTORE_BYTES / 2 + PICOSTORE_BYTES % 2;
 
+// This MUST be linked into its own flash page
 #[link_section = ".data.picostore"]
 static mut PICOSTORE_CODE: [u16; PICOSTORE_HALFWORDS] = [0; PICOSTORE_HALFWORDS];
+
+#[link_section = ".data.picostore"]
+static mut PICOSTORE_CODE_BYTES: u16 = 0;
 
 static mut TAKEN: bool = false;
 
@@ -40,9 +45,9 @@ impl PicoStore {
         }
     }
 
-    pub fn borrow(&self) -> &[u16] {
+    pub fn borrow(&self) -> &[u8] {
         unsafe {
-            &PICOSTORE_CODE
+            slice::from_raw_parts(&PICOSTORE_CODE as *const u16 as *const u8, PICOSTORE_CODE_BYTES as usize)
         }
     }
 
@@ -57,15 +62,17 @@ impl PicoStore {
 
     fn erase(&mut self, flash: &mut flash::RegisterBlock) {
         wait_while_busy(&flash.sr);
-        flash.cr.write(|w| w.per().set_bit());
-        flash.ar.write(|w| unsafe { w.far().bits(PICOSTORE_PAGE) });
+        flash.cr.modify(|_, w| w.per().set_bit());
+        flash
+            .ar
+            .write(|w| unsafe { w.far().bits((&PICOSTORE_CODE[0]) as *const u16 as u32) });
         self.unlock(flash);
-        flash.cr.modify(|_,w| w.strt().set_bit());
+        flash.cr.modify(|_, w| w.strt().set_bit());
         wait_while_busy(&flash.sr);
 
         assert_eq!(flash.sr.read().eop().bit(), true);
         flash.sr.write(|w| w.eop().set_bit());
-        flash.cr.write(|w| w.per().clear_bit());
+        flash.cr.modify(|_, w| w.per().clear_bit());
     }
 
     pub fn replace(&mut self, new: &[u8], flash: &mut flash::RegisterBlock) {
@@ -73,28 +80,37 @@ impl PicoStore {
         self.unlock(flash);
         self.erase(flash);
 
-        writeln!(out, "SR: {:X}, CR: {:X}",
-                 flash.sr.read().bits(),
-                 flash.cr.read().bits()).unwrap();
-        self.unlock(flash);
-        flash.cr.modify(|_,w| w.pg().set_bit());
-        writeln!(out, "SR: {:X}, CR: {:X}",
-                 flash.sr.read().bits(),
-                 flash.cr.read().bits()).unwrap();
-        // asm::bkpt();
-        unsafe {
-            for i in 0..PICOSTORE_HALFWORDS {
-                let reg = (&mut PICOSTORE_CODE[i] as *mut u16);
-                writeln!(out, "{:X} {:X}", new[i], reg.read_volatile()).unwrap();
-                reg.write_volatile(0x125);
+        flash.cr.modify(|_, w| w.pg().set_bit());
+        for i in 0..PICOSTORE_HALFWORDS {
+            unsafe {
+                // volatile operations are only available for pointers, not borrows
+                let reg = &mut PICOSTORE_CODE[i] as *mut u16;
+                // Would use a range here, but we want to zero-extend...
+                reg.write_volatile(NativeEndian::read_u16(&[
+                    *new.get(i*2).unwrap_or(&0),
+                    *new.get(i*2 + 1).unwrap_or(&0),
+                ]));
                 wait_while_busy(&flash.sr);
-                writeln!(out, "{:X} {:X}", new[i], reg.read_volatile()).unwrap();
-
-                // assert_eq!(flash.sr.read().eop().bit(), true);
-                flash.sr.modify(|_,w| w.eop().clear_bit());
             }
+
+            assert_eq!(flash.sr.read().eop().bit(), true);
+            flash.sr.modify(|_, w| w.eop().clear_bit());
         }
-        asm::bkpt();
-        flash.cr.modify(|_,w| w.pg().clear_bit());
+
+        unsafe {
+            ((&mut PICOSTORE_CODE_BYTES) as *mut u16).write_volatile(usize::min(PICOSTORE_BYTES, new.len()) as u16);
+        }
+        assert_eq!(flash.sr.read().eop().bit(), true);
+        flash.sr.modify(|_, w| w.eop().clear_bit());
+
+        flash.cr.modify(|_, w| w.pg().clear_bit());
+    }
+}
+
+impl Deref for PicoStore {
+    type Target = [u8];
+
+    fn deref(&self) -> &Self::Target {
+        &self.borrow()
     }
 }
