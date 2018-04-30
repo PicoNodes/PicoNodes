@@ -46,7 +46,7 @@ fn picotalk_tick(_t: &mut Threshold, r: TIM3::Resources) {
     transmitting_value(&mut *pin, &mut state, 15);
 }
 
-fn echo_incoming(_t: &mut Threshold, r: USART1::Resources) {
+fn handle_picostorm_msg(_t: &mut Threshold, r: USART1::Resources) {
     let mut rx = r.SERIAL1_RX;
     let mut store = r.STORE;
 
@@ -112,7 +112,7 @@ app! {
     },
     tasks: {
         USART1: {
-            path: echo_incoming,
+            path: handle_picostorm_msg,
             resources: [SERIAL1_RX, SERIAL1_TX, STORE],
             priority: 2,
         },
