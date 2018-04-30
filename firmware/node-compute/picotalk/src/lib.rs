@@ -36,7 +36,7 @@ enum RecieveState {
 
 
 /*Statemachine for handshake/recieving/transmitting value*/
-pub fn transmitting_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut TransmitState, value: i8) {
+pub fn transmit_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut TransmitState, value: i8) {
 	use TransmitState::*;
 	match state {
 		HandshakeAdvertise(0) => {
@@ -110,12 +110,4 @@ pub fn transmitting_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut Tran
 		},
 		_ => panic!("Not a TransmitState"),
 	}
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_write_pin() {
-        assert_eq!(2 + 2, 4);
-    }
 }

@@ -23,8 +23,6 @@ extern crate panic_abort;
 #[macro_use]
 extern crate nb;
 
-use picotalk::*;
-use picorunner::*;
 use picostore::PicoStore;
 
 use core::fmt::Write;
@@ -43,7 +41,7 @@ use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
 fn picotalk_tick(_t: &mut Threshold, r: TIM3::Resources) {
     let mut state = r.PICOTALK_STATE;
     let mut pin = r.PICOTALK_PIN;
-    transmitting_value(&mut *pin, &mut state, 15);
+    picotalk::transmit_value(&mut *pin, &mut state, 15);
 }
 
 fn handle_picostorm_msg(_t: &mut Threshold, r: USART1::Resources) {
@@ -106,7 +104,7 @@ app! {
         static SERIAL1_TX: Tx<stm32f0x0::USART1>;
 
         static PICOTALK_PIN: PA4<Output<OpenDrain>>;
-        static PICOTALK_STATE: TransmitState = TransmitState::HandshakeAdvertise(0);
+        static PICOTALK_STATE: picotalk::TransmitState = picotalk::TransmitState::HandshakeAdvertise(0);
 
         static STORE: PicoStore;
     },
