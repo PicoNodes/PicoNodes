@@ -2,7 +2,7 @@
 
   (general
     (thickness 1.6)
-    (drawings 0)
+    (drawings 4)
     (tracks 216)
     (zones 0)
     (modules 20)
@@ -960,6 +960,11 @@
     )
   )
 
+  (gr_line (start 99.06 101.6) (end 99.06 71.12) (layer Edge.Cuts) (width 0.1))
+  (gr_line (start 152.4 101.6) (end 99.06 101.6) (layer Edge.Cuts) (width 0.1))
+  (gr_line (start 152.4 71.12) (end 152.4 101.6) (layer Edge.Cuts) (width 0.1))
+  (gr_line (start 99.06 71.12) (end 152.4 71.12) (layer Edge.Cuts) (width 0.1))
+
   (segment (start 128.79 92.91) (end 128.79 92.71) (width 0.25) (layer F.Cu) (net 1) (status 30))
   (segment (start 128.19 93.51) (end 128.79 92.91) (width 0.25) (layer F.Cu) (net 1) (status 20))
   (segment (start 121.92 93.51) (end 128.19 93.51) (width 0.25) (layer F.Cu) (net 1) (status 10))
@@ -1039,6 +1044,9 @@
   (segment (start 141.570001 89.334999) (end 139.049999 89.334999) (width 0.25) (layer F.Cu) (net 7))
   (segment (start 139.049999 89.334999) (end 138.615 88.9) (width 0.25) (layer F.Cu) (net 7))
   (segment (start 138.615 88.9) (end 126.315002 88.9) (width 0.25) (layer F.Cu) (net 7))
+  (segment (start 143.520011 89.350011) (end 141.585013 89.350011) (width 0.25) (layer F.Cu) (net 7))
+  (segment (start 143.775 90.58) (end 143.775 89.605) (width 0.25) (layer F.Cu) (net 7) (status 10))
+  (segment (start 143.775 89.605) (end 143.520011 89.350011) (width 0.25) (layer F.Cu) (net 7))
   (segment (start 121.92 85.24) (end 123.81 83.35) (width 0.25) (layer F.Cu) (net 8))
   (segment (start 123.81 83.35) (end 124.46 83.35) (width 0.25) (layer F.Cu) (net 8) (status 20))
   (segment (start 121.92 91.91) (end 121.92 85.24) (width 0.25) (layer F.Cu) (net 8) (status 10))
@@ -1046,9 +1054,6 @@
   (segment (start 125.470011 88.449989) (end 141.321402 88.449989) (width 0.25) (layer F.Cu) (net 8))
   (segment (start 141.321402 88.449989) (end 141.771413 88.9) (width 0.25) (layer F.Cu) (net 8))
   (segment (start 121.92 91.91) (end 122.01 91.91) (width 0.25) (layer F.Cu) (net 8) (status 30))
-  (segment (start 143.520011 89.350011) (end 141.585013 89.350011) (width 0.25) (layer F.Cu) (net 7))
-  (segment (start 143.775 90.58) (end 143.775 89.605) (width 0.25) (layer F.Cu) (net 7) (status 10))
-  (segment (start 143.775 89.605) (end 143.520011 89.350011) (width 0.25) (layer F.Cu) (net 7))
   (segment (start 144.425 89.605) (end 143.72 88.9) (width 0.25) (layer F.Cu) (net 8))
   (segment (start 143.72 88.9) (end 141.771413 88.9) (width 0.25) (layer F.Cu) (net 8))
   (segment (start 144.425 90.58) (end 144.425 89.605) (width 0.25) (layer F.Cu) (net 8) (status 10))
