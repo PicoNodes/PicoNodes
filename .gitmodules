@@ -7,3 +7,6 @@
 [submodule "pcb/vendor/kicad-footprints"]
 	path = pcb/vendor/kicad-footprints
 	url = https://github.com/kicad/kicad-footprints
+[submodule "pcb/vendor/ClothBotCreations"]
+	path = pcb/vendor/ClothBotCreations
+	url = https://github.com/clothbot/ClothBotCreations

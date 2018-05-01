@@ -1,3 +1,5 @@
+use <../vendor/ClothBotCreations/utilities/fillet.scad>;
+
 SPACING = 2.54;
 
 module sheet() {
@@ -5,11 +7,8 @@ module sheet() {
         translate([0, 0, 5]) {
             cube([40, 2, 50]);
         }
-        translate([5, 0, 0]) {
-            cube([5, 2, 10]);
-        }
         translate([21, 0, 0]) {
-            cube([5, 2, 10]);
+            cube([7, 2, 10]);
         }
     }
 }
@@ -36,41 +35,64 @@ module stack(sheets) {
     }
 }
 
+/*translate([0, 0, 0]) {
+    rotate([90, 0, 270]) {
+        #import("digit-node.stl");
+    }
+}*/
+
+/*translate([0, 0, 3]) {
+    rotate([270, 180, 90]) {
+        import("digit-node.stl");
+    }
+}*/
+
 difference() {
-    translate([-22, -3, 3]) {
-        cube([44, 40, 8]);
+    translate([-22, -4, 3]) {
+        cube([44, 55, 8]);
     }
     translate([0, 0, 1.5]) {
         stack(10);
     }
+    
+    translate([8.5, 7, 2]) {
+        cube([3.5, 14, 3.5]);
+    }
+    
+    translate([-11.9, 7, 2]) {
+        cube([3.5, 24, 3.5]);
+    }
+    
+    translate([-15, 25, 2]) {
+        cube([27.5, 25, 4]);
+    }
 }
 
-color("green") {
+/*color("green") {
     translate([-1, -3, 1]) {
         cube([2, 2 + 10 * SPACING, 3]);
     }
     
-    translate([-22, -3, 1]) {
+    translate([-22, -3, 0.5]) {
         cube([44, 2, 3]);
-        translate([0, 0, -1]) {
-            cube([44, 1, 2]);
-        }
         
-        for (i = [1 : 10]) {
+        for (i = [1 : 9]) {
             translate([0, SPACING * i + 1, 0]) {
                 cube([44, 1, 3]);
             }
         }
+        
+        translate([0, 27, 0]) {
+            cube([44, 28, 3]);
+        }
     }
+    
     
     for (i = [0 : 1]) {
         mirror([i, 0, 0]) {
-            translate([-22, -3, 1]) {
-                cube([2, 40, 3]);
-                translate([0, 0, -1]) {
-                    cube([1, 40, 2]);
-                }
+            translate([-22, -3, 0.5]) {
+                cube([10, 40, 3]);
             }
         }
     }
-}
+}*/
