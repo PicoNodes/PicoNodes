@@ -1,5 +1,5 @@
 EESchema Schematic File Version 4
-LIBS:digit-module-cache
+LIBS:digit-node-cache
 EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
@@ -33,7 +33,7 @@ U 1 1 5AE88544
 P 3400 3150
 F 0 "U1" H 3400 2164 50  0000 C CNN
 F 1 "STM32F030F4Px" H 3400 2073 50  0000 C CNN
-F 2 "Housings_SSOP:TSSOP-20_4.4x6.5mm_Pitch0.65mm" H 5000 4025 50  0001 R TNN
+F 2 "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" H 5000 4025 50  0001 R TNN
 F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/DM00088500.pdf" H 3400 3150 50  0001 C CNN
 	1    3400 3150
 	1    0    0    -1  
@@ -96,7 +96,7 @@ U 1 1 5AE79FB7
 P 7400 2950
 F 0 "R1" H 7470 2996 50  0000 L CNN
 F 1 "100" H 7470 2905 50  0000 L CNN
-F 2 "Resistors_SMD:R_0603" V 7330 2950 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 7330 2950 50  0001 C CNN
 F 3 "" H 7400 2950 50  0001 C CNN
 	1    7400 2950
 	1    0    0    -1  
@@ -111,7 +111,7 @@ U 1 1 5AE7A758
 P 7650 2950
 F 0 "R2" H 7720 2996 50  0000 L CNN
 F 1 "100" H 7720 2905 50  0000 L CNN
-F 2 "Resistors_SMD:R_0603" V 7580 2950 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 7580 2950 50  0001 C CNN
 F 3 "" H 7650 2950 50  0001 C CNN
 	1    7650 2950
 	1    0    0    -1  
