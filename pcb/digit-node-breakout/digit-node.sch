@@ -126,7 +126,7 @@ U 1 1 5AE7B4F9
 P 1250 2950
 F 0 "J2" H 1006 3575 50  0000 C CNN
 F 1 "STM32_SWD" H 1006 3484 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Horizontal" H 1250 2950 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 1250 2950 50  0001 C CNN
 F 3 "" H 1250 2950 50  0001 C CNN
 	1    1250 2950
 	1    0    0    -1  
@@ -209,10 +209,10 @@ U 1 1 5AE9A515
 P 1050 3750
 F 0 "J1" H 1156 4328 50  0000 C CNN
 F 1 "Conn_01x09_Male" H 1156 4237 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x09_P2.54mm_Horizontal" H 1050 3750 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x09_P2.54mm_Vertical" H 1050 3750 50  0001 C CNN
 F 3 "~" H 1050 3750 50  0001 C CNN
 	1    1050 3750
-	1    0    0    -1  
+	1    0    0    1   
 $EndComp
 Connection ~ 3400 2050
 Wire Wire Line
