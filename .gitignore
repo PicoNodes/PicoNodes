@@ -18,3 +18,5 @@ sdkconfig.old
 tags
 TAGS
 data.bin
+*.bak
+*-bak
