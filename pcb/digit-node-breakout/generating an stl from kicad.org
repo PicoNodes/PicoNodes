@@ -1,0 +1,47 @@
+* The problem
+
+KiCad has a very nice 3D viewer, but limited export options. It would be nice if we could use
+this as a guide for designing the enclosure. Sadly, the export feature is thoroughly broken
+at the moment.
+
+I've managed to get OpenSCAD to import a distant relative of KiCad's 3d model, but sadly it's
+a pretty manual process. Nevertheless, here goes...
+
+* The process
+
+** Get the model out of KiCad
+
+This bit is fairly simple.
+
+- Open the PCB in Pcbnew
+- Go to ~File~ -> ~Export~ -> ~VRML~
+- Make sure ~Plain PCB (no copper or silk)~ is enabled
+- Export!
+
+** Enabling the 3D printer toolbox
+
+This only needs to be done the first time.
+
+- Open Blender
+- Open ~User Preferences~
+- Go to ~Add-ons~
+- Enable ~Mesh: 3D Print Toolbox~
+- ~Save User Settings~
+- Restart Blender
+
+** Cleaning up the model
+
+- Open Blender
+- Delete the default cube (~Del~, ~1~)
+- Import the VRML file (~File~ -> ~Import~ -> ~X3D Extensible 3D (.x3d/.wrl)~)
+- Export as STL (~File~ -> ~Export~ -> ~STL~)
+  - This merges everything into one Blender object
+- Open a new file (~Ctrl+n~, ~1~)
+- Delete the default cube again (~Del~, ~1~)
+- Import the STL file (~File~ -> ~Import~ -> ~STL~)
+- Select the imported object
+- Open the ~3D Printing~ panel
+- Click ~Make Manifold~
+- Set the threshold to ~0.04~
+- Click ~Make Manifold~ repeatedly, until it reports that there were no more changes
+- Export as STL again
