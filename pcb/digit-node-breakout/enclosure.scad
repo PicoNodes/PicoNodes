@@ -1,13 +1,11 @@
-use <../vendor/ClothBotCreations/utilities/fillet.scad>;
-
 SPACING = 2.54;
 
 module sheet() {
-    translate([-20, -1, 0]) {
-        translate([0, -0.1, 5]) {
+    translate([-20, -1.1, 0]) {
+        translate([0, 0, 5]) {
             cube([40, 2.2, 50]);
         }
-        translate([21, -0.1, 0]) {
+        translate([21, 0, 0]) {
             cube([7, 2.2, 10]);
         }
     }
@@ -41,11 +39,11 @@ module stack(sheets) {
     }
 }*/
 
-translate([0, 0, 0]) {
+/*translate([0, 0, 0]) {
     rotate([270, 180, 90]) {
         import("digit-node.stl");
     }
-}
+}*/
 
 difference() {
     translate([-22, -4, 2]) {
