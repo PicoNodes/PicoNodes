@@ -39,12 +39,12 @@ F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/da
 	1    0    0    -1  
 $EndComp
 $Comp
-L Transistor_BJT:PZT2222A Q1
+L Transistor_BJT:BC847BS Q1
 U 1 1 5AE75159
 P 7300 3350
 F 0 "Q1" H 7491 3396 50  0000 L CNN
-F 1 "PZT2222A" H 7491 3305 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-223-3_TabPin2" H 7500 3450 50  0001 C CNN
+F 1 "BC847BS" H 7491 3305 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:SOT-363_SC-70-6" H 7500 3450 50  0001 C CNN
 F 3 "" H 7300 3350 50  0001 C CNN
 	1    7300 3350
 	1    0    0    -1  
@@ -52,14 +52,14 @@ $EndComp
 Wire Wire Line
 	7400 2750 7350 2750
 $Comp
-L Transistor_BJT:PZT2222A Q2
-U 1 1 5AE7533B
+L Transistor_BJT:BC847BS Q1
+U 2 1 5AE7533B
 P 7550 3700
-F 0 "Q2" H 7741 3746 50  0000 L CNN
-F 1 "PZT2222A" H 7741 3655 50  0000 L CNN
-F 2 "Package_TO_SOT_SMD:SOT-223-3_TabPin2" H 7750 3800 50  0001 C CNN
+F 0 "Q1" H 7741 3746 50  0000 L CNN
+F 1 "BC847BS" H 7741 3655 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:SOT-363_SC-70-6" H 7750 3800 50  0001 C CNN
 F 3 "" H 7550 3700 50  0001 C CNN
-	1    7550 3700
+	2    7550 3700
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -312,17 +312,13 @@ F 3 "" H 1250 2950 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	5900 3700 5900 2950
-Wire Wire Line
-	5800 3350 5800 3050
+	5900 3700 5900 3050
 Wire Wire Line
 	6250 2950 6250 3250
 Wire Wire Line
 	6150 3150 6150 2850
 Wire Wire Line
 	6150 2850 6350 2850
-Wire Wire Line
-	5900 2650 5900 2850
 Wire Wire Line
 	1250 3850 2700 3850
 Wire Wire Line
@@ -338,12 +334,6 @@ Wire Wire Line
 Wire Wire Line
 	3500 2050 3500 2350
 Wire Wire Line
-	3900 2750 6350 2750
-Wire Wire Line
-	3900 2850 5900 2850
-Wire Wire Line
-	3900 2950 5900 2950
-Wire Wire Line
 	3900 3250 6250 3250
 Wire Wire Line
 	3900 3350 4300 3350
@@ -357,8 +347,6 @@ Wire Wire Line
 	3400 2050 3400 2350
 Wire Wire Line
 	3900 3550 4100 3550
-Wire Wire Line
-	3900 3050 5800 3050
 Wire Wire Line
 	3900 2550 3950 2550
 NoConn ~ 2900 2750
@@ -406,4 +394,20 @@ Wire Wire Line
 	2100 3350 1250 3350
 Wire Wire Line
 	2100 4400 4200 4400
+Wire Wire Line
+	5900 2650 5900 2750
+Wire Wire Line
+	5900 2750 3900 2750
+Wire Wire Line
+	6350 2750 6000 2750
+Wire Wire Line
+	6000 2750 6000 2850
+Wire Wire Line
+	6000 2850 3900 2850
+Wire Wire Line
+	5800 2950 3900 2950
+Wire Wire Line
+	5800 2950 5800 3350
+Wire Wire Line
+	3900 3050 5900 3050
 $EndSCHEMATC
