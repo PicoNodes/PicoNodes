@@ -28,14 +28,82 @@ pub enum TransmitState {
 	SendData(u8),
 }
 
-enum RecieveState {
-	First(i8),
-	Sec(i8),
-	Third(i8),
+pub enum RecieveState {
+	HandshakeListen(u8),
+	//HandshakePerceive,
+	HandshakeConfirm,
+	HandshakeWaitRx(u8),
+	ReadPreamble(u8),
+	RecieveData(u8),
 }
 
+/*Statemachine for handshake/recievedata*/
+pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveState, value: &mut i8) {
+	use RecieveState::*;
+	//let mut value = 0;
+	match state {
+		HandshakeListen(0) => {
+			if InputPin::is_low(pin) {
+				*state = HandshakeListen(1);
+			}
+		},
+		HandshakeListen(1) => {
+			if InputPin::is_low(pin) {
+				*state = HandshakeConfirm;
+			}
+		},
+		HandshakeConfirm => {
+			OutputPin::set_low(pin);
+			*state = HandshakeWaitRx(0);
+		},
+		HandshakeWaitRx(0) => {
+			OutputPin::set_high(pin);
+			if InputPin::is_high(pin) {
+				*state = HandshakeWaitRx(1);
+			}
+		},
+		HandshakeWaitRx(1) => {
+			if InputPin::is_high(pin) {
+				*state = ReadPreamble(0);
+			}
+		},
+		ReadPreamble(0) => {
+			if InputPin::is_high(pin) {
+				*state = ReadPreamble(1);
+			}
+		},
+		ReadPreamble(2) => {
+			if InputPin::is_low(pin) {
+				*state = ReadPreamble(3);
+			}
+		},
+		ReadPreamble(3) => {
+			if InputPin::is_high(pin) {
+				*state = ReadPreamble(4);
+			}
+		},
+		ReadPreamble(4) => {
+			if InputPin::is_low(pin) {
+				*state = RecieveData(0);
+			}
+		},
+		RecieveData(ref mut n) => {
+			let mask = 1 << *n;
 
-/*Statemachine for handshake/recieving/transmitting value*/
+			if *n < 8 {
+				if InputPin::is_high(pin) {
+					*value = *value | mask;
+				}
+			} else {
+				*n = 0;
+			}
+			*n += 1;
+		},
+		_ => panic!("Not a RecieveState!"),
+ 	}
+}
+
+/*Statemachine for handshake/transmitting value*/
 pub fn transmit_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut TransmitState, value: i8) {
 	use TransmitState::*;
 	match state {
@@ -110,4 +178,12 @@ pub fn transmit_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut Transmit
 		},
 		_ => panic!("Not a TransmitState"),
 	}
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_write_pin() {
+        assert_eq!(2 + 2, 4);
+    }
 }
