@@ -4,11 +4,11 @@ SPACING = 2.54;
 
 module sheet() {
     translate([-20, -1, 0]) {
-        translate([0, 0, 5]) {
-            cube([40, 2, 50]);
+        translate([0, -0.1, 5]) {
+            cube([40, 2.2, 50]);
         }
-        translate([21, 0, 0]) {
-            cube([7, 2, 10]);
+        translate([21, -0.1, 0]) {
+            cube([7, 2.2, 10]);
         }
     }
 }
@@ -41,30 +41,36 @@ module stack(sheets) {
     }
 }*/
 
-/*translate([0, 0, 3]) {
+translate([0, 0, 0]) {
     rotate([270, 180, 90]) {
         import("digit-node.stl");
     }
-}*/
+}
 
 difference() {
-    translate([-22, -4, 3]) {
-        cube([44, 55, 8]);
+    translate([-22, -4, 2]) {
+        cube([44, 56, 9]);
     }
     translate([0, 0, 1.5]) {
         stack(10);
     }
     
-    translate([8.5, 7, 2]) {
-        cube([3.5, 14, 3.5]);
+    // PCB cavity
+    translate([-16.9,-2.8,0]) {
+        cube([31.3, 53.9, 3]);
     }
     
-    translate([-11.9, 7, 2]) {
-        cube([3.5, 24, 3.5]);
+    // Pin headers
+    translate([8.5, 7, 1]) {
+        cube([3.5, 14, 4.5]);
+    }
+    translate([-11.9, 7, 1]) {
+        cube([3.5, 24, 4.5]);
     }
     
-    translate([-15, 25, 2]) {
-        cube([27.5, 25, 4]);
+    // Component area
+    translate([-15, 25, 1]) {
+        cube([27.5, 25, 5]);
     }
 }
 
