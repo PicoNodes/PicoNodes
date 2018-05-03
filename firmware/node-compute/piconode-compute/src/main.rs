@@ -3,16 +3,16 @@
 #![feature(used, proc_macro)]
 #![no_std]
 
-extern crate cortex_m;
-extern crate cortex_m_rt;
-extern crate cortex_m_rtfm as rtfm;
-extern crate cortex_m_semihosting;
-extern crate stm32f0x0_hal;
-extern crate embedded_hal;
-extern crate picostorm;
-extern crate picotalk;
-extern crate picorunner;
-extern crate picostore;
+extern crate cortex_m;          //Low level access to the cortex-m processor
+extern crate cortex_m_rt;       //Runtime for cortex-m microcontrollers
+extern crate cortex_m_rtfm as rtfm;   //Real Time For the Masses framework for thhe ARM-cortex
+extern crate cortex_m_semihosting;  //Enables coderunning on an ARM-target to use input/output pins
+extern crate stm32f0x0_hal;     //HAL for the stm32f0x0 family. Implementation of the embedded hal traits
+extern crate embedded_hal;      //Hardware abstraction layer for embedded systems
+extern crate picostorm;         //Enables seriecommunication with the wifi module
+extern crate picotalk;      //Enables communication between the nodes
+extern crate picorunner;        //Run PicoInstsructions
+extern crate picostore;     //Storing/fetching the instructions from the programmer
 
 #[cfg(feature = "debug")]
 extern crate panic_semihosting;
@@ -32,7 +32,7 @@ use rtfm::{app, Threshold};
 #[allow(unused)]
 use cortex_m::asm;
 
-use stm32f0x0_hal::prelude::*;
+use stm32f0x0_hal::prelude::*;      //Black magic
 use stm32f0x0_hal::stm32f0x0;
 use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent};
 use stm32f0x0_hal::gpio::{Output, OpenDrain, gpioa::PA4};
