@@ -108,8 +108,8 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     pa4.set_high();
     pf0.set_high();
 
-    let mut tim3 = Timer::tim3(p.device.TIM3, 1.hz(), clocks, &mut rcc.apb1);
-    let mut tim14 = Timer::tim14(p.device.TIM14, 1.hz(), clocks, &mut rcc.apb1);
+    let mut tim3 = Timer::tim3(p.device.TIM3, 100.hz(), clocks, &mut rcc.apb1);
+    let mut tim14 = Timer::tim14(p.device.TIM14, 20.hz(), clocks, &mut rcc.apb1);
     tim3.listen(TimerEvent::TimeOut);
     tim14.listen(TimerEvent::TimeOut);
 
