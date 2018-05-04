@@ -53,9 +53,13 @@ fn picotalk_rx_tick(_t: &mut Threshold, r: TIM14::Resources) {
     let mut pin = r.PICOTALK_RX_PIN;
     let mut timer = r.PICOTALK_RX_TIMER;
 
-    picotalk::recieve_value(&mut *pin, &mut state);
+    let mut out = hio::hstdout().unwrap();
+
     timer.wait().unwrap();
-    //picotalk::recieve_value(&mut *pin, &mut state);
+    picotalk::recieve_value(&mut *pin, &mut *state);
+    if let picotalk::RecieveState::Done(a) = *state {
+        writeln!(out, "The recieved value is: {}", a).unwrap();
+    }
 }
 
 fn handle_picostorm_msg(_t: &mut Threshold, r: USART1::Resources) {
@@ -98,8 +102,11 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
 
     let pa2 = gpioa.pa2.into_af1(&mut gpioa.moder, &mut gpioa.afrl);
     let pa3 = gpioa.pa3.into_af1(&mut gpioa.moder, &mut gpioa.afrl);
-    let pa4 = gpioa.pa4.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
-    let pf0 = gpiof.pf0.into_open_drain_output(&mut gpiof.moder, &mut gpiof.otyper);
+    let mut pa4 = gpioa.pa4.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let mut pf0 = gpiof.pf0.into_open_drain_output(&mut gpiof.moder, &mut gpiof.otyper);
+
+    pa4.set_high();
+    pf0.set_high();
 
     let mut tim3 = Timer::tim3(p.device.TIM3, 1.hz(), clocks, &mut rcc.apb1);
     let mut tim14 = Timer::tim14(p.device.TIM14, 1.hz(), clocks, &mut rcc.apb1);
@@ -108,7 +115,7 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
 
     let usart1 = p.device.USART1;
     let mut serial = Serial::usart1(usart1, (pa2, pa3), 115_200.bps(), clocks, &mut rcc.apb2);
-    serial.listen(SerialEvent::Rxne);
+    //serial.listen(SerialEvent::Rxne);
     let (tx, rx) = serial.split();
 
     init::LateResources {
