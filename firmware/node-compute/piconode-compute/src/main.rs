@@ -10,7 +10,7 @@ extern crate cortex_m_semihosting;  //Enables coderunning on an ARM-target to us
 extern crate stm32f0x0_hal;     //HAL for the stm32f0x0 family. Implementation of the embedded hal traits
 extern crate embedded_hal;      //Hardware abstraction layer for embedded systems
 extern crate picostorm;         //Enables seriecommunication with the ESP32 HUZZAH
-//extern crate picotalk;      //Enables communication between the nodes
+extern crate picotalk;      //Enables communication between the nodes
 extern crate picorunner;        //Run PicoInstsructions
 extern crate picostore;     //Storing/fetching the instructions from the programmer
 
@@ -35,7 +35,7 @@ use cortex_m::asm;
 use stm32f0x0_hal::prelude::*;      //Black magic
 use stm32f0x0_hal::stm32f0x0;
 use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent};
-use stm32f0x0_hal::gpio::{Output, OpenDrain, gpioa::PA4};
+use stm32f0x0_hal::gpio::{Output, OpenDrain, gpioa::PA4, gpiof::PF0};
 use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
 
 fn picotalk_tx_tick(_t: &mut Threshold, r: TIM3::Resources) {
@@ -53,8 +53,9 @@ fn picotalk_rx_tick(_t: &mut Threshold, r: TIM14::Resources) {
     let mut pin = r.PICOTALK_RX_PIN;
     let mut timer = r.PICOTALK_RX_TIMER;
 
-    timer.wait().unwrap();
     picotalk::recieve_value(&mut *pin, &mut state);
+    timer.wait().unwrap();
+    //picotalk::recieve_value(&mut *pin, &mut state);
 }
 
 fn handle_picostorm_msg(_t: &mut Threshold, r: USART1::Resources) {
