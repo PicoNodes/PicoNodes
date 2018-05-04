@@ -9,8 +9,8 @@ extern crate cortex_m_rtfm as rtfm;   //Real Time For the Masses framework for t
 extern crate cortex_m_semihosting;  //Enables coderunning on an ARM-target to use input/output pins
 extern crate stm32f0x0_hal;     //HAL for the stm32f0x0 family. Implementation of the embedded hal traits
 extern crate embedded_hal;      //Hardware abstraction layer for embedded systems
-extern crate picostorm;         //Enables seriecommunication with the wifi module
-extern crate picotalk;      //Enables communication between the nodes
+extern crate picostorm;         //Enables seriecommunication with the ESP32 HUZZAH
+//extern crate picotalk;      //Enables communication between the nodes
 extern crate picorunner;        //Run PicoInstsructions
 extern crate picostore;     //Storing/fetching the instructions from the programmer
 
@@ -38,13 +38,23 @@ use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent};
 use stm32f0x0_hal::gpio::{Output, OpenDrain, gpioa::PA4};
 use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
 
-fn picotalk_tick(_t: &mut Threshold, r: TIM3::Resources) {
-    let mut state = r.PICOTALK_STATE;
-    let mut pin = r.PICOTALK_PIN;
-    let mut timer = r.PICOTALK_TIMER;
+fn picotalk_tx_tick(_t: &mut Threshold, r: TIM3::Resources) {
+    let mut state = r.PICOTALK_TX_STATE;
+    let mut pin = r.PICOTALK_TX_PIN;
+    let mut timer = r.PICOTALK_TX_TIMER;
 
     timer.wait().unwrap();
     picotalk::transmit_value(&mut *pin, &mut state, 15);
+}
+
+//To test the recieve function
+fn picotalk_rx_tick(_t: &mut Threshold, r: TIM14::Resources) {
+    let mut state = r.PICOTALK_RX_STATE;
+    let mut pin = r.PICOTALK_RX_PIN;
+    let mut timer = r.PICOTALK_RX_TIMER;
+
+    timer.wait().unwrap();
+    picotalk::recieve_value(&mut *pin, &mut state);
 }
 
 fn handle_picostorm_msg(_t: &mut Threshold, r: USART1::Resources) {
@@ -83,13 +93,17 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     let mut flash = p.device.FLASH.constrain();
     let clocks = rcc.cfgr.freeze(&mut flash.acr);
     let mut gpioa = p.device.GPIOA.split(&mut rcc.ahb);
+    let mut gpiof = p.device.GPIOF.split(&mut rcc.ahb);
 
     let pa2 = gpioa.pa2.into_af1(&mut gpioa.moder, &mut gpioa.afrl);
     let pa3 = gpioa.pa3.into_af1(&mut gpioa.moder, &mut gpioa.afrl);
     let pa4 = gpioa.pa4.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
+    let pf0 = gpiof.pf0.into_open_drain_output(&mut gpiof.moder, &mut gpiof.otyper);
 
     let mut tim3 = Timer::tim3(p.device.TIM3, 1.hz(), clocks, &mut rcc.apb1);
+    let mut tim14 = Timer::tim14(p.device.TIM14, 1.hz(), clocks, &mut rcc.apb1);
     tim3.listen(TimerEvent::TimeOut);
+    tim14.listen(TimerEvent::TimeOut);
 
     let usart1 = p.device.USART1;
     let mut serial = Serial::usart1(usart1, (pa2, pa3), 115_200.bps(), clocks, &mut rcc.apb2);
@@ -99,8 +113,10 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     init::LateResources {
         SERIAL1_RX: rx,
         SERIAL1_TX: tx,
-        PICOTALK_PIN: pa4,
-        PICOTALK_TIMER: tim3,
+        PICOTALK_TX_PIN: pa4,
+        PICOTALK_TX_TIMER: tim3,
+        PICOTALK_RX_PIN: pf0,
+        PICOTALK_RX_TIMER: tim14,
         STORE: PicoStore::take().unwrap(),
     }
 }
@@ -116,10 +132,14 @@ app! {
     resources: {
         static SERIAL1_RX: Rx<stm32f0x0::USART1>;
         static SERIAL1_TX: Tx<stm32f0x0::USART1>;
-
-        static PICOTALK_PIN: PA4<Output<OpenDrain>>;
-        static PICOTALK_STATE: picotalk::TransmitState = picotalk::TransmitState::HandshakeAdvertise(0);
-        static PICOTALK_TIMER: Timer<stm32f0x0::TIM3>;
+        //Resources for transmitting a value
+        static PICOTALK_TX_PIN: PA4<Output<OpenDrain>>;
+        static PICOTALK_TX_STATE: picotalk::TransmitState = picotalk::TransmitState::HandshakeAdvertise(0);
+        static PICOTALK_TX_TIMER: Timer<stm32f0x0::TIM3>;
+        //Resources for recieving a value from a pin
+        static PICOTALK_RX_PIN: PF0<Output<OpenDrain>>;
+        static PICOTALK_RX_STATE: picotalk::RecieveState = picotalk::RecieveState::HandshakeListen(0);
+        static PICOTALK_RX_TIMER: Timer<stm32f0x0::TIM14>;
 
         static STORE: PicoStore;
     },
@@ -131,8 +151,14 @@ app! {
         },
 
         TIM3: {
-            path: picotalk_tick,
-            resources: [PICOTALK_PIN, PICOTALK_STATE, PICOTALK_TIMER],
+            path: picotalk_tx_tick,
+            resources: [PICOTALK_TX_PIN, PICOTALK_TX_STATE, PICOTALK_TX_TIMER],
+            priority: 1,
+        },
+
+        TIM14: {
+            path: picotalk_rx_tick,
+            resources: [PICOTALK_RX_PIN, PICOTALK_RX_STATE, PICOTALK_RX_TIMER],
             priority: 1,
         },
     }

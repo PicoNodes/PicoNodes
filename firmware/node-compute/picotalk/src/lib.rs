@@ -33,11 +33,13 @@ pub enum RecieveState {
 	HandshakeConfirm,
 	HandshakeWaitRx(u8),
 	ReadPreamble(u8),
-	RecieveData(u8),
+	RecieveData(u8, i8),
+	Done(i8),
+	Idle,
 }
 
 /*Statemachine for handshake/recievedata*/
-pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveState, value: &mut i8) {
+pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveState) {
 	use RecieveState::*;
 
 	match state {
@@ -95,22 +97,28 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 		},
 		ReadPreamble(4) => {
 			if InputPin::is_low(pin) {
-				*state = RecieveData(0);
+				*state = RecieveData(0, 0);
 			} else {
 				panic!("Dont recieve the fourth preamble!");
 			}
 		},
-		RecieveData(ref mut n) => {
+		RecieveData(ref mut n, ref mut value) => {
 			let mask = 1 << *n;
 
-			if *n < 8 {
+			if *n < 7 {
 				if InputPin::is_high(pin) {
 					*value = *value | mask;
 				}
+			} else if *n == 7 {
+				*state = Done(*value);
 			} else {
 				panic!("Data recieved is to long");
 			}
 			*n += 1;
+		},
+		Done(ref mut value) => {
+		},
+		Idle => {
 		},
 		_ => panic!("Not a RecieveState!"),
  	}
