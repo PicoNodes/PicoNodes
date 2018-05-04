@@ -6,6 +6,8 @@ authors = ["Teo Klestrup Röijezon <teo@nullable.se>", "Therese Kennerberg <tke@
 [profile.dev]
 codegen-units = 1
 incremental = false
+lto = true
+opt-level = "z"
 
 [profile.release]
 opt-level = "z"

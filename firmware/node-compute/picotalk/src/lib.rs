@@ -28,6 +28,7 @@ pub enum TransmitState {
 	SendData(u8),
 }
 
+#[derive(Debug)]
 pub enum RecieveState {
 	HandshakeListen(u8),
 	HandshakeConfirm,
@@ -61,11 +62,7 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 		},
 		HandshakeWaitRx(0) => {
 			OutputPin::set_high(pin);
-			if InputPin::is_high(pin) {
-				*state = HandshakeWaitRx(1);
-			} else {
-				panic!("Expecting high pin for recieving!");
-			}
+			*state = HandshakeWaitRx(1);
 		},
 		HandshakeWaitRx(1) => {
 			if InputPin::is_high(pin) {
@@ -81,22 +78,29 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 				panic!("Dont recieve the first preamble!")
 			}
 		},
-		ReadPreamble(2) => {
+		ReadPreamble(1) => {
 			if InputPin::is_low(pin) {
+				*state = ReadPreamble(2);
+			} else {
+				panic!("Dont recieve the second preamble!");
+			}
+		},
+		ReadPreamble(2) => {
+			if InputPin::is_high(pin) {
 				*state = ReadPreamble(3);
 			} else {
 				panic!("Dont recieve the third preamble!")
 			}
 		},
 		ReadPreamble(3) => {
-			if InputPin::is_high(pin) {
+			if InputPin::is_low(pin) {
 				*state = ReadPreamble(4);
 			} else {
 				panic!("Dont recieve the fourth preamble!");
 			}
 		},
 		ReadPreamble(4) => {
-			if InputPin::is_low(pin) {
+			if InputPin::is_high(pin) {
 				*state = RecieveData(0, 0);
 			} else {
 				panic!("Dont recieve the fourth preamble!");
@@ -116,11 +120,11 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 			}
 			*n += 1;
 		},
-		Done(ref mut value) => {
+		Done(_) => {
 		},
 		Idle => {
 		},
-		_ => panic!("Not a RecieveState!"),
+		state => panic!("Not a RecieveState: {:?}!", state),
  	}
 }
 
