@@ -30,17 +30,18 @@ pub enum TransmitState {
 
 pub enum RecieveState {
 	HandshakeListen(u8),
-	//HandshakePerceive,
 	HandshakeConfirm,
 	HandshakeWaitRx(u8),
 	ReadPreamble(u8),
-	RecieveData(u8),
+	RecieveData(u8, i8),
+	Done(i8),
+	Idle,
 }
 
 /*Statemachine for handshake/recievedata*/
-pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveState, value: &mut i8) {
+pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveState) {
 	use RecieveState::*;
-	//let mut value = 0;
+
 	match state {
 		HandshakeListen(0) => {
 			if InputPin::is_low(pin) {
@@ -50,6 +51,8 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 		HandshakeListen(1) => {
 			if InputPin::is_low(pin) {
 				*state = HandshakeConfirm;
+			} else {
+				*state = HandshakeListen(0);
 			}
 		},
 		HandshakeConfirm => {
@@ -60,44 +63,62 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 			OutputPin::set_high(pin);
 			if InputPin::is_high(pin) {
 				*state = HandshakeWaitRx(1);
+			} else {
+				panic!("Expecting high pin for recieving!");
 			}
 		},
 		HandshakeWaitRx(1) => {
 			if InputPin::is_high(pin) {
 				*state = ReadPreamble(0);
+			} else {
+				panic!("Expecting high pin for recieving!")
 			}
 		},
 		ReadPreamble(0) => {
 			if InputPin::is_high(pin) {
 				*state = ReadPreamble(1);
+			} else {
+				panic!("Dont recieve the first preamble!")
 			}
 		},
 		ReadPreamble(2) => {
 			if InputPin::is_low(pin) {
 				*state = ReadPreamble(3);
+			} else {
+				panic!("Dont recieve the third preamble!")
 			}
 		},
 		ReadPreamble(3) => {
 			if InputPin::is_high(pin) {
 				*state = ReadPreamble(4);
+			} else {
+				panic!("Dont recieve the fourth preamble!");
 			}
 		},
 		ReadPreamble(4) => {
 			if InputPin::is_low(pin) {
-				*state = RecieveData(0);
+				*state = RecieveData(0, 0);
+			} else {
+				panic!("Dont recieve the fourth preamble!");
 			}
 		},
-		RecieveData(ref mut n) => {
+		RecieveData(ref mut n, ref mut value) => {
 			let mask = 1 << *n;
 
-			if *n < 8 {
+			if *n < 7 {
 				if InputPin::is_high(pin) {
 					*value = *value | mask;
 				}
+			} else if *n == 7 {
+				*state = Done(*value);
 			} else {
-				*n = 0;
+				panic!("Data recieved is to long");
 			}
 			*n += 1;
+		},
+		Done(ref mut value) => {
+		},
+		Idle => {
 		},
 		_ => panic!("Not a RecieveState!"),
  	}
