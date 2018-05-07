@@ -1,5 +1,16 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP PicoTalk
+D Generic connector, single row, 01x04
+K connector
+F ~
+$ENDCMP
+#
+$CMP STM32_SWD
+D STM32 SWD connector, used on discovery boards
+K connector stm32
+$ENDCMP
+#
 $CMP UART
 D Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)
 K connector
