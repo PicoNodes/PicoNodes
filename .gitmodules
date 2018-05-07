@@ -10,3 +10,6 @@
 [submodule "pcb/vendor/ClothBotCreations"]
 	path = pcb/vendor/ClothBotCreations
 	url = https://github.com/clothbot/ClothBotCreations
+[submodule "pcb/vendor/kicad-mini-pci-express"]
+	path = pcb/vendor/kicad-mini-pci-express
+	url = https://github.com/mithro/kicad-mini-pci-express

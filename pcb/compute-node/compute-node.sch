@@ -1,0 +1,211 @@
+EESchema Schematic File Version 4
+EELAYER 26 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L MCU_ST_STM32F0:STM32F030F4Px U2
+U 1 1 5AF03934
+P 4650 3300
+F 0 "U2" H 4650 2414 50  0000 C CNN
+F 1 "STM32F030F4Px" H 4650 2323 50  0000 C CNN
+F 2 "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" H 4250 2600 50  0001 R CNN
+F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/DM00088500.pdf" H 4650 3300 50  0001 C CNN
+	1    4650 3300
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C2
+U 1 1 5AF03B4F
+P 4500 2450
+F 0 "C2" V 4248 2450 50  0000 C CNN
+F 1 "100nF" V 4339 2450 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad0.99x1.00mm_HandSolder" H 4538 2300 50  0001 C CNN
+F 3 "" H 4500 2450 50  0001 C CNN
+	1    4500 2450
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4650 2450 4650 2600
+$Comp
+L device:C C1
+U 1 1 5AF03BE4
+P 4200 2450
+F 0 "C1" V 3948 2450 50  0000 C CNN
+F 1 "100nF" V 4039 2450 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad0.99x1.00mm_HandSolder" H 4238 2300 50  0001 C CNN
+F 3 "" H 4200 2450 50  0001 C CNN
+	1    4200 2450
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4750 2450 4750 2600
+$Comp
+L power:GND #PWR0101
+U 1 1 5AF03CC9
+P 4650 4100
+F 0 "#PWR0101" H 4650 3850 50  0001 C CNN
+F 1 "GND" V 4655 3972 50  0000 R CNN
+F 2 "" H 4650 4100 50  0001 C CNN
+F 3 "" H 4650 4100 50  0001 C CNN
+	1    4650 4100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR0102
+U 1 1 5AF03CFD
+P 4050 2450
+F 0 "#PWR0102" H 4050 2200 50  0001 C CNN
+F 1 "GND" V 4055 2322 50  0000 R CNN
+F 2 "" H 4050 2450 50  0001 C CNN
+F 3 "" H 4050 2450 50  0001 C CNN
+	1    4050 2450
+	0    1    1    0   
+$EndComp
+$Comp
+L power:VDD #PWR0103
+U 1 1 5AF03D84
+P 4750 2450
+F 0 "#PWR0103" H 4750 2300 50  0001 C CNN
+F 1 "VDD" H 4767 2623 50  0000 C CNN
+F 2 "" H 4750 2450 50  0001 C CNN
+F 3 "" H 4750 2450 50  0001 C CNN
+	1    4750 2450
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VDD #PWR0104
+U 1 1 5AF03DD0
+P 4650 2450
+F 0 "#PWR0104" H 4650 2300 50  0001 C CNN
+F 1 "VDD" H 4667 2623 50  0000 C CNN
+F 2 "" H 4650 2450 50  0001 C CNN
+F 3 "" H 4650 2450 50  0001 C CNN
+	1    4650 2450
+	1    0    0    -1  
+$EndComp
+Connection ~ 4650 2450
+$Comp
+L device:C C3
+U 1 1 5AF03E07
+P 4900 2450
+F 0 "C3" V 4648 2450 50  0000 C CNN
+F 1 "10nF" V 4739 2450 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad0.99x1.00mm_HandSolder" H 4938 2300 50  0001 C CNN
+F 3 "" H 4900 2450 50  0001 C CNN
+	1    4900 2450
+	0    1    1    0   
+$EndComp
+Connection ~ 4750 2450
+$Comp
+L power:GND #PWR0105
+U 1 1 5AF03EAD
+P 5050 2450
+F 0 "#PWR0105" H 5050 2200 50  0001 C CNN
+F 1 "GND" V 5055 2322 50  0000 R CNN
+F 2 "" H 5050 2450 50  0001 C CNN
+F 3 "" H 5050 2450 50  0001 C CNN
+	1    5050 2450
+	0    -1   -1   0   
+$EndComp
+$Comp
+L custom:PicoNode-Card U1
+U 1 1 5AF06A46
+P 1800 3150
+F 0 "U1" H 1800 4587 60  0000 C CNN
+F 1 "PicoNode-Card" H 1800 4481 60  0000 C CNN
+F 2 "mpcie:mpcie-half-card" H 1900 2150 60  0001 C CNN
+F 3 "" H 1900 2150 60  0000 C CNN
+	1    1800 3150
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VDD #PWR0106
+U 1 1 5AF06ED5
+P 2450 4500
+F 0 "#PWR0106" H 2450 4350 50  0001 C CNN
+F 1 "VDD" V 2467 4628 50  0000 L CNN
+F 2 "" H 2450 4500 50  0001 C CNN
+F 3 "" H 2450 4500 50  0001 C CNN
+	1    2450 4500
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR0107
+U 1 1 5AF06F2B
+P 2450 4600
+F 0 "#PWR0107" H 2450 4350 50  0001 C CNN
+F 1 "GND" V 2455 4472 50  0000 R CNN
+F 2 "" H 2450 4600 50  0001 C CNN
+F 3 "" H 2450 4600 50  0001 C CNN
+	1    2450 4600
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	5150 3900 5300 3900
+Wire Wire Line
+	5300 3900 5300 4300
+Wire Wire Line
+	5150 3800 5400 3800
+Wire Wire Line
+	5400 3800 5400 4400
+Wire Wire Line
+	5400 2800 5150 2800
+Wire Wire Line
+	5150 2900 5500 2900
+$Comp
+L custom:UART J1
+U 1 1 5AF1CC4F
+P 6300 3000
+F 0 "J1" H 6419 3000 50  0000 L CNN
+F 1 "UART" H 6419 2909 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6300 3000 50  0001 C CNN
+F 3 "~" H 6300 3000 50  0001 C CNN
+	1    6300 3000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5150 3000 6100 3000
+Wire Wire Line
+	5150 3100 6100 3100
+Wire Wire Line
+	2450 4300 5300 4300
+Wire Wire Line
+	2450 4400 5400 4400
+Wire Wire Line
+	2450 4200 4000 4200
+Wire Wire Line
+	4000 4200 4000 2800
+Wire Wire Line
+	4000 2800 4150 2800
+Wire Wire Line
+	5500 2900 5500 2000
+Wire Wire Line
+	2450 2000 5500 2000
+Wire Wire Line
+	5400 2800 5400 2100
+Wire Wire Line
+	2450 2100 5400 2100
+Wire Wire Line
+	4150 3600 3700 3600
+Wire Wire Line
+	3700 3600 3700 2300
+Wire Wire Line
+	3700 2300 2450 2300
+Wire Wire Line
+	4150 3700 3600 3700
+Wire Wire Line
+	3600 3700 3600 2200
+Wire Wire Line
+	3600 2200 2450 2200
+$EndSCHEMATC
