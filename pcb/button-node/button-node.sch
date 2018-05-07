@@ -1,0 +1,314 @@
+EESchema Schematic File Version 4
+LIBS:button-node-cache
+EELAYER 26 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L MCU_ST_STM32F0:STM32F030F4Px U1
+U 1 1 5AF03934
+P 4650 3300
+F 0 "U1" H 4650 2414 50  0000 C CNN
+F 1 "STM32F030F4Px" H 4650 2323 50  0000 C CNN
+F 2 "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm" H 4250 2600 50  0001 R CNN
+F 3 "http://www.st.com/st-web-ui/static/active/en/resource/technical/document/datasheet/DM00088500.pdf" H 4650 3300 50  0001 C CNN
+	1    4650 3300
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C2
+U 1 1 5AF03B4F
+P 4350 2450
+F 0 "C2" V 4098 2450 50  0000 C CNN
+F 1 "100nF" V 4189 2450 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad0.99x1.00mm_HandSolder" H 4388 2300 50  0001 C CNN
+F 3 "" H 4350 2450 50  0001 C CNN
+	1    4350 2450
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4650 2450 4650 2600
+$Comp
+L device:C C1
+U 1 1 5AF03BE4
+P 4050 2450
+F 0 "C1" V 3798 2450 50  0000 C CNN
+F 1 "100nF" V 3889 2450 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad0.99x1.00mm_HandSolder" H 4088 2300 50  0001 C CNN
+F 3 "" H 4050 2450 50  0001 C CNN
+	1    4050 2450
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4750 2450 4750 2600
+$Comp
+L power:GND #PWR05
+U 1 1 5AF03CC9
+P 4650 4100
+F 0 "#PWR05" H 4650 3850 50  0001 C CNN
+F 1 "GND" V 4655 3972 50  0000 R CNN
+F 2 "" H 4650 4100 50  0001 C CNN
+F 3 "" H 4650 4100 50  0001 C CNN
+	1    4650 4100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR03
+U 1 1 5AF03CFD
+P 3900 2450
+F 0 "#PWR03" H 3900 2200 50  0001 C CNN
+F 1 "GND" V 3905 2322 50  0000 R CNN
+F 2 "" H 3900 2450 50  0001 C CNN
+F 3 "" H 3900 2450 50  0001 C CNN
+	1    3900 2450
+	0    1    1    0   
+$EndComp
+$Comp
+L power:VDD #PWR06
+U 1 1 5AF03D84
+P 4800 2400
+F 0 "#PWR06" H 4800 2250 50  0001 C CNN
+F 1 "VDD" H 4817 2573 50  0000 C CNN
+F 2 "" H 4800 2400 50  0001 C CNN
+F 3 "" H 4800 2400 50  0001 C CNN
+	1    4800 2400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VDD #PWR04
+U 1 1 5AF03DD0
+P 4600 2400
+F 0 "#PWR04" H 4600 2250 50  0001 C CNN
+F 1 "VDD" H 4617 2573 50  0000 C CNN
+F 2 "" H 4600 2400 50  0001 C CNN
+F 3 "" H 4600 2400 50  0001 C CNN
+	1    4600 2400
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C C3
+U 1 1 5AF03E07
+P 5000 2450
+F 0 "C3" V 4748 2450 50  0000 C CNN
+F 1 "10nF" V 4839 2450 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad0.99x1.00mm_HandSolder" H 5038 2300 50  0001 C CNN
+F 3 "" H 5000 2450 50  0001 C CNN
+	1    5000 2450
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR07
+U 1 1 5AF03EAD
+P 5150 2450
+F 0 "#PWR07" H 5150 2200 50  0001 C CNN
+F 1 "GND" V 5155 2322 50  0000 R CNN
+F 2 "" H 5150 2450 50  0001 C CNN
+F 3 "" H 5150 2450 50  0001 C CNN
+	1    5150 2450
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	5150 3900 5300 3900
+Wire Wire Line
+	5300 3900 5300 4350
+Wire Wire Line
+	5150 3800 5400 3800
+Wire Wire Line
+	5400 3800 5400 4450
+Wire Wire Line
+	5150 2900 5500 2900
+Wire Wire Line
+	5500 2900 5500 2650
+$Comp
+L custom:STM32_SWD J1
+U 1 1 5AF31E07
+P 2900 2650
+F 0 "J1" H 2944 2583 50  0000 C CNN
+F 1 "STM32_SWD" H 2944 2674 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 2900 3000 50  0001 C CNN
+F 3 "" H 2900 3000 50  0001 C CNN
+	1    2900 2650
+	-1   0    0    1   
+$EndComp
+$Comp
+L custom:PicoTalk J2
+U 1 1 5AF32062
+P 6100 2650
+F 0 "J2" H 6629 2650 50  0000 L CNN
+F 1 "PicoTalk" H 6629 2559 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 6100 2650 50  0001 C CNN
+F 3 "~" H 6100 2650 50  0001 C CNN
+	1    6100 2650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3100 2800 4150 2800
+$Comp
+L power:VDD #PWR02
+U 1 1 5AF327B8
+P 3100 3200
+F 0 "#PWR02" H 3100 3050 50  0001 C CNN
+F 1 "VDD" V 3117 3328 50  0000 L CNN
+F 2 "" H 3100 3200 50  0001 C CNN
+F 3 "" H 3100 3200 50  0001 C CNN
+	1    3100 3200
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3100 2900 3400 2900
+Wire Wire Line
+	3400 2900 3400 4450
+Wire Wire Line
+	3400 4450 5400 4450
+Wire Wire Line
+	3100 3100 3500 3100
+Wire Wire Line
+	3500 3100 3500 4350
+Wire Wire Line
+	3500 4350 5300 4350
+Wire Wire Line
+	5900 2550 5400 2550
+Wire Wire Line
+	5900 2650 5500 2650
+Wire Wire Line
+	4500 2450 4600 2450
+Wire Wire Line
+	4750 2450 4800 2450
+Wire Wire Line
+	4800 2400 4800 2450
+Connection ~ 4800 2450
+Wire Wire Line
+	4800 2450 4850 2450
+Wire Wire Line
+	4600 2400 4600 2450
+Connection ~ 4600 2450
+Wire Wire Line
+	4600 2450 4650 2450
+$Comp
+L power:GND #PWR01
+U 1 1 5AF3B6A7
+P 3100 3000
+F 0 "#PWR01" H 3100 2750 50  0001 C CNN
+F 1 "GND" V 3105 2872 50  0000 R CNN
+F 2 "" H 3100 3000 50  0001 C CNN
+F 3 "" H 3100 3000 50  0001 C CNN
+	1    3100 3000
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	5400 2550 5400 3200
+Wire Wire Line
+	5400 3200 5150 3200
+Wire Wire Line
+	4150 3900 4050 3900
+Wire Wire Line
+	4050 3900 4050 4550
+Wire Wire Line
+	4050 4550 5600 4550
+Wire Wire Line
+	5600 4550 5600 2750
+Wire Wire Line
+	5600 2750 5900 2750
+Wire Wire Line
+	5700 2850 5900 2850
+Wire Wire Line
+	5150 3300 5700 3300
+Wire Wire Line
+	5700 3300 5700 2850
+Wire Wire Line
+	6500 3000 6500 3250
+Wire Wire Line
+	5150 3000 6500 3000
+Wire Wire Line
+	6400 3100 6400 3650
+Wire Wire Line
+	6400 3650 6500 3650
+Wire Wire Line
+	5150 3100 6400 3100
+Wire Wire Line
+	5150 3500 6300 3500
+Wire Wire Line
+	6300 3500 6300 4050
+Wire Wire Line
+	6300 4050 6500 4050
+Wire Wire Line
+	5150 3400 6200 3400
+Wire Wire Line
+	6200 3400 6200 4450
+Wire Wire Line
+	6200 4450 6500 4450
+$Comp
+L Switch:SW_Push SW1
+U 1 1 5AF4CEA9
+P 6700 3250
+F 0 "SW1" H 6700 3535 50  0000 C CNN
+F 1 "Btn1" H 6700 3444 50  0000 C CNN
+F 2 "Button_Switch_THT:SW_PUSH_6mm" H 6700 3450 50  0001 C CNN
+F 3 "" H 6700 3450 50  0001 C CNN
+	1    6700 3250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW2
+U 1 1 5AF4D012
+P 6700 3650
+F 0 "SW2" H 6700 3935 50  0000 C CNN
+F 1 "Btn2" H 6700 3844 50  0000 C CNN
+F 2 "Button_Switch_THT:SW_PUSH_6mm" H 6700 3850 50  0001 C CNN
+F 3 "" H 6700 3850 50  0001 C CNN
+	1    6700 3650
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW3
+U 1 1 5AF4D394
+P 6700 4050
+F 0 "SW3" H 6700 4335 50  0000 C CNN
+F 1 "Btn3" H 6700 4244 50  0000 C CNN
+F 2 "Button_Switch_THT:SW_PUSH_6mm" H 6700 4250 50  0001 C CNN
+F 3 "" H 6700 4250 50  0001 C CNN
+	1    6700 4050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW4
+U 1 1 5AF4D415
+P 6700 4450
+F 0 "SW4" H 6700 4735 50  0000 C CNN
+F 1 "Btn4" H 6700 4644 50  0000 C CNN
+F 2 "Button_Switch_THT:SW_PUSH_6mm" H 6700 4650 50  0001 C CNN
+F 3 "" H 6700 4650 50  0001 C CNN
+	1    6700 4450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6900 4450 6900 4050
+Wire Wire Line
+	6900 3250 6900 3650
+Connection ~ 6900 4050
+Connection ~ 6900 3650
+Wire Wire Line
+	6900 3650 6900 4050
+$Comp
+L power:VDD #PWR08
+U 1 1 5AF4EE20
+P 6900 4450
+F 0 "#PWR08" H 6900 4300 50  0001 C CNN
+F 1 "VDD" H 6918 4623 50  0000 C CNN
+F 2 "" H 6900 4450 50  0001 C CNN
+F 3 "" H 6900 4450 50  0001 C CNN
+	1    6900 4450
+	-1   0    0    1   
+$EndComp
+Connection ~ 6900 4450
+$EndSCHEMATC
