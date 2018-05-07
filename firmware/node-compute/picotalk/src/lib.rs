@@ -21,8 +21,8 @@ use stm32f0x0_hal::delay::Delay;
 pub enum TransmitState {
 	HandshakeAdvertise(u8),		//Two low
 	HandshakeListen(u8),		//Set high, listen for a low
-	//HandshakeWaitRetry(u8),		//?
-	HandshakeWaitTx(u8),		//Wait for two
+	HandshakeWaitRetry(u8),
+	HandshakeCheckTx(u8),		//Wait for two
 	Preamble(u8),		//Preambel 5 bits, first high then every other high low
 	SendData(u8),
 }
@@ -57,9 +57,6 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 		},
 		HandshakeConfirm => {
 			OutputPin::set_low(pin);
-			if InputPin::is_low(pin) {
-				panic!("Expecting high pin for conf");
-			}
 			*state = HandshakeWaitRx(0);
 		},
 		HandshakeWaitRx(0) => {
@@ -74,7 +71,6 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 			}
 		},
 		ReadPreamble(0) => {
-			//OutputPin::set_high(pin);
 			if InputPin::is_high(pin) {
 				*state = ReadPreamble(1);
 			} else {
@@ -146,14 +142,14 @@ pub fn transmit_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut Transmit
 		HandshakeListen(ref mut n) => {
 			OutputPin::set_high(pin); 				//reseting the pin
 			if InputPin::is_low(pin) {
-				*state = HandshakeWaitTx(0);
+				*state = HandshakeCheckRx;
 			} else {
 				*state = HandshakeAdvertise(0);
-			}/*if *n < 2 {
+			}if *n < 2 {
 				*n += 1;
 			} else {
 				*state = HandshakeWaitRetry(0);
-			}*/
+			}
 		},
 		HandshakeWaitRetry(0) => {
 			*state = HandshakeWaitRetry(1);
@@ -161,20 +157,12 @@ pub fn transmit_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut Transmit
 		HandshakeWaitRetry(1) => {
 			*state = HandshakeAdvertise(0);
 		},
-		/*HandshakeCheckRx => {
+		HandshakeCheckRx => {
 			if InputPin::is_low(pin) {
 				panic!("Transmission from both sides!");
 			} else {
-				*state = HandshakeWaitTx(0);
+				*state = Preamble(0);
 			}
-		},*/
-		HandshakeWaitTx(0) => {
-			if InputPin::is_low(pin) {
-				panic!("Transmission from both sides!");
-			} else {
-				*state = HandshakeWaitTx(1);
-			}
-			//*state = HandshakeWaitTx(1);
 		},
 		HandshakeWaitTx(1) => {
 			*state = Preamble(0);

@@ -142,7 +142,7 @@ app! {
         static SERIAL1_TX: Tx<stm32f0x0::USART1>;
         //Resources for transmitting a value
         static PICOTALK_TX_PIN: PA4<Output<OpenDrain>>;
-        static PICOTALK_TX_STATE: picotalk::TransmitState = picotalk::TransmitState::ReadyTrans(0);
+        static PICOTALK_TX_STATE: picotalk::TransmitState = picotalk::TransmitState::;
         static PICOTALK_TX_TIMER: Timer<stm32f0x0::TIM3>;
         //Resources for recieving a value from a pin
         static PICOTALK_RX_PIN: PF0<Output<OpenDrain>>;
