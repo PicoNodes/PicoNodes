@@ -31,7 +31,6 @@
 * Timing diagram
 
   #+BEGIN_SRC plantuml :file PicoTalk-timing.svg
-    @startuml
     concise "Status" as Status
     concise "Transmitter" as TX
     concise "Receiver" as RX
@@ -99,8 +98,6 @@
     @+1
     Status is Idle
     TX is Z
-
-    @enduml
   #+END_SRC
 
   #+RESULTS:
