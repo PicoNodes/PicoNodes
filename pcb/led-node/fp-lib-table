@@ -7,4 +7,5 @@
   (lib (name LED_SMD)(type KiCad)(uri ${KIPRJMOD}/../vendor/kicad-footprints/LED_SMD.pretty)(options "")(descr ""))
   (lib (name Package_SO)(type KiCad)(uri ${KIPRJMOD}/../vendor/kicad-footprints/Package_SO.pretty)(options "")(descr ""))
   (lib (name mpcie)(type KiCad)(uri ${KIPRJMOD}/../vendor/kicad-mini-pci-express/mpcie.pretty)(options "")(descr ""))
+  (lib (name custom)(type KiCad)(uri ${KIPRJMOD}/../motherboard/custom.pretty)(options "")(descr ""))
 )

@@ -1,4 +1,5 @@
 EESchema Schematic File Version 4
+LIBS:compute-node-cache
 EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
@@ -129,18 +130,18 @@ Wire Wire Line
 $Comp
 L custom:UART J3
 U 1 1 5AF1CC4F
-P 6300 3000
-F 0 "J3" H 6419 3000 50  0000 L CNN
-F 1 "UART" H 6419 2909 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6300 3000 50  0001 C CNN
-F 3 "~" H 6300 3000 50  0001 C CNN
-	1    6300 3000
+P 6300 3600
+F 0 "J3" H 6419 3600 50  0000 L CNN
+F 1 "UART" H 6419 3509 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 6300 3600 50  0001 C CNN
+F 3 "~" H 6300 3600 50  0001 C CNN
+	1    6300 3600
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5150 3000 6100 3000
+	5150 3600 6100 3600
 Wire Wire Line
-	5150 3100 6100 3100
+	5150 3700 6100 3700
 Wire Wire Line
 	5500 2900 5500 2650
 $Comp
@@ -239,4 +240,8 @@ Wire Wire Line
 	5150 3300 5700 3300
 Wire Wire Line
 	5700 3300 5700 2850
+Text Label 5950 3600 0    50   ~ 0
+TX
+Text Label 5950 3700 0    50   ~ 0
+RX
 $EndSCHEMATC

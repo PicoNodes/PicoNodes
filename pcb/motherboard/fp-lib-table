@@ -6,4 +6,6 @@
   (lib (name Resistor_SMD)(type KiCad)(uri ${KIPRJMOD}/../vendor/kicad-footprints/Resistor_SMD.pretty)(options "")(descr ""))
   (lib (name LED_SMD)(type KiCad)(uri ${KIPRJMOD}/../vendor/kicad-footprints/LED_SMD.pretty)(options "")(descr ""))
   (lib (name Package_SO)(type KiCad)(uri ${KIPRJMOD}/../vendor/kicad-footprints/Package_SO.pretty)(options "")(descr ""))
+  (lib (name custom)(type KiCad)(uri ${KIPRJMOD}/custom.pretty)(options "")(descr ""))
+  (lib (name Module)(type KiCad)(uri ${KIPRJMOD}/../vendor/kicad-footprints/Module.pretty)(options "")(descr ""))
 )
