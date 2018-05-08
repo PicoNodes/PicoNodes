@@ -28,13 +28,13 @@ use picostore::PicoStore;
 use core::fmt::Write;
 use cortex_m_semihosting::hio;
 
-use rtfm::{app, Threshold};
+use rtfm::{app, Threshold, Resource};
 #[allow(unused)]
 use cortex_m::asm;
 
 use stm32f0x0_hal::prelude::*;      //Black magic
 use stm32f0x0_hal::stm32f0x0;
-use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent};
+use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent, Error as SerialError};
 use stm32f0x0_hal::gpio::{Output, OpenDrain, gpioa::PA4, gpiof::PF0};
 use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
 
@@ -72,7 +72,11 @@ fn handle_picostorm_msg(_t: &mut Threshold, r: USART1::Resources) {
     // embedded-hal doesn't have a crc abstraction yet :(
     let crc_peripheral = unsafe { (stm32f0x0::CRC::ptr() as *mut stm32f0x0::crc::RegisterBlock).as_mut().unwrap() };
 
-    let cmd = picostorm::Command::read(&mut *rx).unwrap();
+    let cmd = match picostorm::Command::read(&mut *rx) {
+        // Disconnected, ignore message
+        Err(picostorm::ReadError::Serial(SerialError::Framing)) => return,
+        x => x.unwrap(),
+    };
 
     let mut out = hio::hstdout().unwrap();
     match cmd {
@@ -119,7 +123,7 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
 
     let usart1 = p.device.USART1;
     let mut serial = Serial::usart1(usart1, (pa2, pa3), 115_200.bps(), clocks, &mut rcc.apb2);
-    //serial.listen(SerialEvent::Rxne);
+    serial.listen(SerialEvent::Rxne);
     let (tx, rx) = serial.split();
 
     init::LateResources {
@@ -133,9 +137,15 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     }
 }
 
-fn idle() -> ! {
+fn idle(t: &mut Threshold, r: idle::Resources) -> ! {
+    let store = r.STORE;
+    let mut interpreter = picorunner::Interpreter::new();
+
     loop {
-        rtfm::wfi();
+        interpreter.prog_counter %= picostore::PICOSTORE_BYTES as u8;
+        let instruction = store.claim(t, |store, _t|
+            picorunner::decode_instruction(&store[interpreter.prog_counter as usize..]));
+        picorunner::run_instruction(instruction, &mut interpreter);
     }
 }
 
@@ -155,6 +165,9 @@ app! {
 
         static STORE: PicoStore;
     },
+    idle: {
+        resources: [STORE],
+    },
     tasks: {
         USART1: {
             path: handle_picostorm_msg,
@@ -165,13 +178,13 @@ app! {
         TIM3: {
             path: picotalk_tx_tick,
             resources: [PICOTALK_TX_PIN, PICOTALK_TX_STATE, PICOTALK_TX_TIMER],
-            priority: 1,
+            priority: 6,
         },
 
         TIM14: {
             path: picotalk_rx_tick,
             resources: [PICOTALK_RX_PIN, PICOTALK_RX_STATE, PICOTALK_RX_TIMER],
-            priority: 1,
+            priority: 6,
         },
     }
 }

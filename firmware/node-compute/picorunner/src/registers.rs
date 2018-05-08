@@ -11,8 +11,8 @@
 //The struct will hold the value for the memory register
 pub struct Interpreter {
     pub reg_acc: i8,
-    prog_counter: u8,
-	pub flag: Flag,
+    pub prog_counter: u8,
+    pub flag: Flag,
 }
 
 impl Interpreter {
@@ -20,23 +20,22 @@ impl Interpreter {
         Interpreter {
             reg_acc: 0,
             prog_counter: 0,
-			flag: Flag::Neather,
+            flag: Flag::Neather,
         }
     }
 }
 
 impl Interpreter {
-	pub fn set_flag(&mut self, state: bool) {
-		if state == true {
-			self.flag = Flag::True;
-		}else if state == false {
-			self.flag = Flag::False;
-		}else {
-			self.flag = Flag::Neather;
-		}
-	}
+    pub fn set_flag(&mut self, state: bool) {
+        if state == true {
+            self.flag = Flag::True;
+        } else if state == false {
+            self.flag = Flag::False;
+        } else {
+            self.flag = Flag::Neather;
+        }
+    }
 }
-
 
 /***************************** Register Enums *****************************/
 
@@ -63,17 +62,17 @@ pub enum IoRegister {
     Down,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd)]				//Look into if the derive is redundant
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd)] //Look into if the derive is redundant
 pub enum RegisterOrImmediate {
-	Reg(Register),
-	Immediate(i8),
+    Reg(Register),
+    Immediate(i8),
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)] 				//Adding traits
+#[derive(Clone, Copy, PartialEq, Eq)] //Adding traits
 pub enum Flag {
-	True,
-	False,
-	Neather,
+    True,
+    False,
+    Neather,
 }
 
 /****************************** Register Traits ******************************/
@@ -91,30 +90,30 @@ pub trait RegWrite {
 /********************* Implementations of register Traits *********************/
 
 impl Register {
-	pub fn from_i8(var: i8) -> Register{
-		use Register::*;
-		use self::IoRegister::*;
-		match var {
-			-128 => Io(IoRegister::Up),
-			-127 => Io(IoRegister::Down),
-			-126 => Io(IoRegister::Left),
-			-125 => Io(IoRegister::Right),
-			 126 => Mem(MemRegister::Acc),
-			 127 => Mem(MemRegister::Null),
-			_ => panic!("Register {} is reserved", var),
-		}
-	}
+    pub fn from_i8(var: i8) -> Register {
+        use self::IoRegister::*;
+        use Register::*;
+        match var {
+            -128 => Io(IoRegister::Up),
+            -127 => Io(IoRegister::Down),
+            -126 => Io(IoRegister::Left),
+            -125 => Io(IoRegister::Right),
+            126 => Mem(MemRegister::Acc),
+            127 => Mem(MemRegister::Null),
+            _ => panic!("Register {} is reserved", var),
+        }
+    }
 }
 impl RegisterOrImmediate {
-	pub fn from_i8(var: i8) -> RegisterOrImmediate {
-		use self::RegisterOrImmediate::*;
-		if var >= -100 && var <= 100 {
-			Immediate(var)
-		} else {
-			Reg(Register::from_i8(var))
-		}
-	}
-}			
+    pub fn from_i8(var: i8) -> RegisterOrImmediate {
+        use self::RegisterOrImmediate::*;
+        if var >= -100 && var <= 100 {
+            Immediate(var)
+        } else {
+            Reg(Register::from_i8(var))
+        }
+    }
+}
 
 //implementing the write to register function. It takes the input value and assign it to the interpreter.
 impl RegWrite for Register {
@@ -158,18 +157,17 @@ impl RegRead for MemRegister {
     fn read(self, interpreter: &Interpreter) -> i8 {
         match self {
             MemRegister::Acc => interpreter.reg_acc, //reading the value in the rag_acc in the interpeter and returning it.
-            MemRegister::Null => 0, //Reading from the null register.
+            MemRegister::Null => 0,                  //Reading from the null register.
         }
     }
 }
 
 //Implementing read func for the R/I.
-impl RegRead for RegisterOrImmediate { 	 		
-	fn read(self, interpreter: &Interpreter) -> i8 {
-		match self {
-			RegisterOrImmediate::Reg(reg) => reg.read(interpreter), 					//If self is a io reg then it calls for io regs read func.
-			RegisterOrImmediate::Immediate(var) => var,						//If self is a mem reg then it calls the mem regs read func.
-		}
-	}
+impl RegRead for RegisterOrImmediate {
+    fn read(self, interpreter: &Interpreter) -> i8 {
+        match self {
+            RegisterOrImmediate::Reg(reg) => reg.read(interpreter), //If self is a io reg then it calls for io regs read func.
+            RegisterOrImmediate::Immediate(var) => var, //If self is a mem reg then it calls the mem regs read func.
+        }
+    }
 }
-

@@ -12,7 +12,7 @@ use stm32f0x0::{flash, crc};
 
 use byteorder::{NativeEndian, ByteOrder};
 
-const PICOSTORE_BYTES: usize = 60;
+pub const PICOSTORE_BYTES: usize = 60;
 const PICOSTORE_HALFWORDS: usize = PICOSTORE_BYTES / 2 + PICOSTORE_BYTES % 2;
 
 // This MUST be linked into its own flash page
