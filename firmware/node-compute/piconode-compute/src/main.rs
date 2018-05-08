@@ -44,7 +44,7 @@ fn picotalk_tx_tick(_t: &mut Threshold, r: TIM3::Resources) {
     let mut timer = r.PICOTALK_TX_TIMER;
 
     timer.wait().unwrap();
-    picotalk::transmit_value(&mut *pin, &mut state, 9);
+    picotalk::transmit_value(&mut *pin, &mut state, 10);
 }
 
 //To test the recieve function
@@ -53,11 +53,10 @@ fn picotalk_rx_tick(_t: &mut Threshold, r: TIM14::Resources) {
     let mut pin = r.PICOTALK_RX_PIN;
     let mut timer = r.PICOTALK_RX_TIMER;
 
-    let mut out = hio::hstdout().unwrap();
-
     timer.wait().unwrap();
     picotalk::recieve_value(&mut *pin, &mut *state);
     if let picotalk::RecieveState::Done(a) = *state {
+        let mut out = hio::hstdout().unwrap();
         writeln!(out, "The recieved value is: {}", a).unwrap();
     }
 }
@@ -96,7 +95,12 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
 
     let mut rcc = rcc.constrain();
     let mut flash = p.device.FLASH.constrain();
-    let clocks = rcc.cfgr.freeze(&mut flash.acr);
+    let clocks = rcc.cfgr
+        .sysclk(8.mhz())
+        .hclk(8.mhz())
+        .pclk1(8.mhz())
+        .pclk2(8.mhz())
+        .freeze(&mut flash.acr);
     let mut gpioa = p.device.GPIOA.split(&mut rcc.ahb);
     let mut gpiof = p.device.GPIOF.split(&mut rcc.ahb);
 
