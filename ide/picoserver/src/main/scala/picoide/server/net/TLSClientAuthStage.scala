@@ -33,7 +33,7 @@ class TLSClientAuthStage(
     val logic = new GraphStageLogic(shape) with StageLogging {
       override def preStart(): Unit = {
         materializer.scheduleOnce(
-          5.seconds,
+          8.seconds,
           () =>
             if (idPromise.trySuccess(None)) {
               log.debug("Connection closed due to auth timeout")
