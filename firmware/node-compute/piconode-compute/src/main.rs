@@ -44,7 +44,7 @@ fn picotalk_tx_tick(_t: &mut Threshold, r: TIM3::Resources) {
     let mut timer = r.PICOTALK_TX_TIMER;
 
     timer.wait().unwrap();
-    picotalk::transmit_value(&mut *pin, &mut state, 15);
+    picotalk::transmit_value(&mut *pin, &mut state, 2);
 }
 
 //To test the recieve function
@@ -108,8 +108,8 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     pa4.set_high();
     pf0.set_high();
 
-    let mut tim3 = Timer::tim3(p.device.TIM3, 100.hz(), clocks, &mut rcc.apb1);
-    let mut tim14 = Timer::tim14(p.device.TIM14, 20.hz(), clocks, &mut rcc.apb1);
+    let mut tim3 = Timer::tim3(p.device.TIM3, 1.hz(), clocks, &mut rcc.apb1);
+    let mut tim14 = Timer::tim14(p.device.TIM14, 1.hz(), clocks, &mut rcc.apb1);
     tim3.listen(TimerEvent::TimeOut);
     tim14.listen(TimerEvent::TimeOut);
 
@@ -142,7 +142,7 @@ app! {
         static SERIAL1_TX: Tx<stm32f0x0::USART1>;
         //Resources for transmitting a value
         static PICOTALK_TX_PIN: PA4<Output<OpenDrain>>;
-        static PICOTALK_TX_STATE: picotalk::TransmitState = picotalk::TransmitState::HandshakeAdvertise(0);
+        static PICOTALK_TX_STATE: picotalk::TransmitState = picotalk::TransmitState::;
         static PICOTALK_TX_TIMER: Timer<stm32f0x0::TIM3>;
         //Resources for recieving a value from a pin
         static PICOTALK_RX_PIN: PF0<Output<OpenDrain>>;

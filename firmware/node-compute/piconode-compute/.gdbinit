@@ -4,7 +4,7 @@ target remote :3333
 set print asm-demangle on
 
 monitor arm semihosting enable
-
+#Then do load if manualy connect two
 # # send captured ITM to the file itm.fifo
 # # (the microcontroller SWO pin must be connected to the programmer SWO pin)
 # # 8000000 must match the core clock frequency
