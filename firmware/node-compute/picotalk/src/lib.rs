@@ -17,14 +17,15 @@ use stm32f0x0_hal::prelude::*;
 use stm32f0x0_hal::delay::Delay;
 
 
-
+#[derive(Debug)]
 pub enum TransmitState {
 	HandshakeAdvertise(u8),		//Two low
 	HandshakeListen(u8),		//Set high, listen for a low
 	HandshakeWaitRetry(u8),
-	HandshakeCheckTx(u8),		//Wait for two
+	HandshakeCheck,		//Wait for two
 	Preamble(u8),		//Preambel 5 bits, first high then every other high low
 	SendData(u8),
+	Idle,
 }
 
 #[derive(Debug)]
@@ -42,6 +43,9 @@ pub enum RecieveState {
 pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveState) {
 	use RecieveState::*;
 
+	//let mut out = cortex_m_semihosting::hio::hstdout().unwrap();
+	//writeln!(out, "RX: {:?}", state).unwrap();
+
 	match state {
 		HandshakeListen(0) => {
 			if InputPin::is_low(pin) {
@@ -58,12 +62,14 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 		HandshakeConfirm => {
 			OutputPin::set_low(pin);
 			*state = HandshakeWaitRx(0);
+
 		},
 		HandshakeWaitRx(0) => {
 			OutputPin::set_high(pin);
 			*state = HandshakeWaitRx(1);
 		},
 		HandshakeWaitRx(1) => {
+			OutputPin::set_high(pin);
 			if InputPin::is_high(pin) {
 				*state = ReadPreamble(0);
 			} else {
@@ -78,7 +84,7 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 			}
 		},
 		ReadPreamble(1) => {
-			if InputPin::is_high(pin) {
+			if InputPin::is_low(pin) {
 				*state = ReadPreamble(2);
 			} else {
 				panic!("Dont recieve the second preamble!");
@@ -107,17 +113,15 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 		},
 		RecieveData(ref mut n, ref mut value) => {
 			let mask = 1 << *n;
+			if InputPin::is_high(pin) {
+				*value = *value | mask;
+			}
 
-			if *n < 7 {
-				if InputPin::is_high(pin) {
-					*value = *value | mask;
-				}
-			} else if *n == 7 {
+			if *n == 7 {
 				*state = Done(*value);
 			} else {
-				panic!("Data recieved is to long");
+				*n += 1;
 			}
-			*n += 1;
 		},
 		Done(_) => {
 		},
@@ -130,11 +134,15 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 /*Statemachine for handshake/transmitting value*/
 pub fn transmit_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut TransmitState, value: i8) {
 	use TransmitState::*;
+
+	//let mut out = cortex_m_semihosting::hio::hstdout().unwrap();
+	//writeln!(out, "TX: {:?}", state).unwrap();
+
 	match state {
 
 		HandshakeAdvertise(0) => {
-			*state = HandshakeAdvertise(1);
 			OutputPin::set_low(pin);
+			*state = HandshakeAdvertise(1);
 		},
 		HandshakeAdvertise(1) => {
 			*state = HandshakeListen(0);
@@ -142,10 +150,8 @@ pub fn transmit_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut Transmit
 		HandshakeListen(ref mut n) => {
 			OutputPin::set_high(pin); 				//reseting the pin
 			if InputPin::is_low(pin) {
-				*state = HandshakeCheckRx;
-			} else {
-				*state = HandshakeAdvertise(0);
-			}if *n < 2 {
+				*state = HandshakeCheck;
+			} else if *n < 2 {
 				*n += 1;
 			} else {
 				*state = HandshakeWaitRetry(0);
@@ -157,15 +163,12 @@ pub fn transmit_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut Transmit
 		HandshakeWaitRetry(1) => {
 			*state = HandshakeAdvertise(0);
 		},
-		HandshakeCheckRx => {
+		HandshakeCheck => {
 			if InputPin::is_low(pin) {
 				panic!("Transmission from both sides!");
 			} else {
 				*state = Preamble(0);
 			}
-		},
-		HandshakeWaitTx(1) => {
-			*state = Preamble(0);
 		},
 		Preamble(0) => {
 			OutputPin::set_high(pin);
@@ -188,17 +191,21 @@ pub fn transmit_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut Transmit
 			*state = SendData(0);
 		},
 		SendData(ref mut n) => {
-			if *n < 8 {
-				let mask = 1 << *n;
-				let databit = value & mask;
-				if databit == mask {
-					OutputPin::set_high(pin);
-					*n += 1;
-				} else {
-					OutputPin::set_low(pin);
-					*n += 1;
-				}
+			let mask = 1 << *n;
+			let databit = value & mask;
+			if databit == mask {
+				OutputPin::set_high(pin);
+			} else {
+				OutputPin::set_low(pin);
 			}
+			if *n == 7 {
+				*state = Idle;
+			} else {
+				*n += 1;
+			}
+		},
+		Idle => {
+			OutputPin::set_high(pin);
 		},
 		_ => panic!("Not a TransmitState"),
 	}
