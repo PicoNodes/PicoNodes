@@ -108,15 +108,7 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     let mut gpioa = p.device.GPIOA.split(&mut rcc.ahb);
     let mut gpiof = p.device.GPIOF.split(&mut rcc.ahb);
 
-    #[cfg(not(feature = "debug"))]
-    let usart1_pin_tx = gpioa.pa2.into_af1(&mut gpioa.moder, &mut gpioa.afrl);
-    #[cfg(not(feature = "debug"))]
-    let usart1_pin_rx = gpioa.pa3.into_af1(&mut gpioa.moder, &mut gpioa.afrl);
-
-    // PA2 and PA3 are bound to USART2 on the STM32F030C8T6, which is used on the debug boards
-    #[cfg(feature = "debug")]
     let usart1_pin_tx = gpioa.pa9.into_af1(&mut gpioa.moder, &mut gpioa.afrh);
-    #[cfg(feature = "debug")]
     let usart1_pin_rx = gpioa.pa10.into_af1(&mut gpioa.moder, &mut gpioa.afrh);
 
     let mut pa4 = gpioa.pa4.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
