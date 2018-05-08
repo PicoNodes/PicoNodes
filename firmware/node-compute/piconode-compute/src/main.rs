@@ -108,8 +108,17 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     let mut gpioa = p.device.GPIOA.split(&mut rcc.ahb);
     let mut gpiof = p.device.GPIOF.split(&mut rcc.ahb);
 
-    let pa2 = gpioa.pa2.into_af1(&mut gpioa.moder, &mut gpioa.afrl);
-    let pa3 = gpioa.pa3.into_af1(&mut gpioa.moder, &mut gpioa.afrl);
+    #[cfg(not(feature = "debug"))]
+    let usart1_pin_tx = gpioa.pa2.into_af1(&mut gpioa.moder, &mut gpioa.afrl);
+    #[cfg(not(feature = "debug"))]
+    let usart1_pin_rx = gpioa.pa3.into_af1(&mut gpioa.moder, &mut gpioa.afrl);
+
+    // PA2 and PA3 are bound to USART2 on the STM32F030C8T6, which is used on the debug boards
+    #[cfg(feature = "debug")]
+    let usart1_pin_tx = gpioa.pa9.into_af1(&mut gpioa.moder, &mut gpioa.afrh);
+    #[cfg(feature = "debug")]
+    let usart1_pin_rx = gpioa.pa10.into_af1(&mut gpioa.moder, &mut gpioa.afrh);
+
     let mut pa4 = gpioa.pa4.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
     let mut pf0 = gpiof.pf0.into_open_drain_output(&mut gpiof.moder, &mut gpiof.otyper);
 
@@ -122,7 +131,7 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     tim14.listen(TimerEvent::TimeOut);
 
     let usart1 = p.device.USART1;
-    let mut serial = Serial::usart1(usart1, (pa2, pa3), 115_200.bps(), clocks, &mut rcc.apb2);
+    let mut serial = Serial::usart1(usart1, (usart1_pin_tx, usart1_pin_rx), 115_200.bps(), clocks, &mut rcc.apb2);
     serial.listen(SerialEvent::Rxne);
     let (tx, rx) = serial.split();
 
@@ -140,12 +149,22 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
 fn idle(t: &mut Threshold, r: idle::Resources) -> ! {
     let store = r.STORE;
     let mut interpreter = picorunner::Interpreter::new();
+    let mut out = hio::hstdout().unwrap();
 
     loop {
         interpreter.prog_counter %= picostore::PICOSTORE_BYTES as u8;
-        let instruction = store.claim(t, |store, _t|
-            picorunner::decode_instruction(&store[interpreter.prog_counter as usize..]));
-        picorunner::run_instruction(instruction, &mut interpreter);
+        let mut instruction_bytes: [u8; picorunner::INSTRUCTION_BYTES as usize] = [0; picorunner::INSTRUCTION_BYTES as usize];
+        store.claim(t, |store, _t| {
+            let slice = &store[interpreter.prog_counter as usize..interpreter.prog_counter as usize + 3];
+            for (i, byte) in slice.iter().enumerate() {
+                instruction_bytes[i] = *byte;
+            }
+        });
+        let instruction = picorunner::decode_instruction(&instruction_bytes);
+        if let Some(instruction) = instruction {
+            picorunner::run_instruction(instruction, &mut interpreter);
+        }
+        writeln!(out, "Acc: {}", interpreter.reg_acc).unwrap();
     }
 }
 

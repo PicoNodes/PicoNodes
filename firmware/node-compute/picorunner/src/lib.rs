@@ -33,9 +33,14 @@ impl Instruction {
 }
 
 //Decoding the Bytecode in the format flag(2 bits), op(6 bits), operand A(8 bits), operand B(8 bits)
-pub fn decode_instruction(bytecode: &[u8]) -> Instruction {
+pub fn decode_instruction(bytecode: &[u8]) -> Option<Instruction> {
     use registers::Flag::*;
     use Instruction::*;
+
+    if bytecode.len() == 0 {
+        return None;
+    }
+
     let flags = (bytecode[0] & 0xC0) >> 6;
     let op = bytecode[0] & 0x3F;
     let op_a = bytecode[1] as i8;
@@ -49,7 +54,7 @@ pub fn decode_instruction(bytecode: &[u8]) -> Instruction {
         _ => flag = Neather,
     };
 
-    match op {
+    Some(match op {
         0 => Mov(
             flag,
             registers::RegisterOrImmediate::from_i8(op_a),
@@ -78,7 +83,7 @@ pub fn decode_instruction(bytecode: &[u8]) -> Instruction {
             registers::RegisterOrImmediate::from_i8(op_b),
         ),
         _ => panic!("Not an instruction!"),
-    }
+    })
 }
 
 //The func takes the decoded instruction and do actions depending on the operation
