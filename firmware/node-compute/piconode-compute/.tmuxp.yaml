@@ -1,0 +1,9 @@
+session_name: piconode-compute
+windows:
+  - window_name: gdb
+    layout: tiled
+    panes:
+      - openocd -f interface/stlink-v2-1.cfg -f target/stm32f0x.cfg -c 'gdb_port 3334' -c 'tcl_port disabled' -c 'telnet_port disabled' -c 'hla_serial 0671FF485550755187015314'
+      - openocd -f interface/stlink-v2-1.cfg -f target/stm32f0x.cfg -c 'hla_serial 0673FF495353887167133008'
+      - arm-none-eabi-gdb --init-eval-command="target remote :3334" --init-eval-command="set auto-load local-gdbinit off" --command=.gdb-opts target/thumbv6m-none-eabi/debug/piconode-compute
+      - arm-none-eabi-gdb --init-eval-command "target remote :3333" --init-eval-command="set auto-load local-gdbinit off" --command=.gdb-opts target/thumbv6m-none-eabi/debug/piconode-compute
