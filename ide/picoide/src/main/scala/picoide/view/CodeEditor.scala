@@ -5,7 +5,8 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.vdom.html_<^._
 import picoide.asm.PicoAsmParser
-import picoide.{Actions, SourceFile}
+import picoide.proto.SourceFile
+import picoide.{Actions}
 import picoide.asm.PicoAsmFormatter
 import monocle.macros.Lenses
 import picoide.view.vendor.ReactCodeMirror
@@ -73,11 +74,14 @@ object CodeEditor {
     }
 
     def render(file: ModelProxy[SourceFile]) =
-      ReactCodeMirror.component(
-        ReactCodeMirror.props(file().content,
-                              onBeforeChange = beforeChange,
-                              onChange = updateErrorWidgets,
-                              onCursor = onCursorMove))
+      <.div(
+        <.h2(file().ref.name),
+        ReactCodeMirror.component(
+          ReactCodeMirror.props(file().content,
+                                onBeforeChange = beforeChange,
+                                onChange = updateErrorWidgets,
+                                onCursor = onCursorMove))
+      )
   }
 
   val component =

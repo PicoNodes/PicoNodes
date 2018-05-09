@@ -8,9 +8,16 @@ import diode.data.{Failed, Ready}
 import diode.{ActionHandler, ActionResult, Circuit, Effect, NoAction}
 import diode.data.{Pot, PotAction, PotState}
 import diode.react.ReactConnector
+import java.util.UUID
 
 import picoide.net.IDEClient
-import picoide.proto.{DownloaderInfo, IDECommand, IDEEvent}
+import picoide.proto.{
+  DownloaderInfo,
+  IDECommand,
+  IDEEvent,
+  SourceFile,
+  SourceFileRef
+}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -19,14 +26,21 @@ class AppCircuit(implicit materializer: Materializer)
     extends Circuit[Root]
     with ReactConnector[Root] {
   override def initialModel = Root(
-    currentFile = SourceFile("""  mov 1 up
-                               |  mov 2 null
-                               |  mov 3 acc
-                               |
-                               |+ mov 4 acc
-                               |- mov 6 acc
-                               |  mov 5 null
-""".stripMargin),
+    currentFile = SourceFile(
+      SourceFileRef(
+        UUID.randomUUID(),
+        "Example"
+      ),
+      """  mov 1 up
+        |  mov 2 null
+        |  mov 3 acc
+        |
+        |+ mov 4 acc
+        |- mov 6 acc
+        |  mov 5 null
+""".stripMargin
+    ),
+    knownFiles = Pot.empty,
     commandQueue = Pot.empty,
     downloaders = Pot.empty
   )
@@ -34,6 +48,7 @@ class AppCircuit(implicit materializer: Materializer)
   override def actionHandler =
     composeHandlers(editorHandler,
                     commandQueueHandler,
+                    filesHandler,
                     downloadersHandler,
                     ideEventHandler)
 
@@ -60,12 +75,24 @@ class AppCircuit(implicit materializer: Materializer)
               noChange
             case PotReady =>
               updated(action.potResult,
-                      Effect.action(Actions.Downloaders.Update(Pot.empty)))
+                      Effect.action(Actions.Downloaders.Update(Pot.empty)) +
+                        Effect.action(Actions.KnownFiles.Update(Pot.empty)))
             case PotUnavailable =>
               updated(value.unavailable())
             case PotFailed =>
               updated(value.fail(action.result.failed.get))
           }
+      }
+    }
+
+  def filesHandler =
+    new ActionHandler[Root, Pot[Seq[SourceFileRef]]](zoomTo(_.knownFiles)) {
+      override def handle: PartialFunction[Any, ActionResult[Root]] = {
+        case action: Actions.KnownFiles.Update =>
+          println(action)
+          action.handleWith(this,
+                            IDEClient.requestFileList(zoomTo(_.commandQueue)))(
+            PotAction.handler())
       }
     }
 
@@ -121,6 +148,8 @@ class AppCircuit(implicit materializer: Materializer)
           Actions.Downloaders.Add(downloader)
         case IDEEvent.AvailableDownloaderRemoved(downloader) =>
           Actions.Downloaders.Remove(downloader)
+        case IDEEvent.KnownFiles(files) =>
+          Actions.KnownFiles.Update(Ready(files))
         case IDEEvent.Pong =>
           NoAction
         case IDEEvent.DownloaderSelected(downloader) =>

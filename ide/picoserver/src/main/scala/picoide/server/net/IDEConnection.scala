@@ -22,6 +22,7 @@ import picoide.proto.{
   IDECommand,
   IDEEvent
 }
+import picoide.server.model.SourceFileManager
 import picoide.server.utils.SwappableFlowAdapter
 import picoide.server.model.IDECommandHandler
 import picoide.proto.IDEPicklers._
@@ -73,14 +74,16 @@ object IDEConnection {
       FlowShape(limitInput.in, splitter.out(1))
     })
 
-  def webSocketHandler(downloaderRegistry: ActorRef)(
+  def webSocketHandler(downloaderRegistry: ActorRef,
+                       fileManager: SourceFileManager)(
       implicit mat: Materializer): Flow[Message, Message, NotUsed] =
     binaryMessagesFlow
       .atop(protocolPickler)
       .join(Flow.fromGraph(GraphDSL.create() { implicit builder =>
         import GraphDSL.Implicits._
 
-        val commandHandler   = builder.add(IDECommandHandler(downloaderRegistry))
+        val commandHandler =
+          builder.add(IDECommandHandler(downloaderRegistry, fileManager))
         val commandBroadcast = builder.add(Broadcast[IDECommand](2))
         val eventMerger      = builder.add(Merge[IDEEvent](2))
         val downloaderSwapper = builder.add(

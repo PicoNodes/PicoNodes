@@ -15,7 +15,13 @@ import diode.data.{Pot, Ready}
 import java.nio.ByteBuffer
 import boopickle.Default._
 import picoide.asm.Instruction
-import picoide.proto.{DownloaderCommand, DownloaderInfo, IDECommand, IDEEvent}
+import picoide.proto.{
+  DownloaderCommand,
+  DownloaderInfo,
+  IDECommand,
+  IDEEvent,
+  SourceFileRef
+}
 import picoide.proto.IDEPicklers._
 import picoide.Actions
 import scala.concurrent.{ExecutionContext, Future}
@@ -72,6 +78,23 @@ object IDEClient {
         .map(Ready(_))
         .map(Actions.CommandQueue.Update)
     }
+
+  def requestFileList(commandQueue: ModelRO[Pot[CommandQueue]])(
+      implicit executionContext: ExecutionContext): Effect = Effect {
+    commandQueue()
+      .fold[Future[Pot[Seq[SourceFileRef]]]](Future.successful(Unavailable))(
+        _.offer(IDECommand.ListFiles) map {
+          case QueueOfferResult.Enqueued =>
+            Pending()
+          case QueueOfferResult.Dropped =>
+            Failed(new BufferOverflowException("Request was dropped"))
+          case QueueOfferResult.Failure(ex) =>
+            Failed(ex)
+          case QueueOfferResult.QueueClosed =>
+            Unavailable
+        })
+      .map(Actions.KnownFiles.Update(_))
+  }
 
   def requestDownloaderList(commandQueue: ModelRO[Pot[CommandQueue]])(
       implicit executionContext: ExecutionContext): Effect = Effect {

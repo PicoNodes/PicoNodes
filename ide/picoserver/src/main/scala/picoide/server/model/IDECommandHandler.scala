@@ -46,7 +46,8 @@ object IDECommandHandlerShape {
   def apply(name: String) = new IDECommandHandlerShape(name)
 }
 
-class IDECommandHandler(downloaderRegistry: ActorRef)
+class IDECommandHandler(downloaderRegistry: ActorRef,
+                        fileManager: SourceFileManager)
     extends GraphStage[IDECommandHandlerShape] {
   override val shape = IDECommandHandlerShape("IDECommandHandler")
   import shape.{in, out, switchDownloader}
@@ -79,6 +80,8 @@ class IDECommandHandler(downloaderRegistry: ActorRef)
                 .map(_.flow)
                 .getOrElse(Flow.fromSinkAndSource(Sink.ignore, Source.empty)))
             push(out, IDEEvent.DownloaderSelected(downloader.map(_.id)))
+          case (_, event: IDEEvent) =>
+            push(out, event)
           case (sender, msg) =>
             log.warning(s"Unknown message $msg from $sender")
         }
@@ -88,12 +91,20 @@ class IDECommandHandler(downloaderRegistry: ActorRef)
       setHandler(
         in,
         new InHandler {
+          def listFiles() =
+            fileManager
+              .list()
+              .map(files => IDEEvent.KnownFiles(files.map(_.toProto)))
+              .pipeTo(stageActor.ref)
+
           override def onPush(): Unit = {
             implicit val timeout = Timeout(10.seconds)
             grab(in) match {
               case IDECommand.ListDownloaders =>
                 downloaderRegistry.tell(DownloaderRegistry.ListDownloaders,
                                         stageActor.ref)
+              case IDECommand.ListFiles =>
+                listFiles()
               case IDECommand.Ping =>
                 push(out, IDEEvent.Pong)
               case _: IDECommand.ToDownloader =>
@@ -123,6 +134,6 @@ class IDECommandHandler(downloaderRegistry: ActorRef)
 }
 
 object IDECommandHandler {
-  def apply(downloaderRegistry: ActorRef) =
-    new IDECommandHandler(downloaderRegistry)
+  def apply(downloaderRegistry: ActorRef, fileManager: SourceFileManager) =
+    new IDECommandHandler(downloaderRegistry, fileManager)
 }

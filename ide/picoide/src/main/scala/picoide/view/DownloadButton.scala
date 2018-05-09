@@ -5,8 +5,8 @@ import diode.data.Pot
 import diode.react.ModelProxy
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import picoide.proto.DownloaderInfo
-import picoide.{Actions, SourceFile}
+import picoide.proto.{DownloaderInfo, SourceFile}
+import picoide.{Actions}
 import picoide.asm.PicoAsmParser
 import picoide.proto.IDECommand
 

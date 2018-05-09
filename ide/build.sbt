@@ -1,5 +1,6 @@
 def commonSettings = Seq(
-  scalacOptions ++= Seq("-feature", "-deprecation")
+  scalacOptions ++= Seq("-feature",
+                        "-deprecation")
 )
 
 lazy val picoasm = crossProject
@@ -18,15 +19,18 @@ lazy val picoasmJS  = picoasm.js
 lazy val picoideProto = crossProject
   .crossType(CrossType.Pure)
   .settings(
+    addCompilerPlugin(
+      "org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full),
     libraryDependencies ++= Seq(
-      "io.suzaku" %%% "boopickle" % "1.3.0"
+      "io.suzaku"                  %%% "boopickle"     % "1.3.0",
+      "com.github.julien-truffaut" %%% "monocle-macro" % "1.5.0-cats"
     )
   )
   .settings(commonSettings: _*)
   .jsSettings(
     libraryDependencies ++= Seq(
       "org.akka-js" %%% "akkajsactorstream" % "1.2.5.11"
-    )
+    ),
   )
   .jvmSettings(
     // For some reason neo-sbt-scalafmt does not normally format the shared src directory...
@@ -43,6 +47,7 @@ lazy val picoide = project
   .enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalaJSWeb)
   .settings(commonSettings: _*)
   .settings(
+    scalacOptions += "-P:scalajs:sjsDefinedByDefault",
     libraryDependencies ++= Seq(
       "io.suzaku"                         %%% "diode-react"       % "1.1.3.120",
       "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % "1.2.0",
