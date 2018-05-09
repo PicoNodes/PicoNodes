@@ -11,7 +11,7 @@
 //The struct will hold the value for the memory register
 pub struct Interpreter {
     pub reg_acc: i8,
-    pub prog_counter: u8,
+    pub prog_counter: usize,
     pub flag: Flag,
 }
 

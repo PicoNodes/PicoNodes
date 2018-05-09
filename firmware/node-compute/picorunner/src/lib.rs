@@ -3,7 +3,7 @@
 mod registers;
 pub use registers::*;
 
-pub const INSTRUCTION_BYTES: u8 = 3;
+pub const INSTRUCTION_BYTES: usize = 3;
 
 //The Picoasm instructions structure
 pub enum Instruction {

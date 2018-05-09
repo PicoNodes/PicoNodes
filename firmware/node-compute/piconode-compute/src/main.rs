@@ -144,10 +144,10 @@ fn idle(t: &mut Threshold, r: idle::Resources) -> ! {
     let mut out = hio::hstdout().unwrap();
 
     loop {
-        interpreter.prog_counter %= picostore::PICOSTORE_BYTES as u8;
-        let mut instruction_bytes: [u8; picorunner::INSTRUCTION_BYTES as usize] = [0; picorunner::INSTRUCTION_BYTES as usize];
+        interpreter.prog_counter %= picostore::PICOSTORE_BYTES;
+        let mut instruction_bytes: [u8; picorunner::INSTRUCTION_BYTES] = [0; picorunner::INSTRUCTION_BYTES];
         store.claim(t, |store, _t| {
-            let slice = &store[interpreter.prog_counter as usize..interpreter.prog_counter as usize + 3];
+            let slice = &store[interpreter.prog_counter .. interpreter.prog_counter + 3];
             for (i, byte) in slice.iter().enumerate() {
                 instruction_bytes[i] = *byte;
             }
