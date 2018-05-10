@@ -11,6 +11,10 @@ object IDEEvent {
   case class AvailableDownloaderRemoved(downloader: DownloaderInfo)
       extends IDEEvent
 
+  case class KnownFiles(files: Seq[SourceFileRef]) extends IDEEvent
+  case class SavedFile(file: SourceFile)           extends IDEEvent
+  case class GotFile(file: Option[SourceFile])     extends IDEEvent
+
   case class DownloaderSelected(downloader: Option[UUID]) extends IDEEvent
 
   /**

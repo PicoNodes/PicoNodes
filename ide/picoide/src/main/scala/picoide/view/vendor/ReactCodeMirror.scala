@@ -1,7 +1,7 @@
 package picoide.view.vendor
 
 import japgolly.scalajs.react._
-import scala.scalajs.js.annotation.{JSImport, ScalaJSDefined}
+import scala.scalajs.js.annotation.{JSImport}
 import scala.scalajs.js.|
 import scala.scalajs.js
 import org.scalajs.dom
@@ -50,7 +50,6 @@ object ReactCodeMirror {
 
   type SimpleState = js.Array[SimpleRule]
 
-  @ScalaJSDefined
   class SimpleRule(
       val regex: String | js.RegExp,
       val token: js.Array[String] | String,

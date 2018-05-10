@@ -1,11 +1,14 @@
 package picoide.view
 
+import diode.data.Pot
 import diode.react.ModelProxy
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.vdom.html_<^._
+import picoide.Dirtying
 import picoide.asm.PicoAsmParser
-import picoide.{Actions, SourceFile}
+import picoide.proto.SourceFile
+import picoide.{Actions}
 import picoide.asm.PicoAsmFormatter
 import monocle.macros.Lenses
 import picoide.view.vendor.ReactCodeMirror
@@ -15,9 +18,11 @@ import org.scalajs.dom
 object CodeEditor {
   @Lenses
   case class State(currentCoord: ReactCodeMirror.Coord,
-                   widgets: List[ReactCodeMirror.LineWidget] = List())
+                   widgets: List[ReactCodeMirror.LineWidget] = List(),
+                   renamingNewName: Option[String] = None)
 
-  class Backend($ : BackendScope[ModelProxy[SourceFile], State]) {
+  class Backend(
+      $ : BackendScope[ModelProxy[Pot[Dirtying[SourceFile]]], State]) {
 
     private def beforeChange(editor: ReactCodeMirror.Editor,
                              changes: Seq[ReactCodeMirror.Change],
@@ -72,17 +77,51 @@ object CodeEditor {
         $.setStateL(State.widgets)(errorWidgets.toList)
     }
 
-    def render(file: ModelProxy[SourceFile]) =
-      ReactCodeMirror.component(
-        ReactCodeMirror.props(file().content,
-                              onBeforeChange = beforeChange,
-                              onChange = updateErrorWidgets,
-                              onCursor = onCursorMove))
+    def render(file: ModelProxy[Pot[Dirtying[SourceFile]]], state: State) =
+      <.div(
+        ^.classSet(
+          "code-editor"       -> true,
+          "code-editor-dirty" -> file().fold(false)(_.isDirty)
+        ),
+        <.div(
+          ^.className := "code-editor-header",
+          <.h2(
+            file().fold(TagMod("(Loading...)"))(f =>
+              state.renamingNewName.fold(TagMod(f.value.ref.name))(newName =>
+                <.input(
+                  ^.value := newName,
+                  ^.onChange ==> ((ev: ReactEventFromInput) =>
+                    $.setStateL(State.renamingNewName)(Some(ev.target.value))),
+                  ^.onBlur --> (file.dispatchCB(Actions.CurrentFile.Rename(
+                    state.renamingNewName.get)) >> $.setStateL(
+                    State.renamingNewName)(None)),
+                  ^.autoFocus := true
+              )))
+          ),
+          Spacer.component(),
+          <.button("Rename",
+                   ^.disabled := file().isEmpty,
+                   ^.onClick --> $.setStateL(State.renamingNewName)(
+                     Some(file().get.value.ref.name))),
+          <.button(
+            "Save",
+            ^.disabled := file().isEmpty,
+            ^.onClick --> file.dispatchCB(Actions.CurrentFile.Save)
+          ),
+          <.button("New",
+                   ^.onClick --> file.dispatchCB(Actions.CurrentFile.CreateNew))
+        ),
+        ReactCodeMirror.component(
+          ReactCodeMirror.props(file().fold("")(_.value.content),
+                                onBeforeChange = beforeChange,
+                                onChange = updateErrorWidgets,
+                                onCursor = onCursorMove))
+      )
   }
 
   val component =
     ScalaComponent
-      .builder[ModelProxy[SourceFile]]("CodeEditor")
+      .builder[ModelProxy[Pot[Dirtying[SourceFile]]]]("CodeEditor")
       .initialState(State(currentCoord = ReactCodeMirror.coord(line = 0)))
       .renderBackend[Backend]
       .build

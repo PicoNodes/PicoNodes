@@ -7,10 +7,11 @@ import akka.http.scaladsl.model.{ContentType, ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import org.webjars.WebJarAssetLocator
+import picoide.server.model.SourceFileManager
 import scala.concurrent.{ExecutionContext, Future}
 
 object IDEServer {
-  def start(downloaderRegistry: ActorRef)(
+  def start(downloaderRegistry: ActorRef, fileManager: SourceFileManager)(
       implicit actorSystem: ActorSystem,
       materializer: Materializer,
       executionContext: ExecutionContext): Future[ServerBinding] = {
@@ -23,7 +24,7 @@ object IDEServer {
         }
       } ~ path("connect") {
         handleWebSocketMessagesForProtocol(
-          IDEConnection.webSocketHandler(downloaderRegistry),
+          IDEConnection.webSocketHandler(downloaderRegistry, fileManager),
           "picoide")
       } ~ path("public" / Segment / Remaining) { (webJar, asset) =>
         get {

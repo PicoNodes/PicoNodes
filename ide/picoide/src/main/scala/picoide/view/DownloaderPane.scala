@@ -18,7 +18,7 @@ object DownloaderPane {
             .connect(
               state =>
                 DownloadButton.Props(
-                  state.currentFile,
+                  state.currentFile.map(_.value),
                   state.downloaders.toOption.flatMap(_.current),
                   state.commandQueue))
             .apply(DownloadButton.component(_))

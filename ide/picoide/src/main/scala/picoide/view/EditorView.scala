@@ -3,7 +3,7 @@ package picoide.view
 import diode.react.ModelProxy
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import picoide.{Actions, Root, SourceFile}
+import picoide.{Actions, Root}
 
 object EditorView {
   val component =
@@ -16,6 +16,7 @@ object EditorView {
             .connect(_.commandQueue)
             .apply(ConnectionStatusDialog.component(_)),
           DownloaderPane.component(model),
+          model.connect(_.knownFiles).apply(FileList.component(_)),
           model.connect(_.currentFile).apply(CodeEditor.component(_)),
           // model.connect(_.currentFile).apply(BytecodeViewer.component(_)),
           model

@@ -15,7 +15,14 @@ import diode.data.{Pot, Ready}
 import java.nio.ByteBuffer
 import boopickle.Default._
 import picoide.asm.Instruction
-import picoide.proto.{DownloaderCommand, DownloaderInfo, IDECommand, IDEEvent}
+import picoide.proto.{
+  DownloaderCommand,
+  DownloaderInfo,
+  IDECommand,
+  IDEEvent,
+  SourceFile,
+  SourceFileRef
+}
 import picoide.proto.IDEPicklers._
 import picoide.Actions
 import scala.concurrent.{ExecutionContext, Future}
@@ -73,35 +80,55 @@ object IDEClient {
         .map(Actions.CommandQueue.Update)
     }
 
-  def requestDownloaderList(commandQueue: ModelRO[Pot[CommandQueue]])(
+  private def potOffer(commandQueue: Pot[CommandQueue], cmd: IDECommand)(
+      implicit ec: ExecutionContext): Future[Pot[Nothing]] =
+    commandQueue.fold(Future.successful[Pot[Nothing]](Unavailable))(
+      _.offer(cmd).map {
+        case QueueOfferResult.Enqueued =>
+          Pending()
+        case QueueOfferResult.Dropped =>
+          Failed(new BufferOverflowException("Request was dropped"))
+        case QueueOfferResult.Failure(ex) =>
+          Failed(ex)
+        case QueueOfferResult.QueueClosed =>
+          Unavailable
+      })
+
+  def requestFileList(commandQueue: Pot[CommandQueue])(
       implicit executionContext: ExecutionContext): Effect = Effect {
-    commandQueue()
-      .fold[Future[Pot[Set[DownloaderInfo]]]](Future.successful(Unavailable))(
-        _.offer(IDECommand.ListDownloaders).map {
-          case QueueOfferResult.Enqueued =>
-            Pending()
-          case QueueOfferResult.Dropped =>
-            Failed(new BufferOverflowException("Request was dropped"))
-          case QueueOfferResult.Failure(ex) =>
-            Failed(ex)
-          case QueueOfferResult.QueueClosed =>
-            Unavailable
-        })
+    potOffer(commandQueue, IDECommand.ListFiles)
+      .map(Actions.KnownFiles.Update(_))
+  }
+
+  def saveFile(file: SourceFile, commandQueue: Pot[CommandQueue])(
+      implicit ec: ExecutionContext): Effect = Effect {
+    commandQueue.get.offer(IDECommand.SaveFile(file)).map(_ => NoAction)
+  }
+
+  def loadFile(file: SourceFileRef, commandQueue: Pot[CommandQueue])(
+      implicit ec: ExecutionContext): Effect = Effect {
+    commandQueue.get.offer(IDECommand.GetFile(file)).map(_ => NoAction)
+  }
+
+  def requestDownloaderList(commandQueue: Pot[CommandQueue])(
+      implicit executionContext: ExecutionContext): Effect = Effect {
+    potOffer(commandQueue, IDECommand.ListDownloaders)
       .map(Actions.Downloaders.Update(_))
   }
 
-  def selectDownloader(downloader: Option[DownloaderInfo],
-                       commandQueue: ModelRO[Pot[CommandQueue]])(
-      implicit ec: ExecutionContext): Effect = Effect {
-    commandQueue().get
-      .offer(IDECommand.SelectDownloader(downloader.map(_.id)))
-      .map(_ => NoAction)
-  }
+  def selectDownloader(
+      downloader: Option[DownloaderInfo],
+      commandQueue: Pot[CommandQueue])(implicit ec: ExecutionContext): Effect =
+    Effect {
+      commandQueue.get
+        .offer(IDECommand.SelectDownloader(downloader.map(_.id)))
+        .map(_ => NoAction)
+    }
 
   def sendBytecode(instructions: Seq[Instruction],
-                   commandQueue: ModelRO[Pot[CommandQueue]])(
+                   commandQueue: Pot[CommandQueue])(
       implicit executionContext: ExecutionContext): Effect = Effect {
-    commandQueue().get
+    commandQueue.get
       .offer(IDECommand.ToDownloader(
         DownloaderCommand.DownloadBytecode(instructions.flatMap(_.assemble))))
       .map(_ => NoAction)

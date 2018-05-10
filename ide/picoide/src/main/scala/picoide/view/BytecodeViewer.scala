@@ -4,7 +4,8 @@ import diode.react.ModelProxy
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import picoide.asm.PicoAsmParser
-import picoide.{Actions, SourceFile}
+import picoide.proto.SourceFile
+import picoide.{Actions}
 
 object BytecodeViewer {
   val component =

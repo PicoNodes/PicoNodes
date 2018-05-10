@@ -18,8 +18,11 @@ lazy val picoasmJS  = picoasm.js
 lazy val picoideProto = crossProject
   .crossType(CrossType.Pure)
   .settings(
+    addCompilerPlugin(
+      "org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full),
     libraryDependencies ++= Seq(
-      "io.suzaku" %%% "boopickle" % "1.3.0"
+      "io.suzaku"                  %%% "boopickle"     % "1.3.0",
+      "com.github.julien-truffaut" %%% "monocle-macro" % "1.5.0-cats"
     )
   )
   .settings(commonSettings: _*)
@@ -43,6 +46,7 @@ lazy val picoide = project
   .enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalaJSWeb)
   .settings(commonSettings: _*)
   .settings(
+    scalacOptions += "-P:scalajs:sjsDefinedByDefault",
     libraryDependencies ++= Seq(
       "io.suzaku"                         %%% "diode-react"       % "1.1.3.120",
       "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % "1.2.0",
