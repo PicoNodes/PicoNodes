@@ -9,10 +9,7 @@ extern crate cortex_m_rtfm as rtfm;   //Real Time For the Masses framework for t
 extern crate cortex_m_semihosting;  //Enables coderunning on an ARM-target to use input/output pins
 extern crate stm32f0x0_hal;     //HAL for the stm32f0x0 family. Implementation of the embedded hal traits
 extern crate embedded_hal;      //Hardware abstraction layer for embedded systems
-extern crate picostorm;         //Enables seriecommunication with the ESP32 HUZZAH
 extern crate picotalk;      //Enables communication between the nodes
-//extern crate picorunner;        //Run PicoInstsructions
-//extern crate picostore;     //Storing/fetching the instructions from the programmer
 
 #[cfg(feature = "debug")]
 extern crate panic_semihosting;
@@ -22,8 +19,6 @@ extern crate panic_abort;
 
 #[macro_use]
 extern crate nb;
-
-//use picostore::PicoStore;
 
 use core::fmt::Write;
 use cortex_m_semihosting::hio;
@@ -38,8 +33,20 @@ use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent, Error as Seria
 use stm32f0x0_hal::gpio::{Output, PushPull, OpenDrain, gpioa::*, gpiof::PF0};
 use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
 
-//Recieving from four directions need four timers tim14, tim3, tim16, tim17
+fn picotalk_tx_tick(_t: &mut Threshold, r: TIM3::Resources) {
+    let mut state = r.PICOTALK_TX_STATE;
+    let mut pin = r.PICOTALK_TX_PIN;
+    let mut timer = r.PICOTALK_TX_TIMER;
+
+    timer.wait().unwrap();
+    picotalk::transmit_value(&mut *pin, &mut state, 10);
+}
+
+//Sending to the right pin
 fn picotalk_rx_tick(_t: &mut Threshold, r: TIM14::Resources) {
+    if left_pin.is_high() {
+        picotalk::transmit_value(&mut pin, &mut state, _)
+    }
     let mut state = r.PICOTALK_RX_STATE;
     let mut pin = r.PICOTALK_RX_LEFT;
     let mut timer = r.PICOTALK_RX_TIMER;
