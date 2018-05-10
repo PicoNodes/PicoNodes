@@ -33,8 +33,20 @@ use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent, Error as Seria
 use stm32f0x0_hal::gpio::{Output, PushPull, OpenDrain, gpioa::*, gpiof::PF0};
 use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
 
-//Recieving from four directions need four timers tim14, tim3, tim16, tim17
+fn picotalk_tx_tick(_t: &mut Threshold, r: TIM3::Resources) {
+    let mut state = r.PICOTALK_TX_STATE;
+    let mut pin = r.PICOTALK_TX_PIN;
+    let mut timer = r.PICOTALK_TX_TIMER;
+
+    timer.wait().unwrap();
+    picotalk::transmit_value(&mut *pin, &mut state, 10);
+}
+
+//Sending to the right pin
 fn picotalk_rx_tick(_t: &mut Threshold, r: TIM14::Resources) {
+    if left_pin.is_high() {
+        picotalk::transmit_value(&mut pin, &mut state, _)
+    }
     let mut state = r.PICOTALK_RX_STATE;
     let mut pin = r.PICOTALK_RX_LEFT;
     let mut timer = r.PICOTALK_RX_TIMER;
@@ -45,54 +57,6 @@ fn picotalk_rx_tick(_t: &mut Threshold, r: TIM14::Resources) {
     if let picotalk::RecieveState::Done(value) = *state {
         let mut out = hio::hstdout().unwrap();
         writeln!(out, "The recieved value is: {}", value).unwrap();
-    }
-}
-
-//Lighting the LED after recieving the recieve_value
-fn piconode_lighting_led(t: &mut Threshold, r: TIM3::Resources) {
-    let mut led_1 = r.LED_1_PIN;
-    let mut led_2 = r.LED_2_PIN;
-    let mut led_3 = r.LED_3_PIN;
-    let mut led_4 = r.LED_4_PIN;
-    let mut value = r.VALUE_LEFT;
-    let mut timer = r.PICONODE_LED_TIMER;
-
-    timer.wait().unwrap();
-    let value = value.claim(t, |value, _t| {
-        *value
-    });
-
-    match value {
-        1 => {
-            led_2.set_low();
-            led_3.set_low();
-            led_4.set_low();
-            led_1.set_high();
-        },
-        2 => {
-            led_1.set_low();
-            led_3.set_low();
-            led_4.set_low();
-            led_2.set_high();
-        },
-        3 => {
-            led_1.set_low();
-            led_2.set_low();
-            led_4.set_low();
-            led_3.set_high();
-        },
-        4 => {
-            led_1.set_low();
-            led_2.set_low();
-            led_3.set_low();
-            led_4.set_high();
-        },
-        _ => {
-            led_1.set_low();
-            led_2.set_low();
-            led_3.set_low();
-            led_4.set_low();
-        },
     }
 }
 
@@ -111,23 +75,34 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     let mut gpioa = p.device.GPIOA.split(&mut rcc.ahb);
     let mut gpiof = p.device.GPIOF.split(&mut rcc.ahb);
 
+    //let usart1_pin_tx = gpioa.pa9.into_af1(&mut gpioa.moder, &mut gpioa.afrh);
+    //let usart1_pin_rx = gpioa.pa10.into_af1(&mut gpioa.moder, &mut gpioa.afrh);
+
     let mut pa1 = gpioa.pa1.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
     pa1.set_high();
 
-    let mut tim3 = Timer::tim3(p.device.TIM3, 10.khz(), clocks, &mut rcc.apb1);
+    //let mut tim3 = Timer::tim3(p.device.TIM3, 10.khz(), clocks, &mut rcc.apb1);
     let mut tim14 = Timer::tim14(p.device.TIM14, 10.khz(), clocks, &mut rcc.apb1);
-    tim3.listen(TimerEvent::TimeOut);
+    //tim3.listen(TimerEvent::TimeOut);
     tim14.listen(TimerEvent::TimeOut);
 
     let mut pa2 = gpioa.pa2.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 1
     let mut pa3 = gpioa.pa3.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 2
     let mut pa7 = gpioa.pa7.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 3
     let mut pa6 = gpioa.pa6.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 4
+    //let usart1 = p.device.USART1;
+    //let mut serial = Serial::usart1(usart1, (usart1_pin_tx, usart1_pin_rx), 115_200.bps(), clocks, &mut rcc.apb2);
+    //serial.listen(SerialEvent::Rxne);
+    //let (tx, rx) = serial.split();
 
     init::LateResources {
-        PICONODE_LED_TIMER: tim3,
+        //SERIAL1_RX: rx,
+        //SERIAL1_TX: tx,
+        //PICOTALK_TX_PIN: pa4,
+        //PICOTALK_TX_TIMER: tim3,
         PICOTALK_RX_LEFT: pa1,
         PICOTALK_RX_TIMER: tim14,
+        //STORE: PicoStore::take().unwrap(),
 
         LED_1_PIN: pa2,
         LED_2_PIN: pa3,
@@ -136,18 +111,80 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     }
 }
 
-fn idle() -> ! {
+fn idle(t: &mut Threshold, r: idle::Resources) -> ! {
+    //let mut out = hio::hstdout().unwrap();
+    let value = r.VALUE_LEFT;
+    let led_1 = r.LED_1_PIN;
+    let led_2 = r.LED_2_PIN;
+    let led_3 = r.LED_3_PIN;
+    let led_4 = r.LED_4_PIN;
+
+
+
     loop {
-        rtfm::wfi();
+        let mut new_value = 0;
+        value.claim(t, |value, _t| {
+            new_value = *value;
+        });
+        match new_value {
+            1 => {
+                led_2.set_low();
+                led_3.set_low();
+                led_4.set_low();
+                led_1.set_high();
+            },
+            2 => {
+                led_1.set_low();
+                led_3.set_low();
+                led_4.set_low();
+                led_2.set_high();
+            },
+            3 => {
+                led_1.set_low();
+                led_2.set_low();
+                led_4.set_low();
+                led_3.set_high();
+            },
+            4 => {
+                led_1.set_low();
+                led_2.set_low();
+                led_3.set_low();
+                led_4.set_high();
+            },
+            _ => {},
+        }
+        //interpreter.prog_counter %= picostore::PICOSTORE_BYTES;
+        //let mut instruction_bytes: [u8; picorunner::INSTRUCTION_BYTES] = [0; picorunner::INSTRUCTION_BYTES];
+        /*store.claim(t, |store, _t| {
+            let slice = &store[interpreter.prog_counter .. interpreter.prog_counter + 3];
+            for (i, byte) in slice.iter().enumerate() {
+                instruction_bytes[i] = *byte;
+            }
+        });*/
+        //let instruction = picorunner::decode_instruction(&instruction_bytes);
+        //f let Some(instruction) = instruction {
+        //    picorunner::run_instruction(instruction, &mut interpreter);
+        //}
+
+        //writeln!(out, "Acc: {}", interpreter.reg_acc).unwrap();
     }
 }
 
 app! {
     device: stm32f0x0,
     resources: {
-
-        static PICONODE_LED_TIMER: Timer<stm32f0x0::TIM3>;
+        //static SERIAL1_RX: Rx<stm32f0x0::USART1>;
+        //static SERIAL1_TX: Tx<stm32f0x0::USART1>;
+        //Resources for transmitting a value
+        //static PICOTALK_TX_PIN: PA4<Output<OpenDrain>>;
+        //static PICOTALK_TX_STATE: picotalk::TransmitState = picotalk::TransmitState::HandshakeAdvertise(0);
+        //static PICOTALK_TX_TIMER: Timer<stm32f0x0::TIM3>;
+        //Resources for recieving a value from a pin
+        //static PICOTALK_RX_DOWN: PA4<Output<OpenDrain>>;
         static PICOTALK_RX_LEFT: PA1<Output<OpenDrain>>;
+        //static PICOTALK_RX_UP: PB1<Output<OpenDrain>>;
+        //static PICOTALK_RX_RIGHT: PA5<Output<OpenDrain>>;
+
         static PICOTALK_RX_STATE: picotalk::RecieveState = picotalk::RecieveState::HandshakeListen(0);
         static PICOTALK_RX_TIMER: Timer<stm32f0x0::TIM14>;
         static VALUE_LEFT: i8 = 0;
@@ -156,17 +193,18 @@ app! {
         static LED_2_PIN: PA3<Output<PushPull>>;
         static LED_3_PIN: PA7<Output<PushPull>>;
         static LED_4_PIN: PA6<Output<PushPull>>;
+
+
+        //static STORE: PicoStore;
+    },
+    idle: {
+        resources: [LED_1_PIN, LED_2_PIN, LED_3_PIN, LED_4_PIN, VALUE_LEFT],
     },
     tasks: {
         TIM14: {
             path: picotalk_rx_tick,     //, PICOTALK_RX_DOWN, PICOTALK_RX_UP, PICOTALK_RX_RIGHT
             resources: [VALUE_LEFT, PICOTALK_RX_LEFT, PICOTALK_RX_STATE, PICOTALK_RX_TIMER],
-            priority: 2,
-        },
-        TIM3: {
-            path: piconode_lighting_led,
-            resources: [VALUE_LEFT, LED_1_PIN, LED_2_PIN, LED_3_PIN, LED_4_PIN, PICONODE_LED_TIMER],
             priority: 1,
-        }
+        },
     }
 }
