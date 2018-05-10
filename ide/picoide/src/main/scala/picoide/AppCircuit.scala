@@ -18,6 +18,7 @@ import picoide.proto.{
   SourceFile,
   SourceFileRef
 }
+import picoide.utils._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -26,19 +27,24 @@ class AppCircuit(implicit materializer: Materializer)
     extends Circuit[Root]
     with ReactConnector[Root] {
   override def initialModel = Root(
-    currentFile = SourceFile(
-      SourceFileRef(
-        UUID.randomUUID(),
-        "Example"
-      ),
-      """  mov 1 up
-        |  mov 2 null
-        |  mov 3 acc
-        |
-        |+ mov 4 acc
-        |- mov 6 acc
-        |  mov 5 null
+    currentFile = Pot.empty.ready(
+      Dirtying(
+        SourceFile(
+          SourceFileRef(
+            UUID.randomUUID(),
+            "Example"
+          ),
+          """  mov 1 up
+            |  mov 2 null
+            |  mov 3 acc
+            |
+            |+ mov 4 acc
+            |- mov 6 acc
+            |  mov 5 null
 """.stripMargin
+        ),
+        isDirty = false
+      )
     ),
     knownFiles = Pot.empty,
     commandQueue = Pot.empty,
@@ -52,11 +58,34 @@ class AppCircuit(implicit materializer: Materializer)
                     downloadersHandler,
                     ideEventHandler)
 
+  private def commandQueue = zoom(_.commandQueue).apply()
+
   def editorHandler =
-    new ActionHandler[Root, SourceFile](zoomTo(_.currentFile)) {
+    new ActionHandler[Root, Pot[Dirtying[SourceFile]]](zoomTo(_.currentFile)) {
       override def handle = {
         case Actions.CurrentFile.Modify(newContent) =>
-          updated(SourceFile.content.set(newContent)(value))
+          updated(
+            value.map((Dirtying.value ^|-> SourceFile.content).set(newContent)))
+        case Actions.CurrentFile.Rename(newName) =>
+          updated(
+            value.map(
+              (Dirtying.value ^|-> SourceFile.ref ^|-> SourceFileRef.name)
+                .set(newName)))
+        case Actions.CurrentFile.CreateNew =>
+          updated(
+            value.ready(
+              Dirtying(SourceFile(SourceFileRef(UUID.randomUUID(), "Unnamed"),
+                                  ""),
+                       isDirty = false)))
+        case Actions.CurrentFile.Save =>
+          effectOnly(IDEClient.saveFile(value.get.value, commandQueue))
+        case Actions.CurrentFile.Load(file) =>
+          effectOnly(IDEClient.loadFile(file, commandQueue))
+        case Actions.CurrentFile.Saved(file) =>
+          updated(value.map(oldFile =>
+            Dirtying.isDirty.modify(_ && oldFile.value != file)(oldFile)))
+        case Actions.CurrentFile.Loaded(Some(file)) =>
+          updated(value.ready(Dirtying(file, isDirty = false)))
       }
     }
 
@@ -89,9 +118,7 @@ class AppCircuit(implicit materializer: Materializer)
     new ActionHandler[Root, Pot[Seq[SourceFileRef]]](zoomTo(_.knownFiles)) {
       override def handle: PartialFunction[Any, ActionResult[Root]] = {
         case action: Actions.KnownFiles.Update =>
-          println(action)
-          action.handleWith(this,
-                            IDEClient.requestFileList(zoomTo(_.commandQueue)))(
+          action.handleWith(this, IDEClient.requestFileList(commandQueue))(
             PotAction.handler())
       }
     }
@@ -104,7 +131,7 @@ class AppCircuit(implicit materializer: Materializer)
           action.handle {
             case PotEmpty =>
               updated(value.pending(),
-                      IDEClient.requestDownloaderList(zoomTo(_.commandQueue)))
+                      IDEClient.requestDownloaderList(commandQueue))
             case PotPending =>
               noChange
             case PotReady =>
@@ -127,15 +154,13 @@ class AppCircuit(implicit materializer: Materializer)
         case Actions.Downloaders.Remove(downloader) =>
           updated(value.map(Downloaders.all.modify(_ - downloader.id)))
         case Actions.Downloaders.Select(downloader) =>
-          effectOnly(
-            IDEClient.selectDownloader(downloader, zoomTo(_.commandQueue)))
+          effectOnly(IDEClient.selectDownloader(downloader, commandQueue))
         case Actions.Downloaders.Selected(downloader) =>
           updated(value.map(Downloaders.current.set(downloader)))
         case Actions.Downloaders.AddEvent(event) =>
           updated(value.map(Downloaders.events.modify(event +: _)))
         case Actions.Downloaders.SendInstructions(instructions) =>
-          effectOnly(
-            IDEClient.sendBytecode(instructions, zoomTo(_.commandQueue)))
+          effectOnly(IDEClient.sendBytecode(instructions, commandQueue))
       }
     }
 
@@ -150,6 +175,10 @@ class AppCircuit(implicit materializer: Materializer)
           Actions.Downloaders.Remove(downloader)
         case IDEEvent.KnownFiles(files) =>
           Actions.KnownFiles.Update(Ready(files))
+        case IDEEvent.SavedFile(file) =>
+          Actions.CurrentFile.Saved(file)
+        case IDEEvent.GotFile(file) =>
+          Actions.CurrentFile.Loaded(file)
         case IDEEvent.Pong =>
           NoAction
         case IDEEvent.DownloaderSelected(downloader) =>

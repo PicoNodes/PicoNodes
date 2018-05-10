@@ -1,6 +1,5 @@
 def commonSettings = Seq(
-  scalacOptions ++= Seq("-feature",
-                        "-deprecation")
+  scalacOptions ++= Seq("-feature", "-deprecation")
 )
 
 lazy val picoasm = crossProject
@@ -30,7 +29,7 @@ lazy val picoideProto = crossProject
   .jsSettings(
     libraryDependencies ++= Seq(
       "org.akka-js" %%% "akkajsactorstream" % "1.2.5.11"
-    ),
+    )
   )
   .jvmSettings(
     // For some reason neo-sbt-scalafmt does not normally format the shared src directory...

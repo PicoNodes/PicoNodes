@@ -8,6 +8,9 @@ import picoide.proto
 case class SourceFileRef(id: UUID, name: String) {
   def toProto = proto.SourceFileRef(id = id, name = name)
 }
+object SourceFileRef {
+  def fromProto(p: proto.SourceFileRef) = SourceFileRef(p.id, p.name)
+}
 case class SourceFile(ref: SourceFileRef, currentRevision: SourceFileRevision) {
   def toProto =
     proto.SourceFile(ref = ref.toProto, content = currentRevision.content.get)
@@ -22,7 +25,7 @@ class SourceFileRefs(tag: Tag)
   def id   = column[UUID]("id", O.PrimaryKey)
   def name = column[String]("name")
 
-  def * = (id, name) <> (SourceFileRef.tupled, SourceFileRef.unapply)
+  def * = (id, name) <> ((SourceFileRef.apply _).tupled, SourceFileRef.unapply)
 }
 
 class SourceFileRevisions(tag: Tag)

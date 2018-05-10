@@ -15,8 +15,21 @@ body {
 }
 
 .code-editor {
-    &, * {
-        font-family: monospace;
+    .code-editor-header {
+        display: flex;
+        flex-direction: row;
+
+        h2 {
+            margin: 0;
+        }
+
+        button {
+            align-self: center;
+        }
+    }
+
+    &.code-editor-dirty .code-editor-header h2::after {
+        content: ' (unsaved)';
     }
 }
 

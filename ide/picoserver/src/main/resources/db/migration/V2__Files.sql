@@ -1,6 +1,6 @@
 CREATE TABLE source_files(
        id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-       name TEXT NOT NULL UNIQUE
+       name TEXT NOT NULL
 );
 
 CREATE TABLE source_file_revisions(

@@ -103,11 +103,6 @@ class IDECommandHandler(downloaderRegistry: ActorRef,
               case IDECommand.ListDownloaders =>
                 downloaderRegistry.tell(DownloaderRegistry.ListDownloaders,
                                         stageActor.ref)
-              case IDECommand.ListFiles =>
-                listFiles()
-              case IDECommand.Ping =>
-                push(out, IDEEvent.Pong)
-              case _: IDECommand.ToDownloader =>
               case IDECommand.SelectDownloader(downloader) =>
                 downloader
                   .map(id =>
@@ -116,6 +111,24 @@ class IDECommandHandler(downloaderRegistry: ActorRef,
                       .map(_.downloader))
                   .flatSequence
                   .map(SwapCurrentDownloader(_))
+                  .pipeTo(stageActor.ref)
+              case _: IDECommand.ToDownloader =>
+              case IDECommand.Ping =>
+                push(out, IDEEvent.Pong)
+              case IDECommand.ListFiles =>
+                listFiles()
+              case IDECommand.GetFile(file) =>
+                fileManager
+                  .get(file.id)
+                  .map(_.map(_.toProto))
+                  .map(IDEEvent.GotFile(_))
+                  .pipeTo(stageActor.ref)
+              case IDECommand.SaveFile(file) =>
+                val saved = fileManager
+                  .save(SourceFileRef.fromProto(file.ref), file.content)
+                saved.foreach(_ => listFiles())
+                saved
+                  .map(_ => IDEEvent.SavedFile(file))
                   .pipeTo(stageActor.ref)
             }
             pull(in)

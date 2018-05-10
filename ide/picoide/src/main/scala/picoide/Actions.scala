@@ -9,6 +9,7 @@ import picoide.proto.{
   DownloaderInfo,
   IDECommand,
   IDEEvent,
+  SourceFile,
   SourceFileRef
 }
 
@@ -45,6 +46,13 @@ object Actions {
 
   object CurrentFile {
     case class Modify(newContent: String) extends Action
+    case class Rename(newName: String)    extends Action
+    case object CreateNew                 extends Action
+    case object Save                      extends Action
+    case class Load(file: SourceFileRef)  extends Action
+
+    case class Saved(file: SourceFile)          extends Action
+    case class Loaded(file: Option[SourceFile]) extends Action
   }
 
   object KnownFiles {
