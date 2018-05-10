@@ -7,4 +7,5 @@
   (lib (name MCU_ST_STM32F0)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-symbols/MCU_ST_STM32F0.lib)(options "")(descr ""))
   (lib (name custom)(type Legacy)(uri ${KIPRJMOD}/../motherboard/custom.lib)(options "")(descr ""))
   (lib (name mpcie)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-mini-pci-express/mpcie.lib)(options "")(descr ""))
+  (lib (name led-node-rescue)(type Legacy)(uri ${KIPRJMOD}/led-node-rescue.lib)(options "")(descr ""))
 )

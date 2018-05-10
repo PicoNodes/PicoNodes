@@ -9,7 +9,10 @@ extern crate cortex_m_rtfm as rtfm;   //Real Time For the Masses framework for t
 extern crate cortex_m_semihosting;  //Enables coderunning on an ARM-target to use input/output pins
 extern crate stm32f0x0_hal;     //HAL for the stm32f0x0 family. Implementation of the embedded hal traits
 extern crate embedded_hal;      //Hardware abstraction layer for embedded systems
+extern crate picostorm;         //Enables seriecommunication with the ESP32 HUZZAH
 extern crate picotalk;      //Enables communication between the nodes
+//extern crate picorunner;        //Run PicoInstsructions
+//extern crate picostore;     //Storing/fetching the instructions from the programmer
 
 #[cfg(feature = "debug")]
 extern crate panic_semihosting;
@@ -19,6 +22,8 @@ extern crate panic_abort;
 
 #[macro_use]
 extern crate nb;
+
+//use picostore::PicoStore;
 
 use core::fmt::Write;
 use cortex_m_semihosting::hio;
@@ -63,6 +68,9 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     let mut gpioa = p.device.GPIOA.split(&mut rcc.ahb);
     let mut gpiof = p.device.GPIOF.split(&mut rcc.ahb);
 
+    //let usart1_pin_tx = gpioa.pa9.into_af1(&mut gpioa.moder, &mut gpioa.afrh);
+    //let usart1_pin_rx = gpioa.pa10.into_af1(&mut gpioa.moder, &mut gpioa.afrh);
+
     let mut pa1 = gpioa.pa1.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
     pa1.set_high();
 
@@ -75,12 +83,19 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     let mut pa3 = gpioa.pa3.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 2
     let mut pa7 = gpioa.pa7.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 3
     let mut pa6 = gpioa.pa6.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 4
+    //let usart1 = p.device.USART1;
+    //let mut serial = Serial::usart1(usart1, (usart1_pin_tx, usart1_pin_rx), 115_200.bps(), clocks, &mut rcc.apb2);
+    //serial.listen(SerialEvent::Rxne);
+    //let (tx, rx) = serial.split();
 
     init::LateResources {
+        //SERIAL1_RX: rx,
+        //SERIAL1_TX: tx,
         //PICOTALK_TX_PIN: pa4,
         //PICOTALK_TX_TIMER: tim3,
         PICOTALK_RX_LEFT: pa1,
         PICOTALK_RX_TIMER: tim14,
+        //STORE: PicoStore::take().unwrap(),
 
         LED_1_PIN: pa2,
         LED_2_PIN: pa3,
@@ -131,6 +146,19 @@ fn idle(t: &mut Threshold, r: idle::Resources) -> ! {
             },
             _ => {},
         }
+        //interpreter.prog_counter %= picostore::PICOSTORE_BYTES;
+        //let mut instruction_bytes: [u8; picorunner::INSTRUCTION_BYTES] = [0; picorunner::INSTRUCTION_BYTES];
+        /*store.claim(t, |store, _t| {
+            let slice = &store[interpreter.prog_counter .. interpreter.prog_counter + 3];
+            for (i, byte) in slice.iter().enumerate() {
+                instruction_bytes[i] = *byte;
+            }
+        });*/
+        //let instruction = picorunner::decode_instruction(&instruction_bytes);
+        //f let Some(instruction) = instruction {
+        //    picorunner::run_instruction(instruction, &mut interpreter);
+        //}
+
         //writeln!(out, "Acc: {}", interpreter.reg_acc).unwrap();
     }
 }
@@ -138,6 +166,9 @@ fn idle(t: &mut Threshold, r: idle::Resources) -> ! {
 app! {
     device: stm32f0x0,
     resources: {
+        //static SERIAL1_RX: Rx<stm32f0x0::USART1>;
+        //static SERIAL1_TX: Tx<stm32f0x0::USART1>;
+        //Resources for transmitting a value
         //static PICOTALK_TX_PIN: PA4<Output<OpenDrain>>;
         //static PICOTALK_TX_STATE: picotalk::TransmitState = picotalk::TransmitState::HandshakeAdvertise(0);
         //static PICOTALK_TX_TIMER: Timer<stm32f0x0::TIM3>;
@@ -155,6 +186,9 @@ app! {
         static LED_2_PIN: PA3<Output<PushPull>>;
         static LED_3_PIN: PA7<Output<PushPull>>;
         static LED_4_PIN: PA6<Output<PushPull>>;
+
+
+        //static STORE: PicoStore;
     },
     idle: {
         resources: [LED_1_PIN, LED_2_PIN, LED_3_PIN, LED_4_PIN, VALUE_LEFT],
