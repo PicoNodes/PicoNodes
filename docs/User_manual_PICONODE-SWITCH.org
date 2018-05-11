@@ -1,0 +1,27 @@
+#+TITLE: User Manual for the PICONODE-SWITCH
+#+SUBTITLE: SUBTITLE - Arial 16/19pt
+#+AUTHER: Therese Kennerberg
+
+* Instruduction
+The piconode-switch is designed to be used with the piconode kit and is compatible with the piconode kits motherboard.
+It is meant to give a more handson and visual understanding of the communication between the piconodes.
+This node is not programmable by the user but is already running a program designed to be used with the motherboard.
+* Features
+The piconode-switch offers the following features:
+- Four switches.
+- One communication pin for communicating to the right.
+* Quick start
+The node is an easy applied feature for the piconode kit developed for the basic in hardware close programming and distributet systems.
+* Getting started
+Follow these steps to learn how to use the piconode-switch:
+1. Power the motherboard
+2. Place the piconode-switch on a available slot on the motherboard. This slotshould also have one available slot to the right.
+3. Place the piconode-led on the available slot to the right OR program a piconode to recieve a value from the left.
+4. If you placed a led then press one button and a led should light ELSE if you placed a programmed piconode, press one of the buttons and a value from 1-4 is transmitted
+to the piconode from the piconode-switch.
+* Hardware and layout
+The hardware and the PCB-layout are available in the datasheet provided for the piconode kit.
+* Switches
+The switches are used to symbolize a value transmitted from the node. There is one output pin for transmitting a value from 1 to 4. 
+The top left button holds the value of one, the bottom left button hold the value of two, the top right button holds the value of three and the bottom right button hold the value of
+four. When the button is pressed, it respective value is transmitted to node placed to its right. Only one value can be transmitted at a time.
