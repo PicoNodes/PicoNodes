@@ -29,8 +29,7 @@ use cortex_m::asm;
 
 use stm32f0x0_hal::prelude::*;      //Black magic
 use stm32f0x0_hal::stm32f0x0;
-use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent, Error as SerialError};
-use stm32f0x0_hal::gpio::{Output, PushPull, OpenDrain, gpioa::*, gpiof::PF0};
+use stm32f0x0_hal::gpio::{Output, PushPull, OpenDrain, gpioa::*};
 use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
 
 //Recieving from four directions need four timers tim14, tim3, tim16, tim17
@@ -38,7 +37,6 @@ fn picotalk_rx_tick(_t: &mut Threshold, r: TIM14::Resources) {
     let mut state = r.PICOTALK_RX_STATE;
     let mut pin = r.PICOTALK_RX_LEFT;
     let mut timer = r.PICOTALK_RX_TIMER;
-    let mut value = r.VALUE_LEFT;
 
     timer.wait().unwrap();
     picotalk::recieve_value(&mut *pin, &mut *state);
@@ -54,7 +52,7 @@ fn piconode_lighting_led(t: &mut Threshold, r: TIM3::Resources) {
     let mut led_2 = r.LED_2_PIN;
     let mut led_3 = r.LED_3_PIN;
     let mut led_4 = r.LED_4_PIN;
-    let mut value = r.VALUE_LEFT;
+    let value = r.VALUE_LEFT;
     let mut timer = r.PICONODE_LED_TIMER;
 
     timer.wait().unwrap();
@@ -109,20 +107,19 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
         .pclk2(8.mhz())
         .freeze(&mut flash.acr);
     let mut gpioa = p.device.GPIOA.split(&mut rcc.ahb);
-    let mut gpiof = p.device.GPIOF.split(&mut rcc.ahb);
 
     let mut pa1 = gpioa.pa1.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
     pa1.set_high();
 
     let mut tim3 = Timer::tim3(p.device.TIM3, 10.khz(), clocks, &mut rcc.apb1);
     let mut tim14 = Timer::tim14(p.device.TIM14, 10.khz(), clocks, &mut rcc.apb1);
-    tim3.listen(TimerEvent::TimeOut);
-    tim14.listen(TimerEvent::TimeOut);
+    // tim3.listen(TimerEvent::TimeOut);
+    // tim14.listen(TimerEvent::TimeOut);
 
-    let mut pa2 = gpioa.pa2.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 1
-    let mut pa3 = gpioa.pa3.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 2
-    let mut pa7 = gpioa.pa7.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 3
-    let mut pa6 = gpioa.pa6.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 4
+    let pa2 = gpioa.pa2.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 1
+    let pa3 = gpioa.pa3.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 2
+    let pa7 = gpioa.pa7.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 3
+    let pa6 = gpioa.pa6.into_push_pull_output(&mut gpioa.moder, &mut gpioa.otyper); //led 4
 
     init::LateResources {
         PICONODE_LED_TIMER: tim3,

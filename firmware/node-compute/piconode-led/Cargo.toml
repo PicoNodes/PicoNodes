@@ -1,5 +1,5 @@
 [package]
-name = "piconode-compute"
+name = "piconode-led"
 version = "0.1.0"
 authors = ["Teo Klestrup Röijezon <teo@nullable.se>", "Therese Kennerberg <tke@kth.se>"]
 
@@ -7,7 +7,7 @@ authors = ["Teo Klestrup Röijezon <teo@nullable.se>", "Therese Kennerberg <tke@
 codegen-units = 1
 incremental = false
 lto = true
-opt-level = "z"
+opt-level = 2
 
 [profile.release]
 opt-level = "z"
@@ -20,10 +20,7 @@ cortex-m-semihosting = "0.2"
 panic-abort = "0.1.1"
 cortex-m-rtfm = "0.3.2"
 nb = "0.1.1"
-picostorm = { path = "../picostorm/" }
-picostore = { path = "../picostore/" }
 picotalk = { path = "../picotalk/" }
-picorunner = { path = "../picorunner/" }
 
 [dependencies.cortex-m-rt]
 version = "0.4.0"
