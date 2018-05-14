@@ -187,6 +187,9 @@ void app_main() {
     xTaskCreate(&task_uart_write, "task_uart_write", 16384, uart_writer_ctx, 1, NULL);
     xTaskCreate(&task_uart_read, "task_uart_read", 16384, uart_reader_ctx, 1, NULL);
 
+    ESP_ERROR_CHECK(gpio_set_direction(GPIO_NUM_21, GPIO_MODE_OUTPUT));
+    ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_21, 1));
+
     ESP_ERROR_CHECK(esp_event_loop_init(event_handler, queues));
 
     esp_vfs_spiffs_conf_t spiffs = {
