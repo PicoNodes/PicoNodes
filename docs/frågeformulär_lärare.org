@@ -47,3 +47,7 @@
 +------------------------+---------------------+--------------------+----------------------+
 | A.                     |                     |                    |                      |
 +------------------------+---------------------+--------------------+----------------------+
+3. Vad tycker ni om piconodes intruktionerna för lärare?
+A. Tydliga B. Otydliga C.Pedagogiska D. Ej tillräckligt grundläggande E. Lättlästa F.
+4. Vad tycker ni om piconodes intruktioner för eleverna?
+A. Tydliga B. Otydliga C. Pedagogiska D. Ej tillräckligt grundläggande E. Lättlästa F.

@@ -1,0 +1,55 @@
+User instructions for the teachers (and the students)
+* Introduction
+This document is an aid to use the plattform and holds exempel with 
+stepwise instructions of how to get started. It includes programming the three 
+types of nodes, how to orientate on the homepage and how the plattform works.
+Piconodes is a concept to provide the students with the
+basics in computation and understanding for how a computer work with 
+other systems. The programming interface is similar to the assembler
+programming language which is used in hardware-close programming 
+when for example working with embedded systems. The language are very "close"
+to the processor and this mean that by looking at the code you can understand
+how the processor work.
+* Features
+The product concist of four different boards, a mother board, one programmable
+node called piconode and two nodes that is not programmable but is there to
+help visulize the communication between the nodes on the motherboard. They are
+called lednod and switchnode.
+* Homepage
+Piconodes homepage provide the user with the programming interface for 
+the piconode and is also used to domnload the programmed instructions to the piconode.
+On the homepage a window is used to type in the instructions for the program
+that the user would like the node to perform. This is limited to seven instructions: 
+mov, ad, sub, teq, tgt, tcp and tlt that can be combined. At the homepage, the user will
+also be able to download the program to the piconode.
+** How to use the homepage
+The homepage is located at www..se. It provides with a programmingwindow, 
+a feild for choosing which board to program with and a download button.
+* Exemple for programming the piconode
+This example will show how to use the piconode in an aplication with the lednode
+and the switchnode.
+** Step-by-step instructions
+1. Turn on the motherboard and connect it to the wifi network
+(step-by-step instructions is provided in the connect the wifi network doc)
+2. Connect your computer, mobilephone or any other plattform able to 
+use a browser, to the internet and go to www...se.
+3. Move the cursor on the feild over the empty window and choose your board. 
+You can find which board you are using by looking on its side. 
+The number should be in the format xxxx.
+4. Move the cursor and click on the empty programming window.
+5. Type instructions.
+6. Connect one piconode to the programmingmodule on the motherboard. 
+It is connected by two wires for UART communication.
+6. Press download.
+7. Place the switchnode as far to the left as possible.
+8. Place the programmed piconode to the right of the switchnode.
+9. Place the led node under the programmed piconode.
+10. Press the second button that symbolize the number two. 
+
+Now the switchnode is sending the value two to the piconode. The piconode is 
+programmed to recieve a value from the left and transmit it to the node placed under it.
+The lednode recieves the value two from the piconode and lights up led two. 
+Visulizing the value recieved. Now you can try the same with the other buttons, press the button 
+one, three or four. The led respective the value recieved should light up. 
+
+ 
