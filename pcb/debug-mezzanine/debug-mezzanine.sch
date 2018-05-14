@@ -1,0 +1,202 @@
+EESchema Schematic File Version 4
+LIBS:debug-mezzanine-cache
+EELAYER 26 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L custom:STM32_SWD J1
+U 1 1 5AF31E07
+P 2900 2650
+F 0 "J1" H 2944 2583 50  0000 C CNN
+F 1 "STM32_SWD" H 2944 2674 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 2900 3000 50  0001 C CNN
+F 3 "" H 2900 3000 50  0001 C CNN
+	1    2900 2650
+	-1   0    0    1   
+$EndComp
+$Comp
+L custom:PicoTalk J3
+U 1 1 5AF32062
+P 6000 3400
+F 0 "J3" H 6529 3400 50  0000 L CNN
+F 1 "PicoTalk" H 6529 3309 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 6000 3400 50  0001 C CNN
+F 3 "~" H 6000 3400 50  0001 C CNN
+	1    6000 3400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VDD #PWR02
+U 1 1 5AF327B8
+P 3100 3200
+F 0 "#PWR02" H 3100 3050 50  0001 C CNN
+F 1 "VDD" V 3117 3328 50  0000 L CNN
+F 2 "" H 3100 3200 50  0001 C CNN
+F 3 "" H 3100 3200 50  0001 C CNN
+	1    3100 3200
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR01
+U 1 1 5AF3B6A7
+P 3100 3000
+F 0 "#PWR01" H 3100 2750 50  0001 C CNN
+F 1 "GND" V 3105 2872 50  0000 R CNN
+F 2 "" H 3100 3000 50  0001 C CNN
+F 3 "" H 3100 3000 50  0001 C CNN
+	1    3100 3000
+	0    -1   -1   0   
+$EndComp
+$Comp
+L custom:STM32_SWD J2
+U 1 1 5AFA0089
+P 2900 3450
+F 0 "J2" H 2944 3383 50  0000 C CNN
+F 1 "STM32_SWD" H 2944 3474 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 2900 3800 50  0001 C CNN
+F 3 "" H 2900 3800 50  0001 C CNN
+	1    2900 3450
+	-1   0    0    1   
+$EndComp
+$Comp
+L custom:PicoNode-Socket-PH PN1
+U 1 1 5AFA01C4
+P 4600 3700
+F 0 "PN1" H 4575 4375 50  0000 C CNN
+F 1 "PicoNode-Socket-PH" H 4575 4284 50  0000 C CNN
+F 2 "custom:PicoNode-Socket-PH" H 4300 3950 50  0001 C CNN
+F 3 "" H 4300 3950 50  0001 C CNN
+	1    4600 3700
+	1    0    0    -1  
+$EndComp
+$Comp
+L custom:PicoTalk J4
+U 1 1 5AFA0204
+P 6000 3900
+F 0 "J4" H 6529 3900 50  0000 L CNN
+F 1 "PicoTalk" H 6529 3809 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 6000 3900 50  0001 C CNN
+F 3 "~" H 6000 3900 50  0001 C CNN
+	1    6000 3900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VDD #PWR05
+U 1 1 5AFA030A
+P 4100 3250
+F 0 "#PWR05" H 4100 3100 50  0001 C CNN
+F 1 "VDD" V 4118 3377 50  0000 L CNN
+F 2 "" H 4100 3250 50  0001 C CNN
+F 3 "" H 4100 3250 50  0001 C CNN
+	1    4100 3250
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR06
+U 1 1 5AFA0397
+P 4100 3450
+F 0 "#PWR06" H 4100 3200 50  0001 C CNN
+F 1 "GND" V 4105 3322 50  0000 R CNN
+F 2 "" H 4100 3450 50  0001 C CNN
+F 3 "" H 4100 3450 50  0001 C CNN
+	1    4100 3450
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3750 3650 4100 3650
+Wire Wire Line
+	3100 3600 3750 3600
+Wire Wire Line
+	3750 3600 3750 3650
+Wire Wire Line
+	4100 3550 3550 3550
+Wire Wire Line
+	3550 3550 3550 2900
+Wire Wire Line
+	3550 2900 3100 2900
+Wire Wire Line
+	3550 3550 3550 3700
+Wire Wire Line
+	3550 3700 3100 3700
+Connection ~ 3550 3550
+Wire Wire Line
+	4100 3350 3650 3350
+Wire Wire Line
+	3650 3350 3650 3100
+Wire Wire Line
+	3650 3100 3100 3100
+Wire Wire Line
+	3650 3350 3650 3900
+Wire Wire Line
+	3650 3900 3100 3900
+Connection ~ 3650 3350
+$Comp
+L power:GND #PWR03
+U 1 1 5AFA0680
+P 3100 3800
+F 0 "#PWR03" H 3100 3550 50  0001 C CNN
+F 1 "GND" V 3105 3672 50  0000 R CNN
+F 2 "" H 3100 3800 50  0001 C CNN
+F 3 "" H 3100 3800 50  0001 C CNN
+	1    3100 3800
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:VDD #PWR04
+U 1 1 5AFA070D
+P 3100 4000
+F 0 "#PWR04" H 3100 3850 50  0001 C CNN
+F 1 "VDD" V 3117 4128 50  0000 L CNN
+F 2 "" H 3100 4000 50  0001 C CNN
+F 3 "" H 3100 4000 50  0001 C CNN
+	1    3100 4000
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5050 3300 5750 3300
+Wire Wire Line
+	5050 3400 5650 3400
+Wire Wire Line
+	5050 3500 5550 3500
+Wire Wire Line
+	5050 3600 5450 3600
+Wire Wire Line
+	5800 3800 5750 3800
+Wire Wire Line
+	5750 3800 5750 3300
+Connection ~ 5750 3300
+Wire Wire Line
+	5750 3300 5800 3300
+Wire Wire Line
+	5800 3900 5650 3900
+Wire Wire Line
+	5650 3900 5650 3400
+Connection ~ 5650 3400
+Wire Wire Line
+	5650 3400 5800 3400
+Wire Wire Line
+	5800 4000 5550 4000
+Wire Wire Line
+	5550 4000 5550 3500
+Connection ~ 5550 3500
+Wire Wire Line
+	5550 3500 5800 3500
+Wire Wire Line
+	5800 4100 5450 4100
+Wire Wire Line
+	5450 4100 5450 3600
+Connection ~ 5450 3600
+Wire Wire Line
+	5450 3600 5800 3600
+$EndSCHEMATC
