@@ -5,8 +5,6 @@
 #![no_std]
 
 extern crate cortex_m;
-extern crate cortex_m_semihosting;
-
 extern crate embedded_hal;
 extern crate stm32f0x0_hal;
 
@@ -44,9 +42,6 @@ pub enum RecieveState {
 /*Statemachine for handshake/recievedata*/
 pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveState) {
     use RecieveState::*;
-
-    //let mut out = cortex_m_semihosting::hio::hstdout().unwrap();
-    //writeln!(out, "RX: {:?}", state).unwrap();
 
     match state {
         HandshakeListen(0) => {
@@ -108,9 +103,6 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
 /*Statemachine for handshake/transmitting value*/
 pub fn transmit_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut TransmitState, value: i8) {
     use TransmitState::*;
-
-    //let mut out = cortex_m_semihosting::hio::hstdout().unwrap();
-    //writeln!(out, "TX: {:?}", state).unwrap();
 
     match state {
         HandshakeAdvertise(0) => {

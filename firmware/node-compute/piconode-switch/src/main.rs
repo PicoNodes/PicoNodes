@@ -6,24 +6,24 @@
 extern crate cortex_m;          //Low level access to the cortex-m processor
 extern crate cortex_m_rt;       //Runtime for cortex-m microcontrollers
 extern crate cortex_m_rtfm as rtfm;   //Real Time For the Masses framework for thhe ARM-cortex
-extern crate cortex_m_semihosting;  //Enables coderunning on an ARM-target to use input/output pins
 extern crate stm32f0x0_hal;     //HAL for the stm32f0x0 family. Implementation of the embedded hal traits
 extern crate embedded_hal;      //Hardware abstraction layer for embedded systems
 extern crate picotalk;      //Enables communication between the nodes
 
 #[cfg(feature = "debug")]
 extern crate panic_semihosting;
+#[cfg(feature = "debug")]
+extern crate cortex_m_semihosting;  //Enables coderunning on an ARM-target to use input/output pins
 
 #[cfg(not(feature = "debug"))]
 extern crate panic_abort;
 
-#[macro_use]
 extern crate nb;
 
-use core::fmt::Write;
+#[cfg(feature = "debug")]
 use cortex_m_semihosting::hio;
 
-use rtfm::{app, Threshold, Resource};
+use rtfm::{app, Threshold};
 #[allow(unused)]
 use cortex_m::asm;
 

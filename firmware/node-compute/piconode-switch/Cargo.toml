@@ -16,7 +16,6 @@ debug = true
 
 [dependencies]
 cortex-m = "0.4"
-cortex-m-semihosting = "0.2"
 panic-abort = "0.1.1"
 cortex-m-rtfm = "0.3.2"
 nb = "0.1.1"
@@ -35,9 +34,13 @@ features = ["rt", "unproven", "unproven_opendrain_input"]
 version = "0.1.2"
 features = ["unproven"]
 
+[dependencies.cortex-m-semihosting]
+version = "0.2"
+optional = true
+
 [dependencies.panic-semihosting]
 version = "0.1.0"
 optional = true
 
 [features]
-debug = ["panic-semihosting"]
+debug = ["panic-semihosting", "cortex-m-semihosting"]

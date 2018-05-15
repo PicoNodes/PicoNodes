@@ -6,21 +6,21 @@
 extern crate cortex_m;          //Low level access to the cortex-m processor
 extern crate cortex_m_rt;       //Runtime for cortex-m microcontrollers
 extern crate cortex_m_rtfm as rtfm;   //Real Time For the Masses framework for thhe ARM-cortex
-extern crate cortex_m_semihosting;  //Enables coderunning on an ARM-target to use input/output pins
 extern crate stm32f0x0_hal;     //HAL for the stm32f0x0 family. Implementation of the embedded hal traits
 extern crate embedded_hal;      //Hardware abstraction layer for embedded systems
 extern crate picotalk;      //Enables communication between the nodes
 
 #[cfg(feature = "debug")]
 extern crate panic_semihosting;
+#[cfg(feature = "debug")]
+extern crate cortex_m_semihosting;  //Enables coderunning on an ARM-target to use input/output pins
 
 #[cfg(not(feature = "debug"))]
 extern crate panic_abort;
 
-#[macro_use]
 extern crate nb;
 
-use core::fmt::Write;
+#[cfg(feature = "debug")]
 use cortex_m_semihosting::hio;
 
 use rtfm::{app, Threshold, Resource};
@@ -28,6 +28,7 @@ use rtfm::{app, Threshold, Resource};
 use cortex_m::asm;
 
 use embedded_hal::timer::CountDown;
+use embedded_hal::digital::InputPin;
 use stm32f0x0_hal::prelude::*;      //Black magic
 use stm32f0x0_hal::stm32f0x0;
 use stm32f0x0_hal::gpio::{Output, PushPull, OpenDrain, gpioa::*};
@@ -81,7 +82,7 @@ fn picotalk_rx_tick(_t: &mut Threshold, mut r: TIM14::Resources) {
     let mut value = r.VALUE_LEFT;
     let exti = r.EXTI;
 
-    timer.wait().unwrap();
+    let _ = timer.wait();
     picotalk::recieve_value(&mut *pin, &mut *state);
     if let picotalk::RecieveState::Done(new_value) = *state {
         *value = new_value;
@@ -150,6 +151,7 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
 
     let mut pa1 = gpioa.pa1.into_open_drain_output(&mut gpioa.moder, &mut gpioa.otyper);
     pa1.set_high();
+    while InputPin::is_high(&pa1) {}
 
     // let mut tim3 = Timer::tim3(p.device.TIM3, 10.hz(), clocks, &mut rcc.apb1);
     let tim14 = Timer::tim14(p.device.TIM14, picotalk::PICOTALK_FREQ, clocks, &mut rcc.apb1);
