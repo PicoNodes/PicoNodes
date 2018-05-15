@@ -1,4 +1,4 @@
-(kicad_pcb (version 20171130) (host pcbnew "(5.0.0-rc2-dev-620-g5d71153ea)")
+(kicad_pcb (version 20171130) (host pcbnew "(5.0.0-rc2-dev-616-g2f5fdcf32)")
 
   (general
     (thickness 1.6)
@@ -84,9 +84,9 @@
       (subtractmaskfromsilk false)
       (outputformat 1)
       (mirror false)
-      (drillshape 1)
+      (drillshape 0)
       (scaleselection 1)
-      (outputdirectory ""))
+      (outputdirectory gerber/))
   )
 
   (net 0 "")
