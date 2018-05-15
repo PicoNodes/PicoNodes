@@ -2,25 +2,40 @@
 
 #![no_std]
 
-
+use embedded_hal::digital::{OutputPin, InputPin};
 
 
 
 /**************************** Register Structs ****************************/
 
+trait IoPinout {
+    type Left: OutputPin + InputPin;
+    type Right: OutputPin + InputPin;
+    type Up: OutputPin + InputPin;
+    type Down: OutputPin + InputPin;
+}
+
 //The struct will hold the value for the memory register
-pub struct Interpreter {
+pub struct Interpreter<P: IoPinout> {
     pub reg_acc: i8,
     pub prog_counter: usize,
     pub flag: Flag,
+    pub left_pin: P::Left,
+    pub right_pin: P::Right,
+    pub up_pin: P::Up,
+    pub down_pin: P::Down,
 }
 
 impl Interpreter {
-    pub fn new() -> Interpreter {
+    pub fn new(up_pin: IoPinout::Up, down_pin: IoPinout::Down, left_pin: IoPinout::Left, right_pin: IoPinout::Right) -> Interpreter {
         Interpreter {
             reg_acc: 0,
             prog_counter: 0,
             flag: Flag::Neather,
+            up_pin: up_pin,
+            down_pin: down_pin,
+            left_pin: left_pin,
+            right_pin: right_pin,
         }
     }
 }
@@ -120,15 +135,33 @@ impl RegWrite for Register {
     fn write(self, interpreter: &mut Interpreter, value: i8) {
         match self {
             Register::Mem(mem) => mem.write(interpreter, value), //calls the memory registers write func.
-            Register::Io(_) => unimplemented!(),
+            Register::Io(Right) => io.write(interpreter, value),
         }
     }
 }
 
 //implementing the read func for the io registers.
-impl RegRead for IoRegister {
+impl RegRead for IoRegister { //Not done! no value returned
     fn read(self, interpreter: &Interpreter) -> i8 {
-        unimplemented!()
+        match self {
+            Io(IoRegister::Up) => {
+                let &mut state = RecievState::HandshakeListen(0);
+                recieve_value(interpreter.up_pin, state);
+
+            },
+
+        }
+    }
+}
+
+impl RegWrite for IoRegister { //
+    fn write(self, interpreter: &Interpreter, value: i8) {
+        match self {
+            Io(IoRegister::Up) => transmit_value(interpreter.up_pin, value),
+            Io(IoRegister::Down) => transmit_value(interpreter.down_pin, value),
+            Io(IoRegister::Right) => transmit_value(interpreter.right_pin, value),
+            Io(IoRegister::Left) => transmit_value(interpreter.left_pin, value),
+        }
     }
 }
 

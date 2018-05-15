@@ -1,4 +1,7 @@
+
 #![no_std]
+
+extern crate embedded_hal;
 
 mod registers;
 pub use registers::*;
