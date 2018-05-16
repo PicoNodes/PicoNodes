@@ -8,12 +8,13 @@ import PgProfile.api._
 class SourceFileManager(implicit db: Database) {
   def list()(implicit ec: ExecutionContext): Future[Seq[SourceFileRef]] =
     db.run(
-      SourceFileRevisions
-        .sorted(_.createdAt.desc)
-        .distinctOn(_.fileId)
-        .filter(_.content.isDefined)
-        .flatMap(_.file)
-        .result
+      SourceFilesCurrent.flatMap(_.file).sorted(_.name.asc).result
+      // SourceFileRevisions
+      //   .sorted(_.createdAt.desc)
+      //   .distinctOn(_.fileId)
+      //   .filter(_.content.isDefined)
+      //   .flatMap(_.file)
+      //   .result
     )
 
   def get(id: UUID)(implicit ec: ExecutionContext): Future[Option[SourceFile]] =

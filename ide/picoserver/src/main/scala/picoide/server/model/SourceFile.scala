@@ -41,6 +41,23 @@ class SourceFileRevisions(tag: Tag)
     (id, fileId, content, createdAt) <> (SourceFileRevision.tupled, SourceFileRevision.unapply)
 }
 
+/**
+  * This is just a view, **do not write**
+  */
+class SourceFilesCurrent(tag: Tag)
+    extends Table[(UUID, UUID)](tag, "source_files_current") {
+  def fileId     = column[UUID]("file")
+  def revisionId = column[UUID]("revision")
+
+  def file = foreignKey("file_fk", fileId, SourceFileRefs)(_.id)
+  def revision =
+    foreignKey("revision_fk", revisionId, SourceFileRevisions)(_.id)
+
+  def * = (fileId, revisionId)
+}
+
 object SourceFileRefs extends TableQuery(new SourceFileRefs(_))
 
 object SourceFileRevisions extends TableQuery(new SourceFileRevisions(_))
+
+object SourceFilesCurrent extends TableQuery(new SourceFilesCurrent(_))
