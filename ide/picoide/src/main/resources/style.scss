@@ -67,3 +67,34 @@ body {
         }
     }
 }
+
+.save-modal {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+
+    background-color: rgba(0, 0, 0, 0.8);
+
+    .save-modal-content {
+        background-color: white;
+        max-width: 500px;
+
+        margin-top: 2em;
+        margin-left: auto;
+        margin-right: auto;
+
+        padding: 1em;
+        border-radius: 0.3em;
+
+        > :first-child {
+            margin-top: 0;
+        }
+
+        .save-modal-button-row {
+            display: flex;
+        }
+    }
+}
