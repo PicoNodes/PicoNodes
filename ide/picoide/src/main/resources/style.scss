@@ -68,7 +68,7 @@ body {
     }
 }
 
-.save-modal {
+.modal {
     position: fixed;
     top: 0;
     bottom: 0;
@@ -78,7 +78,7 @@ body {
 
     background-color: rgba(0, 0, 0, 0.8);
 
-    .save-modal-content {
+    .modal-content {
         background-color: white;
         max-width: 500px;
 
@@ -92,9 +92,9 @@ body {
         > :first-child {
             margin-top: 0;
         }
-
-        .save-modal-button-row {
-            display: flex;
-        }
     }
+}
+
+.save-modal-button-row {
+    display: flex;
 }

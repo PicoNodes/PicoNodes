@@ -26,10 +26,8 @@ object SaveModal {
 
     def render(props: ModelProxy[Pot[Dirtying[SourceFile]]]) =
       <.div(
-        <.div(
-          ^.className := "save-modal",
-          <.div(
-            ^.className := "save-modal-content",
+        Modal
+          .component(
             <.h2("Danger!"),
             <.div(
               "You will lose any unsaved data! Are you sure you want to continue?"),
@@ -45,9 +43,9 @@ object SaveModal {
               <.button("Cancel",
                        ^.onClick --> props.dispatchCB(
                          Actions.CurrentFile.PromptSaveCancel))
-            ),
+            )
           )
-        ).when(props().fold(false)(_.nextCleanAction.isDefined)))
+          .when(props().fold(false)(_.nextCleanAction.isDefined)))
   }
 
   val component =
