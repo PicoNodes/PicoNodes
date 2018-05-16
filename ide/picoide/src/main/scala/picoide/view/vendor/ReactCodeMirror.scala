@@ -80,6 +80,9 @@ object ReactCodeMirror {
   type OnEditorMountJS =
     js.Function1[Editor, Unit]
 
+  type OnBlur   = (Editor) => Callback
+  type OnBlurJS = js.Function1[Editor, Unit]
+
   @js.native
   trait Options extends js.Object {
     var lineNumbers: Boolean = js.native
@@ -98,6 +101,7 @@ object ReactCodeMirror {
   trait Props extends js.Object {
     var value: String                   = js.native
     var onBeforeChange: OnChangeJS      = js.native
+    var onBlur: OnBlurJS                = js.native
     var onChange: OnChangeJS            = js.native
     var onCursor: OnCursorJS            = js.native
     var editorDidMount: OnEditorMountJS = js.native
@@ -106,6 +110,7 @@ object ReactCodeMirror {
 
   def props(value: String,
             onBeforeChange: OnChange = (_, _, _) => Callback.empty,
+            onBlur: OnBlur = (_) => Callback.empty,
             onChange: OnChange = (_, _, _) => Callback.empty,
             onCursor: OnCursor = (_, _) => Callback.empty,
             onEditorMount: OnEditorMount = (_) => Callback.empty,
@@ -113,6 +118,7 @@ object ReactCodeMirror {
     val props = new js.Object().asInstanceOf[Props]
     props.value = value
     props.onBeforeChange = onBeforeChange(_, _, _).runNow()
+    props.onBlur = onBlur(_).runNow()
     props.onChange = onChange(_, _, _).runNow()
     props.onCursor = onCursor(_, _).runNow()
     props.editorDidMount = onEditorMount(_).runNow()

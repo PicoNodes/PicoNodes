@@ -26,32 +26,40 @@ object CodeEditor {
     // to the RCM's internal state
     private var widgets: List[ReactCodeMirror.LineWidget] = List()
 
-    private def beforeChange(editor: ReactCodeMirror.Editor,
-                             changes: Seq[ReactCodeMirror.Change],
-                             value: String): Callback =
+    private def onBeforeChange(editor: ReactCodeMirror.Editor,
+                               changes: Seq[ReactCodeMirror.Change],
+                               value: String): Callback =
       $.props.flatMap(_.dispatchCB(Actions.CurrentFile.Modify(value)))
+
+    private def onBlur(editor: ReactCodeMirror.Editor): Callback =
+      $.state.map(_.currentCoord.line).flatMap(reformatLine(editor, _))
 
     private def onCursorMove(editor: ReactCodeMirror.Editor,
                              coord: ReactCodeMirror.Coord): Callback =
       $.state
         .map(_.currentCoord)
-        .map { oldCoord =>
+        .flatMap { oldCoord =>
           if (oldCoord.line != coord.line && !editor
                 .somethingSelected()) {
             reformatLine(editor, oldCoord.line)
+          } else {
+            Callback.empty
           }
         } >> $.setStateL(State.currentCoord)(coord)
 
-    private def reformatLine(editor: ReactCodeMirror.Editor, line: Int): Unit =
-      editor
-        .getLine(line)
-        .toOption
-        .flatMap(PicoAsmFormatter.formatInstruction)
-        .foreach { formatted =>
-          editor.replaceRange(formatted,
-                              ReactCodeMirror.coord(line, 0),
-                              ReactCodeMirror.coord(line))
-        }
+    private def reformatLine(editor: ReactCodeMirror.Editor,
+                             line: Int): Callback =
+      Callback {
+        editor
+          .getLine(line)
+          .toOption
+          .flatMap(PicoAsmFormatter.formatInstruction)
+          .foreach { formatted =>
+            editor.replaceRange(formatted,
+                                ReactCodeMirror.coord(line, 0),
+                                ReactCodeMirror.coord(line))
+          }
+      }
 
     private def updateErrorWidgets(editor: ReactCodeMirror.Editor,
                                    changes: Seq[ReactCodeMirror.Change],
@@ -116,7 +124,8 @@ object CodeEditor {
         ),
         ReactCodeMirror.component(
           ReactCodeMirror.props(file().fold("")(_.value.content),
-                                onBeforeChange = beforeChange,
+                                onBeforeChange = onBeforeChange,
+                                onBlur = onBlur,
                                 onChange = updateErrorWidgets,
                                 onCursor = onCursorMove))
       )
