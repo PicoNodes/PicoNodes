@@ -17,8 +17,8 @@ object Main {
 
     val config = ConfigFactory
       .parseString("""akka {
-                     |  loglevel = "DEBUG"
-                     |  stdout-loglevel = "DEBUG"
+                     |  loglevel = "INFO"
+                     |  stdout-loglevel = "INFO"
                      |}
                      |""".stripMargin)
       .withFallback(akkajs.Config.default)
