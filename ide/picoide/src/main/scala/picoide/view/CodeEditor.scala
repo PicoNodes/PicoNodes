@@ -86,23 +86,24 @@ object CodeEditor {
         <.div(
           ^.className := "code-editor-header",
           <.h2(
-            file().fold(TagMod("(Loading...)"))(f =>
-              state.renamingNewName.fold(TagMod(f.value.ref.name))(newName =>
-                <.input(
-                  ^.value := newName,
-                  ^.onChange ==> ((ev: ReactEventFromInput) =>
-                    $.setStateL(State.renamingNewName)(Some(ev.target.value))),
-                  ^.onBlur --> (file.dispatchCB(Actions.CurrentFile.Rename(
-                    state.renamingNewName.get)) >> $.setStateL(
-                    State.renamingNewName)(None)),
-                  ^.autoFocus := true
-              )))
+            file().fold(TagMod("(Loading...)"))(
+              f =>
+                state.renamingNewName.fold(
+                  TagMod(f.value.ref.name,
+                         ^.onClick --> $.setStateL(State.renamingNewName)(
+                           Some(f.value.ref.name))))(newName =>
+                  <.input(
+                    ^.value := newName,
+                    ^.onChange ==> ((ev: ReactEventFromInput) =>
+                      $.setStateL(State.renamingNewName)(
+                        Some(ev.target.value))),
+                    ^.onBlur --> (file.dispatchCB(Actions.CurrentFile.Rename(
+                      state.renamingNewName.get)) >> $.setStateL(
+                      State.renamingNewName)(None)),
+                    ^.autoFocus := true
+                )))
           ),
           Spacer.component(),
-          <.button("Rename",
-                   ^.disabled := file().isEmpty,
-                   ^.onClick --> $.setStateL(State.renamingNewName)(
-                     Some(file().get.value.ref.name))),
           <.button(
             "Save",
             ^.disabled := file().isEmpty,
