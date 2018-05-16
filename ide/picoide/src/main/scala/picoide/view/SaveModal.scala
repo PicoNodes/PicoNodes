@@ -7,17 +7,32 @@ import japgolly.scalajs.react.vdom.html_<^._
 import picoide.{Actions, Dirtying}
 import picoide.proto.SourceFile
 
+import scala.scalajs.js
+import org.scalajs.dom
+
 object SaveModal {
-  val component =
-    ScalaComponent
-      .builder[ModelProxy[Pot[Dirtying[SourceFile]]]]("SaveModal")
-      .render_P(props =>
-        <.div(<.div(
+  class Backend($ : BackendScope[ModelProxy[Pot[Dirtying[SourceFile]]], Unit]) {
+    def registerCloseHook(): Callback = Callback(
+      dom.window.onbeforeunload = { (ev: dom.raw.BeforeUnloadEvent) =>
+        $.props.map { props =>
+          if (props().fold(false)(_.isDirty))
+            "You have unsaved data! Are you sure you want to leave?": js.UndefOr[
+              String]
+          else
+            js.undefined
+        }.runNow
+      }
+    )
+
+    def render(props: ModelProxy[Pot[Dirtying[SourceFile]]]) =
+      <.div(
+        <.div(
           ^.className := "save-modal",
           <.div(
             ^.className := "save-modal-content",
             <.h2("Danger!"),
-            <.div("You will lose any unsaved data! Are you sure you want to continue?"),
+            <.div(
+              "You will lose any unsaved data! Are you sure you want to continue?"),
             <.div(
               ^.className := "save-modal-button-row",
               <.button(
@@ -32,6 +47,13 @@ object SaveModal {
                          Actions.CurrentFile.PromptSaveCancel))
             ),
           )
-        ).when(props().fold(false)(_.nextCleanAction.isDefined))))
+        ).when(props().fold(false)(_.nextCleanAction.isDefined)))
+  }
+
+  val component =
+    ScalaComponent
+      .builder[ModelProxy[Pot[Dirtying[SourceFile]]]]("SaveModal")
+      .renderBackend[Backend]
+      .componentDidMount(_.backend.registerCloseHook())
       .build
 }
