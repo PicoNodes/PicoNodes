@@ -79,7 +79,7 @@ lazy val picoide = project
       "sass-loader"                -> "6.0.7",
       "css-loader"                 -> "0.28.11",
       "style-loader"               -> "0.20.3",
-      "node-sass"                  -> "4.7.2",
+      "node-sass"                  -> "4.9.0",
       "hard-source-webpack-plugin" -> "0.6.4"
     )
   )
