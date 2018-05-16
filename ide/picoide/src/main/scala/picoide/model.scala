@@ -1,6 +1,7 @@
 package picoide
 
 import akka.stream.scaladsl.SourceQueueWithComplete
+import diode.Action
 import diode.data.Pot
 import java.util.UUID
 import monocle.Lens
@@ -14,7 +15,11 @@ import picoide.proto.{
   SourceFileRef
 }
 
-case class Dirtying[T](value: T, isDirty: Boolean)
+case class Dirtying[T](value: T,
+                       isDirty: Boolean,
+                       nextCleanAction: Option[Action] = None) {
+  def isClean: Boolean = !isDirty
+}
 
 object Dirtying {
   def lensAdapter[A, B](lens: Lens[A, B]): Lens[Dirtying[A], B] =
@@ -24,7 +29,8 @@ object Dirtying {
     Lens[Dirtying[T], T](_.value)(newVal =>
       old =>
         old.copy(value = newVal, isDirty = old.isDirty || newVal != old.value))
-  def isDirty[T] = GenLens[Dirtying[T]](_.isDirty)
+  def isDirty[T]         = GenLens[Dirtying[T]](_.isDirty)
+  def nextCleanAction[T] = GenLens[Dirtying[T]](_.nextCleanAction)
 }
 
 @Lenses

@@ -1,7 +1,7 @@
 package picoide
 
 import akka.stream.scaladsl.SourceQueueWithComplete
-import diode.Action
+import diode.{Action, ActionType}
 import diode.data.{Pot, PotAction}
 import picoide.asm.Instruction
 import picoide.proto.{
@@ -53,6 +53,10 @@ object Actions {
 
     case class Saved(file: SourceFile)          extends Action
     case class Loaded(file: Option[SourceFile]) extends Action
+
+    case class PromptSaveAndThen(next: Action) extends Action
+    case object PromptSaveCancel               extends Action
+    case object PromptSaveIgnore               extends Action
   }
 
   object KnownFiles {

@@ -16,12 +16,15 @@ object FileList {
           <.h2("Files"),
           "Loading...".when(files().isEmpty),
           <.ul(
-            files().toSeq.flatten.map(file =>
-              <.li(<.a(
-                ^.href := "#",
-                ^.onClick --> files.dispatchCB(Actions.CurrentFile.Load(file)),
-                file.name
-              ))): _*
+            files().toSeq.flatten.map(
+              file =>
+                <.li(
+                  <.a(
+                    ^.href := "#",
+                    ^.onClick --> files.dispatchCB(Actions.CurrentFile
+                      .PromptSaveAndThen(Actions.CurrentFile.Load(file))),
+                    file.name
+                  ))): _*
           ).when(!files().isEmpty)
       ))
       .build

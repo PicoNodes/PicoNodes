@@ -11,6 +11,7 @@ object EditorView {
       .builder[ModelProxy[Root]]("EditorView")
       .render_P(model =>
         <.div(
+          model.connect(_.currentFile).apply(SaveModal.component(_)),
           <.h1("PicoIDE"),
           model
             .connect(_.commandQueue)

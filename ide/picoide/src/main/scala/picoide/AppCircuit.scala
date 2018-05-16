@@ -82,10 +82,34 @@ class AppCircuit(implicit materializer: Materializer)
         case Actions.CurrentFile.Load(file) =>
           effectOnly(IDEClient.loadFile(file, commandQueue))
         case Actions.CurrentFile.Saved(file) =>
-          updated(value.map(oldFile =>
-            Dirtying.isDirty.modify(_ && oldFile.value != file)(oldFile)))
+          val nowDirty = value.fold(false)(oldFile =>
+            oldFile.isDirty && oldFile.value != file)
+          updated(
+            value.map(
+              Dirtying.isDirty
+                .set(nowDirty)
+                .andThen(Dirtying.nextCleanAction.modify(_.filter(_ =>
+                  nowDirty)))),
+            value.toOption
+              .flatMap(_.nextCleanAction)
+              .filter(_ => !nowDirty)
+              .map(Effect.action(_))
+              .getOrElse(Effect.action(NoAction))
+          )
         case Actions.CurrentFile.Loaded(Some(file)) =>
           updated(value.ready(Dirtying(file, isDirty = false)))
+        case Actions.CurrentFile.PromptSaveAndThen(next)
+            if value.fold(true)(_.isClean) =>
+          effectOnly(Effect.action(next))
+        case Actions.CurrentFile.PromptSaveAndThen(next) =>
+          updated(value.map(Dirtying.nextCleanAction.set(Some(next))))
+        case Actions.CurrentFile.PromptSaveIgnore =>
+          val action =
+            value.toOption.flatMap(_.nextCleanAction).getOrElse(NoAction)
+          updated(value.map(Dirtying.nextCleanAction.set(None)),
+                  Effect.action(action))
+        case Actions.CurrentFile.PromptSaveCancel =>
+          updated(value.map(Dirtying.nextCleanAction.set(None)))
       }
     }
 

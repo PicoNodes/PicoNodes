@@ -110,7 +110,9 @@ object CodeEditor {
             ^.onClick --> file.dispatchCB(Actions.CurrentFile.Save)
           ),
           <.button("New",
-                   ^.onClick --> file.dispatchCB(Actions.CurrentFile.CreateNew))
+                   ^.onClick --> file.dispatchCB(
+                     Actions.CurrentFile.PromptSaveAndThen(
+                       Actions.CurrentFile.CreateNew)))
         ),
         ReactCodeMirror.component(
           ReactCodeMirror.props(file().fold("")(_.value.content),
