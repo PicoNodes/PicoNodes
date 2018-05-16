@@ -69,6 +69,7 @@ lazy val picoide = project
       "--content-base",
       (sourceDirectory.value / "main" / "web").getAbsolutePath
     ),
+    useYarn := true,
     Compile / npmDependencies ++= Seq(
       "react"             -> "16.2.0",
       "react-dom"         -> "16.2.0",
@@ -76,11 +77,11 @@ lazy val picoide = project
       "codemirror"        -> "5.36.0"
     ),
     Compile / npmDevDependencies ++= Seq(
-      "sass-loader"                -> "6.0.7",
+      "sass-loader"                -> "7.0.1",
       "css-loader"                 -> "0.28.11",
-      "style-loader"               -> "0.20.3",
+      "style-loader"               -> "0.21.0",
       "node-sass"                  -> "4.9.0",
-      "hard-source-webpack-plugin" -> "0.6.4"
+      "hard-source-webpack-plugin" -> "0.6.7"
     )
   )
   .dependsOn(picoasmJS, picoideProtoJS)
