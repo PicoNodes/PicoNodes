@@ -18,11 +18,13 @@ import org.scalajs.dom
 object CodeEditor {
   @Lenses
   case class State(currentCoord: ReactCodeMirror.Coord,
-                   widgets: List[ReactCodeMirror.LineWidget] = List(),
                    renamingNewName: Option[String] = None)
 
   class Backend(
       $ : BackendScope[ModelProxy[Pot[Dirtying[SourceFile]]], State]) {
+    // Not part of the State because they *must* always correspond 1:1
+    // to the RCM's internal state
+    private var widgets: List[ReactCodeMirror.LineWidget] = List()
 
     private def beforeChange(editor: ReactCodeMirror.Editor,
                              changes: Seq[ReactCodeMirror.Change],
@@ -53,28 +55,26 @@ object CodeEditor {
 
     private def updateErrorWidgets(editor: ReactCodeMirror.Editor,
                                    changes: Seq[ReactCodeMirror.Change],
-                                   value: String): Callback = $.state.flatMap {
-      state =>
-        state.widgets.foreach(_.clear())
-        val parsed =
-          value.lines
-            .map(PicoAsmParser.parseAll(PicoAsmParser.instruction, _))
-            .zipWithIndex
-        // FIXME: Don't stop on the first error
-        val errors = parsed.flatMap {
-          case ((_: PicoAsmParser.Success[_], _)) =>
-            None
-          case ((err: PicoAsmParser.NoSuccess, line)) =>
-            Some((err, line))
-        }
-        val errorWidgets = errors.map {
-          case ((err, line)) =>
-            val elem = dom.document.createElement("div")
-            elem.textContent = err.msg
-            elem.classList.add("picoasm-error")
-            editor.addLineWidget(line, elem)
-        }
-        $.setStateL(State.widgets)(errorWidgets.toList)
+                                   value: String): Callback = Callback {
+      widgets.foreach(_.clear())
+      val parsed =
+        value.lines
+          .map(PicoAsmParser.parseAll(PicoAsmParser.instruction, _))
+          .zipWithIndex
+      val errors = parsed.flatMap {
+        case ((_: PicoAsmParser.Success[_], _)) =>
+          None
+        case ((err: PicoAsmParser.NoSuccess, line)) =>
+          Some((err, line))
+      }
+      val errorWidgets = errors.map {
+        case ((err, line)) =>
+          val elem = dom.document.createElement("div")
+          elem.textContent = err.msg
+          elem.classList.add("picoasm-error")
+          editor.addLineWidget(line, elem)
+      }
+      widgets = errorWidgets.toList
     }
 
     def render(file: ModelProxy[Pot[Dirtying[SourceFile]]], state: State) =
