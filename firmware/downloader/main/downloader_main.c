@@ -1,4 +1,7 @@
 #include <stdio.h>
+#include <stdint.h>
+#include <inttypes.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_system.h"
@@ -32,16 +35,47 @@ typedef struct {
   uart_port_t uart;
 } task_uart_subtask_ctx;
 
+uint32_t bigendian_decode_uint32(unsigned char *buf) {
+  uint32_t out = 0;
+  for (int i = 0; i < 4; ++i) {
+    out <<= 8;
+    out |= buf[i];
+  }
+  return out;
+}
+
+void bigendian_encode_uint32(unsigned char *buf, uint32_t value) {
+  for (int i = 3; i >= 0; --i) {
+    buf[i] = (unsigned char) value;
+    value >>= 8;
+  }
+}
+
 void task_uart_read(void *parameters) {
   task_uart_subtask_ctx ctx = *(task_uart_subtask_ctx *)parameters;
   free(parameters);
 
   downloader_queue_buf next_item;
   while (1) {
-    next_item.len = uart_read_bytes(ctx.uart, next_item.buf, DOWNLOADER_QUEUE_BUF_LEN, 5);
-    if (next_item.len > 0) {
-      xQueueSend(ctx.queue, &next_item, portMAX_DELAY);
+    uint8_t len_buf[4];
+    if (uart_read_bytes(ctx.uart, len_buf, 4, portMAX_DELAY) != 4) {
+      // Failed to read the packet length, start over...
+      continue;
     }
+    next_item.len = bigendian_decode_uint32(len_buf);
+
+    if (next_item.len > DOWNLOADER_QUEUE_BUF_LEN) {
+      printf("UART message too big (%d > %d), dropping it...\n", next_item.len, DOWNLOADER_QUEUE_BUF_LEN);
+      continue;
+    }
+
+    int read_len = uart_read_bytes(ctx.uart, next_item.buf, next_item.len, pdMS_TO_TICKS(200));
+    if (read_len != next_item.len) {
+      printf("Failed to read UART message: read len %d but expected %d\n", read_len, next_item.len);
+      continue;
+    }
+
+    xQueueSend(ctx.queue, &next_item, portMAX_DELAY);
   }
 
   vTaskDelete(NULL);
@@ -54,6 +88,10 @@ void task_uart_write(void *parameters) {
   downloader_queue_buf next_item;
   while (1) {
     xQueueReceive(ctx.queue, &next_item, portMAX_DELAY);
+
+    unsigned char len_buf[4];
+    bigendian_encode_uint32(len_buf, next_item.len);
+    uart_write_bytes(ctx.uart, (const char *) len_buf, 4);
     uart_write_bytes(ctx.uart, (const char *) next_item.buf, next_item.len);
   }
 
@@ -71,12 +109,26 @@ void task_netclient_read(void *parameters) {
 
   downloader_queue_buf next_item;
   while (1) {
-    int len = netclient_read(ctx.netclient, next_item.buf, DOWNLOADER_QUEUE_BUF_LEN);
-    next_item.len = len;
-    if (len < 0) {
+    unsigned char len_buf[4];
+    if (netclient_read(ctx.netclient, len_buf, 4) != 4) {
+      printf("Failed to read net packet length, restarting\n");
       esp_restart();
     }
-    xQueueSend(ctx.queue, &next_item, portMAX_DELAY);
+    uint32_t len = bigendian_decode_uint32(len_buf);
+
+    if (len > DOWNLOADER_QUEUE_BUF_LEN) {
+      printf("Net message is too big (%d > %d), restarting\n", len, DOWNLOADER_QUEUE_BUF_LEN);
+    }
+
+    next_item.len = netclient_read(ctx.netclient, next_item.buf, len);
+    if (next_item.len != len) {
+      printf("Failed to read net message: read len %d but expected %d\n", next_item.len, len);
+      esp_restart();
+    }
+
+    if (next_item.len > 0) {
+      xQueueSend(ctx.queue, &next_item, portMAX_DELAY);
+    }
   }
 
   vTaskDelete(NULL);
@@ -88,9 +140,10 @@ void task_netclient_write(void *parameters) {
 
   downloader_queue_buf next_item;
   while (1) {
-    if (xQueueReceive(ctx.queue, &next_item, portMAX_DELAY) < 0) {
-      esp_restart();
-    }
+    xQueueReceive(ctx.queue, &next_item, portMAX_DELAY);
+    unsigned char len_buf[4];
+    bigendian_encode_uint32(len_buf, next_item.len);
+    netclient_write(ctx.netclient, len_buf, 4);
     netclient_write(ctx.netclient, next_item.buf, next_item.len);
   }
 
@@ -105,6 +158,7 @@ void task_netclient(void *parameters) {
   printf("setupping\n");
   if (netclient_setup(netclient) != 0) {
     printf("setupping failed\n");
+    esp_restart();
     vTaskDelete(NULL);
     return;
   }
@@ -112,6 +166,7 @@ void task_netclient(void *parameters) {
   printf("connectifying\n");
   if (netclient_connect(netclient) != 0) {
     printf("connectifying failed\n");
+    esp_restart();
     vTaskDelete(NULL);
     return;
   }
