@@ -7,6 +7,8 @@ Report.pdf
 Report.html
 frågeformulär_lärare.tex
 frågeformulär_lärare.pdf
+*.bbl
+*.bib~*
 ~$*
 *~
 .gdb_history
