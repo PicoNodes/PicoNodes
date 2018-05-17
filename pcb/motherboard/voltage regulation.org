@@ -1,0 +1,5 @@
+Assuming LM317 regulator
+target Vo: 3.3V
+from datasheet: Vo = 1.25 * (1 + r / 240)
+
+Where Vo = 3.3: r = 393.6 (~= 390Ω)

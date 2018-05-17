@@ -7,4 +7,5 @@
   (lib (name Connector_Generic_MountingPin)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-symbols/Connector_Generic_MountingPin.lib)(options "")(descr ""))
   (lib (name MCU_ST_STM32F0)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-symbols/MCU_ST_STM32F0.lib)(options "")(descr ""))
   (lib (name motherboard-rescue)(type Legacy)(uri ${KIPRJMOD}/motherboard-rescue.lib)(options "")(descr ""))
+  (lib (name Regulator_Linear)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-symbols/Regulator_Linear.lib)(options "")(descr ""))
 )
