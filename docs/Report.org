@@ -1,38 +1,58 @@
 #+TITLE: Title Template for Degree Project
 #+SUBTITLE: SUBTITLE - Arial 16/19pt
 #+AUTHOR: Therese Kennerberg, Teo Klestrup Röijezon
+# Fancy links
+#+LATEX_HEADER: \usepackage{xcolor}
+#+LATEX_HEADER: \hypersetup{colorlinks, linkcolor={red!50!black}, citecolor={blue!50!black}, urlcolor={blue!80!black}}
+# Set up citation system
+#+LATEX_HEADER: \usepackage{biblatex}
+#+LATEX_HEADER: \addbibresource{piconodes.bib}
+#+BEGIN_SRC emacs-lisp :results silent :exports results
+  (setq org-latex-pdf-process '("latexmk -shell-escape -bibtex -pdf %f")
+        org-latex-listings 'minted)
+#+END_SRC
 
 * Introduction
-The goal of this project outcome is to provide a "hands on", physical
-and pedalogical education platform for the schools. The platform will
-the new learning outcomes that is taking its place in june 2018 for the
-subjects computational thinking and programming. The platform is directed
-for hardware close and parallel programming, using a own developed assembler
-like language to teach computational thinking.
+
+The goal of this project outcome is to provide a "hands on" physical
+pedagogical education platform for the schools. The platform will be
+tailored to the new learning outcome goals for the subjects Computational
+Thinking and Programming, which will take effect from June 2018. The
+platform is directed towards teaching parallel programming, using a
+custom assembler-like language.
+
 ** Background
-***
-*** Computational thinking in the Swedish scools
-Computational thinking is, stated by Linköpings university, to be
-a process of problemsolving which includes:
-- Formulating a problem in a way that makes it possible to use computers to solve it.
-- Break down complex problems in smaller parts.
-- Find repeating patterns and use them.
-- Creates algortims to automate the solution of a problem.
-- Logical orginaze and analyze data.
-- Represent data throuh abstractions like models and simulation.
-- Identify, analyze and implement possible solutions to find the most
-effective one in a combination of steps and resources.
-- To generalise and use this kind of problemsolving processes on other
-kind of problems.
-Computing in scools will have three key stages,
-1. In the years 5-6: algorithms and intructions, to create and debugg simple
-programs and a focus will lay on logical thinking.
-2. The years 7-11: Develop and debugg greather problems
-with given goals and use programmingconcept with variables, sekvens,
-selection and repetition.
-3. The years 12-14: Two or more programminglanguages, bools logic, binaries,
-connection between program and hardware.
-Source https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
+
+*** Computational thinking in the Swedish schools
+
+Computational thinking is stated by Linköping's University to be
+a process of problem-solving, which includes:
+
+- Formulating a problem in such a way that it becomes possible to use computers to solve it.
+- Breaking down complex problems into smaller parts.
+- Finding repeating patterns and reusing them.
+- Creating algorithms to automate the solution of a problem.
+- Logically organizing and analyzing data.
+- Represent data through abstractions such as models and simulations.
+  # FIX ME: Unclear
+- Identifying, analyzing, and implementing possible solutions to find the most
+  effective one, through a combination of steps and resources.
+- To generalize and use this kind of problem-solving process on other
+  kinds of problems.
+
+# Can't actually find these categories anywhere.. 
+According to Heintz and Mannila\cite{HeintzMannila}, computing in schools should
+have three key stages:
+
+1. Years 5-6: algorithms and instructions, to create and debug simple
+   programs, with a focus on logical thinking.
+2. Years 7-11: Develop and debug greater problems
+   with given goals and use programming concept with variables, sequences,
+   selection and repetition.
+   # FIX ME: Binaries?
+3. Years 12-14: Two or more programming languages, boolean logic, binaries,
+   connection between the program and hardware.
+
 This project is directed to be used by student in the ages of 14-15, fitting the
 last key stage very well.
 The importance of computational thinking and programming in scools is stated by Mannila and Heintz
@@ -124,3 +144,7 @@ and routing the PCBs.
 ** (The work)
 ** (Result)
 ** (Conclusions)
+
+* References
+
+\printbibliography
