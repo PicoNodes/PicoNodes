@@ -8,6 +8,6 @@ regulator:
 https://www.kjell.com/se/sortiment/el-verktyg/elektronik/halvledare/spanningsregulatorer/luxorparts-spanningsregulator-variabel-lm317-5-pack-p90491
 30kr for 5x
 
-heat sink (if needed?):
+heat sink:
 https://www.kjell.com/se/sortiment/el-verktyg/elektronik/elektromekanik/kylelement-peltier/luxorparts-kylflans-to-220-10-pack-p90668
 40kr for 10x
