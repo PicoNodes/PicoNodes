@@ -2,6 +2,10 @@
 #![no_std]
 
 extern crate embedded_hal;
+extern crate picotalk;
+
+use embedded_hal::digital::*;
+use picotalk::{RecieveState, TransmitState};
 
 mod registers;
 pub use registers::*;
@@ -90,7 +94,7 @@ pub fn decode_instruction(bytecode: &[u8]) -> Option<Instruction> {
 }
 
 //The func takes the decoded instruction and do actions depending on the operation
-pub fn run_instruction(instruction: Instruction, interpreter: &mut Interpreter) {
+pub fn run_instruction<P: IoPinout>(instruction: Instruction, interpreter: &mut Interpreter<P>) {
     use Instruction::*;
     let flag = instruction.get_flag();
     if flag == interpreter.flag {
