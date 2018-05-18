@@ -1,14 +1,12 @@
 //Holds the register structs, enums and functions.
 
-#![no_std]
+//#![no_std]
 
 use embedded_hal::digital::{OutputPin, InputPin};
 
-
-
 /**************************** Register Structs ****************************/
 
-trait IoPinout {
+pub trait IoPinout {
     type Left: OutputPin + InputPin;
     type Right: OutputPin + InputPin;
     type Up: OutputPin + InputPin;
@@ -26,8 +24,8 @@ pub struct Interpreter<P: IoPinout> {
     pub down_pin: P::Down,
 }
 
-impl Interpreter {
-    pub fn new(up_pin: IoPinout::Up, down_pin: IoPinout::Down, left_pin: IoPinout::Left, right_pin: IoPinout::Right) -> Interpreter {
+impl<P: IoPinout> Interpreter<P> {
+    pub fn new(up_pin: P::Up, down_pin: P::Down, left_pin: P::Left, right_pin: P::Right) -> Interpreter<P> {
         Interpreter {
             reg_acc: 0,
             prog_counter: 0,
@@ -38,9 +36,6 @@ impl Interpreter {
             right_pin: right_pin,
         }
     }
-}
-
-impl Interpreter {
     pub fn set_flag(&mut self, state: bool) {
         if state == true {
             self.flag = Flag::True;
@@ -94,19 +89,18 @@ pub enum Flag {
 
 //interface for reading from register
 pub trait RegRead {
-    fn read(self, interpreter: &Interpreter) -> i8;
+    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>) -> i8;
 }
 
 //interface for writing to register
 pub trait RegWrite {
-    fn write(self, interpreter: &mut Interpreter, value: i8);
+    fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, value: i8);
 }
 
 /********************* Implementations of register Traits *********************/
 
 impl Register {
     pub fn from_i8(var: i8) -> Register {
-        use self::IoRegister::*;
         use Register::*;
         match var {
             -128 => Io(IoRegister::Up),
@@ -119,6 +113,7 @@ impl Register {
         }
     }
 }
+
 impl RegisterOrImmediate {
     pub fn from_i8(var: i8) -> RegisterOrImmediate {
         use self::RegisterOrImmediate::*;
@@ -132,75 +127,99 @@ impl RegisterOrImmediate {
 
 //implementing the write to register function. It takes the input value and assign it to the interpreter.
 impl RegWrite for Register {
-    fn write(self, interpreter: &mut Interpreter, value: i8) {
+    fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, value: i8) {
         match self {
             Register::Mem(mem) => mem.write(interpreter, value), //calls the memory registers write func.
-            Register::Io(Right) => io.write(interpreter, value),
+            Register::Io(IoRegister::Right) => self.write(interpreter, value),
+            Register::Io(IoRegister::Left) => self.write(interpreter, value),
+            Register::Io(IoRegister::Down) => self.write(interpreter, value),
+            Register::Io(IoRegister::Up) => self.write(interpreter, value),
         }
     }
 }
 
 //implementing the read func for the io registers.
 impl RegRead for IoRegister { //Not done! no value returned
-    fn read(self, interpreter: &Interpreter) -> i8 {
+
+    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>) -> i8 {
+        //use picotalk::*;
         match self {
-            Io(IoRegister::Up) => {
-                let &mut state = RecievState::HandshakeListen(0);
-                recieve_value(interpreter.up_pin, state);
-
+            IoRegister::Up => {
+                read_loop(&mut interpreter.up_pin)
             },
-
+            IoRegister::Down => {
+                read_loop(&mut interpreter.down_pin)
+            },
+            IoRegister::Right => {
+                read_loop(&mut interpreter.right_pin)
+            },
+            IoRegister::Left => {
+                read_loop(&mut interpreter.left_pin)        //recieve_value(interpreter.left_pin);
+            },
         }
     }
 }
 
-impl RegWrite for IoRegister { //
-    fn write(self, interpreter: &Interpreter, value: i8) {
+fn read_loop<P: OutputPin + InputPin>(pin: &mut P) -> i8 {
+    use picotalk::*;
+    let mut state = RecieveState::HandshakeListen(0);
+    loop {
+        recieve_value(pin, &mut state);
+        if let RecieveState::Done(value) = state {
+            return value;
+        }
+    }
+}
+
+impl RegWrite for IoRegister {
+    fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, value: i8) {
+        use picotalk::*;
+        let mut state = TransmitState::HandshakeAdvertise(0);
         match self {
-            Io(IoRegister::Up) => transmit_value(interpreter.up_pin, value),
-            Io(IoRegister::Down) => transmit_value(interpreter.down_pin, value),
-            Io(IoRegister::Right) => transmit_value(interpreter.right_pin, value),
-            Io(IoRegister::Left) => transmit_value(interpreter.left_pin, value),
+            IoRegister::Up => transmit_value(&mut interpreter.up_pin, &mut state, value),
+            IoRegister::Down => transmit_value(&mut interpreter.down_pin, &mut state, value),
+            IoRegister::Right => transmit_value(&mut interpreter.right_pin, &mut state, value),
+            IoRegister::Left => transmit_value(&mut interpreter.left_pin, &mut state, value),
         }
     }
 }
 
 //implementing the write func for the memory register.
 impl RegWrite for MemRegister {
-    fn write(self, interpreter: &mut Interpreter, value: i8) {
+    fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, value: i8) {
         match self {
-            MemRegister::Acc => interpreter.reg_acc = value, //assagnes the value to the reg_acc in the interpreter.
-            MemRegister::Null => {} //felmedelande att det inte går att implementera
+            MemRegister::Acc => interpreter.reg_acc = value,     //assagnes the value to the reg_acc in the interpreter.
+            MemRegister::Null => {},                             //felmedelande att det inte går att implementera
         }
     }
 }
 
 //implementing the read func for the registers.
 impl RegRead for Register {
-    fn read(self, interpreter: &Interpreter) -> i8 {
+    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>) -> i8 {
         match self {
-            Register::Io(io) => io.read(interpreter), //If self is a io reg then it calls for io regs read func.
-            Register::Mem(mem) => mem.read(interpreter), //If self is a mem reg then it calls the mem regs read func.
+            Register::Io(io) => io.read(interpreter),            //If self is a io reg then it calls for io regs read func.
+            Register::Mem(mem) => mem.read(interpreter),         //If self is a mem reg then it calls the mem regs read func.
         }
     }
 }
 
 //implementing the read func for the memory registers.
 impl RegRead for MemRegister {
-    fn read(self, interpreter: &Interpreter) -> i8 {
+    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>) -> i8 {
         match self {
-            MemRegister::Acc => interpreter.reg_acc, //reading the value in the rag_acc in the interpeter and returning it.
-            MemRegister::Null => 0,                  //Reading from the null register.
+            MemRegister::Acc => interpreter.reg_acc,         //reading the value in the rag_acc in the interpeter and returning it.
+            MemRegister::Null => 0,                          //Reading from the null register.
         }
     }
 }
 
 //Implementing read func for the R/I.
 impl RegRead for RegisterOrImmediate {
-    fn read(self, interpreter: &Interpreter) -> i8 {
+    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>) -> i8 {
         match self {
             RegisterOrImmediate::Reg(reg) => reg.read(interpreter), //If self is a io reg then it calls for io regs read func.
-            RegisterOrImmediate::Immediate(var) => var, //If self is a mem reg then it calls the mem regs read func.
+            RegisterOrImmediate::Immediate(var) => var,             //If self is a mem reg then it calls the mem regs read func.
         }
     }
 }
