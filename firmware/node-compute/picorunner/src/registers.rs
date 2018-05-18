@@ -1,6 +1,6 @@
 //Holds the register structs, enums and functions.
 
-#![no_std]
+//#![no_std]
 
 use embedded_hal::digital::{OutputPin, InputPin};
 
@@ -101,7 +101,6 @@ pub trait RegWrite {
 
 impl Register {
     pub fn from_i8(var: i8) -> Register {
-        use self::IoRegister::*;
         use Register::*;
         match var {
             -128 => Io(IoRegister::Up),
@@ -131,7 +130,10 @@ impl RegWrite for Register {
     fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, value: i8) {
         match self {
             Register::Mem(mem) => mem.write(interpreter, value), //calls the memory registers write func.
-            Register::Io(Right) => self.write(interpreter, value),
+            Register::Io(IoRegister::Right) => self.write(interpreter, value),
+            Register::Io(IoRegister::Left) => self.write(interpreter, value),
+            Register::Io(IoRegister::Down) => self.write(interpreter, value),
+            Register::Io(IoRegister::Up) => self.write(interpreter, value),
         }
     }
 }
@@ -140,23 +142,20 @@ impl RegWrite for Register {
 impl RegRead for IoRegister { //Not done! no value returned
 
     fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>) -> i8 {
-        use registers::Register::Io;
-        use picotalk::*;
-        let state = RecieveState::HandshakeListen;
+        //use picotalk::*;
         match self {
-            Up => {
+            IoRegister::Up => {
                 read_loop(&mut interpreter.up_pin)
             },
-            Down => {
+            IoRegister::Down => {
                 read_loop(&mut interpreter.down_pin)
             },
-            Right => {
+            IoRegister::Right => {
                 read_loop(&mut interpreter.right_pin)
             },
-            Left => {
+            IoRegister::Left => {
                 read_loop(&mut interpreter.left_pin)        //recieve_value(interpreter.left_pin);
             },
-            _ => panic!("Not an IoRegister!"),
         }
     }
 }
@@ -177,10 +176,10 @@ impl RegWrite for IoRegister {
         use picotalk::*;
         let mut state = TransmitState::HandshakeAdvertise(0);
         match self {
-            Up => transmit_value(&mut interpreter.up_pin, &mut state, value),
-            Down => transmit_value(&mut interpreter.down_pin, &mut state, value),
-            Right => transmit_value(&mut interpreter.right_pin, &mut state, value),
-            Left => transmit_value(&mut interpreter.left_pin, &mut state, value),
+            IoRegister::Up => transmit_value(&mut interpreter.up_pin, &mut state, value),
+            IoRegister::Down => transmit_value(&mut interpreter.down_pin, &mut state, value),
+            IoRegister::Right => transmit_value(&mut interpreter.right_pin, &mut state, value),
+            IoRegister::Left => transmit_value(&mut interpreter.left_pin, &mut state, value),
         }
     }
 }
@@ -191,7 +190,6 @@ impl RegWrite for MemRegister {
         match self {
             MemRegister::Acc => interpreter.reg_acc = value,     //assagnes the value to the reg_acc in the interpreter.
             MemRegister::Null => {},                             //felmedelande att det inte går att implementera
-            _ => panic!("Not a memory register!"),
         }
     }
 }
@@ -212,7 +210,6 @@ impl RegRead for MemRegister {
         match self {
             MemRegister::Acc => interpreter.reg_acc,         //reading the value in the rag_acc in the interpeter and returning it.
             MemRegister::Null => 0,                          //Reading from the null register.
-            _ => panic!("Not a memory register!"),
         }
     }
 }
@@ -223,7 +220,6 @@ impl RegRead for RegisterOrImmediate {
         match self {
             RegisterOrImmediate::Reg(reg) => reg.read(interpreter), //If self is a io reg then it calls for io regs read func.
             RegisterOrImmediate::Immediate(var) => var,             //If self is a mem reg then it calls the mem regs read func.
-            _ => unimplemented!(),
         }
     }
 }

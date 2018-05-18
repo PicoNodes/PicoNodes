@@ -5,7 +5,7 @@ extern crate embedded_hal;
 extern crate picotalk;
 
 use embedded_hal::digital::*;
-use picotalk::{RecieveState, TransmitState};
+//use picotalk::{RecieveState, TransmitState};
 
 mod registers;
 pub use registers::*;
@@ -25,7 +25,7 @@ pub enum Instruction {
 
 impl Instruction {
     fn get_flag(&self) -> Flag {
-        use registers::Flag::*;
+        //use registers::Flag::*;
         use Instruction::*;
         match self {
             Mov(flag, _, _) => *flag,
@@ -113,15 +113,15 @@ pub fn run_instruction<P: IoPinout>(instruction: Instruction, interpreter: &mut 
                 interpreter.reg_acc = value - op_a.read(interpreter);
             }
             Teq(_, op_a, op_b) => {
-                let state = (op_a.read(interpreter) == op_b.read(interpreter));
+                let state = op_a.read(interpreter) == op_b.read(interpreter);
                 interpreter.set_flag(state);
             }
             Tgt(_, op_a, op_b) => {
-                let state = (op_a.read(interpreter) > op_b.read(interpreter));
+                let state = op_a.read(interpreter) > op_b.read(interpreter);
                 interpreter.set_flag(state);
             }
             Tlt(_, op_a, op_b) => {
-                let state = (op_a.read(interpreter) < op_b.read(interpreter));
+                let state = op_a.read(interpreter) < op_b.read(interpreter);
                 interpreter.set_flag(state);
             }
             Tcp(_, op_a, op_b) => {
@@ -133,7 +133,6 @@ pub fn run_instruction<P: IoPinout>(instruction: Instruction, interpreter: &mut 
                     interpreter.flag = Flag::True;
                 }
             }
-            _ => unimplemented!(),
         }
     }
     interpreter.prog_counter += INSTRUCTION_BYTES;
