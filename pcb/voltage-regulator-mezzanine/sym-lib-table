@@ -1,0 +1,11 @@
+(sym_lib_table
+  (lib (name Transistor_FET)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-symbols/Transistor_FET.lib)(options "")(descr ""))
+  (lib (name Transistor_BJT)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-symbols/Transistor_BJT.lib)(options "")(descr ""))
+  (lib (name Connector)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-symbols/Connector.lib)(options "")(descr ""))
+  (lib (name Connector_Generic)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-symbols/Connector_Generic.lib)(options "")(descr ""))
+  (lib (name Connector_Generic_MountingPin)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-symbols/Connector_Generic_MountingPin.lib)(options "")(descr ""))
+  (lib (name MCU_ST_STM32F0)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-symbols/MCU_ST_STM32F0.lib)(options "")(descr ""))
+  (lib (name custom)(type Legacy)(uri ${KIPRJMOD}/../motherboard/custom.lib)(options "")(descr ""))
+  (lib (name mpcie)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-mini-pci-express/mpcie.lib)(options "")(descr ""))
+  (lib (name Regulator_Linear)(type Legacy)(uri ${KIPRJMOD}/../vendor/kicad-symbols/Regulator_Linear.lib)(options "")(descr ""))
+)
