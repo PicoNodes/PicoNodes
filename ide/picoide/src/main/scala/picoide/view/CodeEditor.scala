@@ -94,10 +94,11 @@ object CodeEditor {
         <.div(
           ^.className := "code-editor-header",
           <.h2(
+            "Current file: ",
             file().fold(TagMod("(Loading...)"))(
               f =>
-                state.renamingNewName.fold(
-                  TagMod(f.value.ref.name,
+                state.renamingNewName.fold[TagMod](
+                  <.span(f.value.ref.name,
                          ^.onClick --> $.setStateL(State.renamingNewName)(
                            Some(f.value.ref.name))))(newName =>
                   <.input(
