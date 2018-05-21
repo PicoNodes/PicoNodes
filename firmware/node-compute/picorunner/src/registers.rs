@@ -2,7 +2,13 @@
 
 //#![no_std]
 
+use rtfm_core::{Resource, Threshold};
+
 use embedded_hal::digital::{OutputPin, InputPin};
+use embedded_hal::timer::{CountDown, Periodic};
+use stm32f0x0_hal::time::Hertz;
+
+use picotalk::PICOTALK_FREQ;
 
 /**************************** Register Structs ****************************/
 
@@ -11,21 +17,25 @@ pub trait IoPinout {
     type Right: OutputPin + InputPin;
     type Up: OutputPin + InputPin;
     type Down: OutputPin + InputPin;
+    type TimerResource: Resource<Data=Self::Timer>;
+    type Timer: CountDown<Time=Self::TimerUnit> + Periodic + Send;
+    type TimerUnit: From<Hertz>;
 }
 
 //The struct will hold the value for the memory register
-pub struct Interpreter<P: IoPinout> {
+pub struct Interpreter<'a, P: 'a + IoPinout> {
     pub reg_acc: i8,
     pub prog_counter: usize,
     pub flag: Flag,
-    pub left_pin: P::Left,
-    pub right_pin: P::Right,
-    pub up_pin: P::Up,
-    pub down_pin: P::Down,
+    pub left_pin: &'a mut P::Left,
+    pub right_pin: &'a mut P::Right,
+    pub up_pin: &'a mut P::Up,
+    pub down_pin: &'a mut P::Down,
+    pub timer: P::TimerResource,
 }
 
-impl<P: IoPinout> Interpreter<P> {
-    pub fn new(up_pin: P::Up, down_pin: P::Down, left_pin: P::Left, right_pin: P::Right) -> Interpreter<P> {
+impl<'a, P: IoPinout> Interpreter<'a, P> {
+    pub fn new(down_pin: &'a mut P::Down, left_pin: &'a mut P::Left, up_pin: &'a mut P::Up, right_pin: &'a mut P::Right, timer: P::TimerResource) -> Interpreter<'a, P> {
         Interpreter {
             reg_acc: 0,
             prog_counter: 0,
@@ -34,6 +44,7 @@ impl<P: IoPinout> Interpreter<P> {
             down_pin: down_pin,
             left_pin: left_pin,
             right_pin: right_pin,
+            timer: timer,
         }
     }
     pub fn set_flag(&mut self, state: bool) {
@@ -89,12 +100,12 @@ pub enum Flag {
 
 //interface for reading from register
 pub trait RegRead {
-    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>) -> i8;
+    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>, t: &mut Threshold) -> i8;
 }
 
 //interface for writing to register
 pub trait RegWrite {
-    fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, value: i8);
+    fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, t: &mut Threshold, value: i8);
 }
 
 /********************* Implementations of register Traits *********************/
@@ -127,13 +138,10 @@ impl RegisterOrImmediate {
 
 //implementing the write to register function. It takes the input value and assign it to the interpreter.
 impl RegWrite for Register {
-    fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, value: i8) {
+    fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, t: &mut Threshold, value: i8) {
         match self {
-            Register::Mem(mem) => mem.write(interpreter, value), //calls the memory registers write func.
-            Register::Io(IoRegister::Right) => self.write(interpreter, value),
-            Register::Io(IoRegister::Left) => self.write(interpreter, value),
-            Register::Io(IoRegister::Down) => self.write(interpreter, value),
-            Register::Io(IoRegister::Up) => self.write(interpreter, value),
+            Register::Mem(mem) => mem.write(interpreter, t, value), //calls the memory registers write func.
+            Register::Io(reg) => reg.write(interpreter, t, value),
         }
     }
 }
@@ -141,52 +149,77 @@ impl RegWrite for Register {
 //implementing the read func for the io registers.
 impl RegRead for IoRegister { //Not done! no value returned
 
-    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>) -> i8 {
-        //use picotalk::*;
+    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>, t: &mut Threshold) -> i8 {
         match self {
             IoRegister::Up => {
-                read_loop(&mut interpreter.up_pin)
+                read_loop(interpreter.up_pin, &mut interpreter.timer, t)
             },
             IoRegister::Down => {
-                read_loop(&mut interpreter.down_pin)
+                read_loop(interpreter.down_pin, &mut interpreter.timer, t)
             },
             IoRegister::Right => {
-                read_loop(&mut interpreter.right_pin)
+                read_loop(interpreter.right_pin, &mut interpreter.timer, t)
             },
             IoRegister::Left => {
-                read_loop(&mut interpreter.left_pin)        //recieve_value(interpreter.left_pin);
+                read_loop(interpreter.left_pin, &mut interpreter.timer, t)
             },
         }
     }
 }
 
-fn read_loop<P: OutputPin + InputPin>(pin: &mut P) -> i8 {
+fn read_loop<P: OutputPin + InputPin, T: CountDown + Periodic + Send, TR: Resource<Data=T>>(pin: &mut P, timer: &mut TR, t: &mut Threshold) -> i8 where T::Time: From<Hertz> {
     use picotalk::*;
     let mut state = RecieveState::HandshakeListen(0);
+    while InputPin::is_high(pin) {}
+    timer.claim_mut(t, |timer, _t| timer.start(PICOTALK_FREQ));
     loop {
-        recieve_value(pin, &mut state);
-        if let RecieveState::Done(value) = state {
+        if let Some(value) = timer.claim_mut(t, |timer, _t| loop {
+            block!(timer.wait()).unwrap();
+            recieve_value(pin, &mut state);
+            match state {
+                RecieveState::Done(value) => return Some(value),
+                RecieveState::HandshakeListen(0) => return None,
+                _ => {},
+            };
+        }) {
             return value;
-        }
+        };
     }
 }
 
 impl RegWrite for IoRegister {
-    fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, value: i8) {
-        use picotalk::*;
-        let mut state = TransmitState::HandshakeAdvertise(0);
+    fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, t: &mut Threshold, value: i8) {
         match self {
-            IoRegister::Up => transmit_value(&mut interpreter.up_pin, &mut state, value),
-            IoRegister::Down => transmit_value(&mut interpreter.down_pin, &mut state, value),
-            IoRegister::Right => transmit_value(&mut interpreter.right_pin, &mut state, value),
-            IoRegister::Left => transmit_value(&mut interpreter.left_pin, &mut state, value),
+            IoRegister::Up => write_loop(interpreter.up_pin, &mut interpreter.timer, t, value),
+            IoRegister::Down => write_loop(interpreter.down_pin, &mut interpreter.timer, t, value),
+            IoRegister::Right => write_loop(interpreter.right_pin, &mut interpreter.timer, t, value),
+            IoRegister::Left => write_loop(interpreter.left_pin, &mut interpreter.timer, t, value),
         }
+    }
+}
+
+fn write_loop<P: OutputPin + InputPin, T: CountDown + Periodic + Send, TR: Resource<Data=T>>(pin: &mut P, timer: &mut TR, t: &mut Threshold, value: i8) where T::Time: From<Hertz> {
+    use picotalk::*;
+    let mut state = TransmitState::HandshakeAdvertise(0);
+    timer.claim_mut(t, |timer, _t| timer.start(PICOTALK_FREQ));
+    loop {
+        if let Some(value) = timer.claim_mut(t, |timer, _t| loop {
+            block!(timer.wait()).unwrap();
+            transmit_value(pin, &mut state, value);
+            match state {
+                TransmitState::Idle => return Some(()),
+                TransmitState::HandshakeAdvertise(0) => return None,
+                _ => {},
+            };
+        }) {
+            return value;
+        };
     }
 }
 
 //implementing the write func for the memory register.
 impl RegWrite for MemRegister {
-    fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, value: i8) {
+    fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, _t: &mut Threshold, value: i8) {
         match self {
             MemRegister::Acc => interpreter.reg_acc = value,     //assagnes the value to the reg_acc in the interpreter.
             MemRegister::Null => {},                             //felmedelande att det inte går att implementera
@@ -196,17 +229,17 @@ impl RegWrite for MemRegister {
 
 //implementing the read func for the registers.
 impl RegRead for Register {
-    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>) -> i8 {
+    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>, t: &mut Threshold) -> i8 {
         match self {
-            Register::Io(io) => io.read(interpreter),            //If self is a io reg then it calls for io regs read func.
-            Register::Mem(mem) => mem.read(interpreter),         //If self is a mem reg then it calls the mem regs read func.
+            Register::Io(io) => io.read(interpreter, t),            //If self is a io reg then it calls for io regs read func.
+            Register::Mem(mem) => mem.read(interpreter, t),         //If self is a mem reg then it calls the mem regs read func.
         }
     }
 }
 
 //implementing the read func for the memory registers.
 impl RegRead for MemRegister {
-    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>) -> i8 {
+    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>, _t: &mut Threshold) -> i8 {
         match self {
             MemRegister::Acc => interpreter.reg_acc,         //reading the value in the rag_acc in the interpeter and returning it.
             MemRegister::Null => 0,                          //Reading from the null register.
@@ -216,9 +249,9 @@ impl RegRead for MemRegister {
 
 //Implementing read func for the R/I.
 impl RegRead for RegisterOrImmediate {
-    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>) -> i8 {
+    fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>, t: &mut Threshold) -> i8 {
         match self {
-            RegisterOrImmediate::Reg(reg) => reg.read(interpreter), //If self is a io reg then it calls for io regs read func.
+            RegisterOrImmediate::Reg(reg) => reg.read(interpreter, t), //If self is a io reg then it calls for io regs read func.
             RegisterOrImmediate::Immediate(var) => var,             //If self is a mem reg then it calls the mem regs read func.
         }
     }

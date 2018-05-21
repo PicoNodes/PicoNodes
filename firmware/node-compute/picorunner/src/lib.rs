@@ -1,8 +1,15 @@
 
 #![no_std]
 
+extern crate rtfm_core;
+extern crate stm32f0x0_hal;
 extern crate embedded_hal;
 extern crate picotalk;
+
+#[macro_use]
+extern crate nb;
+
+use rtfm_core::Threshold;
 
 use embedded_hal::digital::*;
 //use picotalk::{RecieveState, TransmitState};
@@ -52,13 +59,12 @@ pub fn decode_instruction(bytecode: &[u8]) -> Option<Instruction> {
     let op = bytecode[0] & 0x3F;
     let op_a = bytecode[1] as i8;
     let op_b = bytecode[2] as i8;
-    let mut flag = Flag::Neather;
 
     //Checking the intruction flags exclusions
-    match flags {
-        2 => flag = True,
-        1 => flag = False,
-        _ => flag = Neather,
+    let flag = match flags {
+        2 => True,
+        1 => False,
+        _ => Neather,
     };
 
     Some(match op {
@@ -94,34 +100,34 @@ pub fn decode_instruction(bytecode: &[u8]) -> Option<Instruction> {
 }
 
 //The func takes the decoded instruction and do actions depending on the operation
-pub fn run_instruction<P: IoPinout>(instruction: Instruction, interpreter: &mut Interpreter<P>) {
+pub fn run_instruction<P: IoPinout>(instruction: Instruction, interpreter: &mut Interpreter<P>, t: &mut Threshold) {
     use Instruction::*;
     let flag = instruction.get_flag();
     if flag == interpreter.flag {
         match instruction {
             Mov(_, op_a, op_b) => {
-                let value = op_a.read(interpreter);
-                op_b.write(interpreter, value); //write structure is write(self, interpeter, value) let value = op_a;
+                let value = op_a.read(interpreter, t);
+                op_b.write(interpreter, t, value); //write structure is write(self, interpeter, value) let value = op_a;
             }
             Add(_, op_a) => {
                 //intruction structure is Instruction::Add(RegisterOrImmediate)
                 let value = interpreter.reg_acc;
-                interpreter.reg_acc = value + op_a.read(interpreter);
+                interpreter.reg_acc = value + op_a.read(interpreter, t);
             }
             Sub(_, op_a) => {
                 let value = interpreter.reg_acc;
-                interpreter.reg_acc = value - op_a.read(interpreter);
+                interpreter.reg_acc = value - op_a.read(interpreter, t);
             }
             Teq(_, op_a, op_b) => {
-                let state = op_a.read(interpreter) == op_b.read(interpreter);
+                let state = op_a.read(interpreter, t) == op_b.read(interpreter, t);
                 interpreter.set_flag(state);
             }
             Tgt(_, op_a, op_b) => {
-                let state = op_a.read(interpreter) > op_b.read(interpreter);
+                let state = op_a.read(interpreter, t) > op_b.read(interpreter, t);
                 interpreter.set_flag(state);
             }
             Tlt(_, op_a, op_b) => {
-                let state = op_a.read(interpreter) < op_b.read(interpreter);
+                let state = op_a.read(interpreter, t) < op_b.read(interpreter, t);
                 interpreter.set_flag(state);
             }
             Tcp(_, op_a, op_b) => {
