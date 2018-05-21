@@ -1,0 +1,28 @@
+﻿#+TITLE: User Manual for the PICONODE-COMPUTE
+#+SUBTITLE: SUBTITLE - Arial 16/19pt
+#+AUTHER: Therese Kennerberg
+
+* Instruduction
+ The piconode-compute is designed to be used with the piconode kit and is compatible with the piconode kits motherboard. It is meant to give a more hands-on and visual understanding of the communication between the piconodes. This node is not programmable by the user but is already running a program designed to be used with the motherboard.
+* Features
+The piconode-compute offers the following features:
+- A programmable interface the user is able to program in PicoAsm.
+- Four communication pins in each direction, up, down, left and right.
+* Quick start
+The node is an easy applied feature for the piconode kit developed for the basic in hardware close programming and distributed systems.
+* Getting started
+ Follow these steps to learn how to use the piconode-compute:
+1. Power the motherboard
+2. Place the piconode-compute on an available slot on the motherboard.
+3. Connect the piconode-computes rx to the tx on the downloader and the piconode-computes tx to the downloader rx.
+4. Open your browser aand connect to the PICO ID homepage.
+**  Program the piconode-compute to receive a value and forward it in right direction
+1. In the program window type 
+add  2
+mov acc right
+2. Choose the downloader main in the current downloader field
+3. Click on the download button
+4. Place a piconode-led to the right of the piconode-compute on the motherboard 
+The led-node should now light up the led nr 2 for receiving the value 2 from the piconode-compute. Try the same for the value one, three and four and in other directions. For changing direction change the instruction “mov acc right” to “mov  acc left”, “mov acc up” or “mov acc down” and place the led-node in the direction.
+* Hardware and layout
+ The hardware and the PCB-layout are available in the datasheet provided for the piconode kit.
