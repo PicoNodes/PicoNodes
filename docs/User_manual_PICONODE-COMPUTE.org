@@ -1,0 +1,143 @@
+#+TITLE: User Manual for the PicoNode-Compute
+#+AUTHOR: Teo Klestrup Röijezon
+# Fancy code blocks
+#+LATEX_HEADER: \usepackage{mdframed}
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \setminted{linenos}
+#+LATEX_HEADER: \surroundwithmdframed{minted}
+# Fancy links
+#+LATEX_HEADER: \usepackage{xcolor}
+#+LATEX_HEADER: \hypersetup{colorlinks, linkcolor={red!50!black}, citecolor={blue!50!black}, urlcolor={blue!80!black}}
+
+#+BEGIN_SRC emacs-lisp :exports results :results silent
+  (setq org-latex-pdf-process '("latexmk -shell-escape -bibtex -pdf %f")
+        org-latex-listings 'minted)
+#+END_SRC
+
+* Introduction
+
+  The PicoNode-Compute allows you to add custom behavior to your PicoNode setup. It is programmable by the user.
+
+* Features
+
+  The PicoNode-Compute has enough capacity for up to 20 instructions, and can communicate freely in all four directions. It also
+  features a single memory slot, which can store a value.
+
+  The program will restart after the last instruction is executed.
+
+* Getting started
+
+  Follow these steps to try out the PicoNode-Compute with a simple sample program:
+
+  1. Power the motherboard
+  2. Place a PicoNode-Switch on a available slot in the leftmost column of the motherboard.
+  3. Place the PicoNode-Compute to the right of the Switch node
+  4. Place a PicoNode-LED to the right of the Compute node
+  5. Connect the TX pin on the downloader to the RX pin on the Compute node, and the RX pin on the downloader to the TX pin on the node.
+  6. Open the PicoIDE website
+  7. Select the downloader named "Main"
+  8. Enter the code from Listing [[listing:getting-started-example]]
+  9. Click "Download"
+  10. Press a button
+  11. A LED should toggle every time you push the button
+
+#+CAPTION: Example that toggles a LED when any button is pressed
+#+NAME: listing:getting-started-example
+#+BEGIN_SRC text
+  tcp left 0
++ tcp acc 1
++ mov 0 acc
+- mov 2 acc
+  mov acc right
+#+END_SRC
+
+* Hardware and layout
+
+  The hardware and the PCB layout are available in the data sheet provided for the PicoNode kit.
+
+* Instructions
+
+All supported instructions are below:
+
+** Values
+
+   The instructions below have slots labeled ~<R>~ or ~<R/I>~. This is
+   where you plug in the values. A slot labeled *I* accept any value
+   between ~-100~ and ~100~ (this is usually called an "Immediate"),
+   while slots labeled *R* ("Register") accept either a direction
+   (~up~, ~down~, ~left~, or ~right~) or the local memory slot ~acc~.
+
+   Writing to a direction will transmit the value in that direction,
+   while reading from it will receive a value.
+
+   Reading from ~acc~ will receive the last value written to it.
+
+   For the rest of this chapter, "value" will refer to either an
+   immediate, or the value you receive when reading from a register.
+
+** Basic instructions
+
+*** ~mov <R/I> <R>~
+
+    ~mov~ (move) copies the first value to the second register.
+
+** Arithmetic instructions
+
+*** ~add <R/I>~
+
+    ~add~ reads the value and adds it to ~acc~. In other words,
+    ~acc = acc + value~.
+
+*** ~sub <R/I>~
+
+    ~sub~ reads the value and subtracts it to ~acc~. In other words,
+    ~acc = acc - value~.
+
+** Test instructions
+
+   You can put the flags ~+~ or ~-~ before an instruction, in which case
+   it will only execute if that flag has been set by a test instruction.
+
+*** ~teq <R/I> <R/I>~
+
+    ~teq~ (test if equal) sets the ~+~ flag if the two values match.
+    Otherwise it sets the ~-~ flag.
+
+*** ~tlt <R/I> <R/I>~
+
+    ~tlt~ (test if less than) sets the ~+~ flag if the second value is
+    smaller than the first value. Otherwise it sets the ~-~ flag.
+
+*** ~tgt <R/I> <R/I>~
+
+    ~tgt~ (test if greater than) sets the ~+~ flag if the second value is
+    bigger than the first value. Otherwise it sets the ~-~ flag.
+
+*** ~tcp <R/I> <R/I>~
+
+    ~tcp~ (compare) sets the ~+~ flag if the second value is greater than
+    the first value, or the ~-~ flag if the second value is smaller.
+
+    No flag is set if the values are equal.
+
+*** Comparison table
+
+    Here's a handy cheat sheet for the test instructions:
+
+| instruction | case         | +   | -   |
+|-------------+--------------+-----+-----|
+| teq         | first=second | yes | no  |
+| teq         | first<second | no  | yes |
+| teq         | first>second | no  | yes |
+|-------------+--------------+-----+-----|
+| tlt         | first=second | no  | yes |
+| tlt         | first<second | yes | no  |
+| tlt         | first>second | no  | yes |
+|-------------+--------------+-----+-----|
+| tgt         | first=second | no  | yes |
+| tgt         | first<second | no  | yes |
+| tgt         | first>second | yes | no  |
+|-------------+--------------+-----+-----|
+| tcp         | first=second | no  | no  |
+| tcp         | first<second | no  | yes |
+| tcp         | first>second | yes | no  |
