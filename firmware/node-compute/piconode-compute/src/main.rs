@@ -123,7 +123,7 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     let tim3 = Timer::tim3(p.device.TIM3, 10.khz(), clocks, &mut rcc.apb1);
 
     let usart1 = p.device.USART1;
-    let mut serial = Serial::usart1(usart1, (usart1_pin_tx, usart1_pin_rx), 115_200.bps(), clocks, &mut rcc.apb2);
+    let mut serial = Serial::usart1(usart1, (usart1_pin_tx, usart1_pin_rx), 4_000.bps(), clocks, &mut rcc.apb2);
     serial.listen(SerialEvent::Rxne);
     let (tx, rx) = serial.split();
 
