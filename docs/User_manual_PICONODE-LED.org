@@ -9,12 +9,7 @@ is not programmable by the user but is already running a program designed to be 
 
 * Features
 
-The PicoNode-LED offers the following features:
-
-- One red LED to symbolize one.
-- One blue LED to symbolize two.
-- One green LED to symbolize three.
-- One yellow LED to symbolize four.
+The PicoNode-LED offers four red LEDs, where one can be enabled at any time.
 
 * Getting started
 
