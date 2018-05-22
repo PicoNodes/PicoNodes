@@ -72,31 +72,6 @@ fn picotalk_tx_tick(_t: &mut Threshold, r: TIM3::Resources) {
     assert_eq!(timer.wait(), Err(nb::Error::WouldBlock));
 }
 
-//Sheck if any of the switches is pressed
-// fn piconode_check_switch(t: &mut Threshold, r: TIM14::Resources) {
-//     let mut timer = r.PICONODE_CHECK_SWITCH_TIMER;
-//     let mut value = r.VALUE;
-
-//     let switch_1 = r.SWITCH_1_PIN;
-//     let switch_2 = r.SWITCH_2_PIN;
-//     let switch_3 = r.SWITCH_3_PIN;
-//     let switch_4 = r.SWITCH_4_PIN;
-
-//     timer.wait().unwrap();
-
-//     let mut new_value = 0;
-//     if switch_1.is_high() {
-//         new_value = 1;
-//     } else if switch_2.is_high() {
-//         new_value = 2;
-//     } else if switch_3.is_high() {
-//         new_value = 3;
-//     } else if switch_4.is_high() {
-//         new_value = 4;
-//     }
-//     value.claim_mut(t, |value, _t| *value = new_value);
-// }
-
 fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     let rcc = p.device.RCC;
     rcc.ahbenr.modify(|_,w| w.crcen().set_bit());
@@ -115,9 +90,7 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     pa5.set_high();
 
     let mut tim3 = Timer::tim3(p.device.TIM3, picotalk::PICOTALK_FREQ, clocks, &mut rcc.apb1);     //timer for transmitting value
-    // let mut tim14 = Timer::tim14(p.device.TIM14, 10.hz(), clocks, &mut rcc.apb1);  //timer for checking switches
     tim3.listen(TimerEvent::TimeOut);
-    // tim14.listen(TimerEvent::TimeOut);
 
     let pa2 = gpioa.pa2.into_pull_down_input(&mut gpioa.moder, &mut gpioa.pupdr); //switch 1
     let pa3 = gpioa.pa3.into_pull_down_input(&mut gpioa.moder, &mut gpioa.pupdr); //switch 2
@@ -125,10 +98,8 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     let pa6 = gpioa.pa6.into_pull_down_input(&mut gpioa.moder, &mut gpioa.pupdr); //switch 4
 
     init::LateResources {
-        // PICONODE_CHECK_SWITCH_TIMER: tim14,     //timer for checking the switches
         PICOTALK_TX_TIMER: tim3,                //interupt for transmitting the value recieved from switch
         PICOTALK_TX_RIGHT: pa5,                 //transmission pin
-
 
         SWITCH_1_PIN: pa2,      //responds for the value of one
         SWITCH_2_PIN: pa3,      //responds for the value of two
@@ -152,7 +123,6 @@ app! {
         static PICOTALK_TX_STATE: picotalk::TransmitState = picotalk::TransmitState::HandshakeAdvertise(0);
         static PICOTALK_TX_TIMER: Timer<stm32f0x0::TIM3>;
 
-        // static PICONODE_CHECK_SWITCH_TIMER: Timer<stm32f0x0::TIM14>;
         static VALUE: i8 = 0;
 
         static SWITCH_1_PIN: Switch1;
@@ -166,10 +136,5 @@ app! {
             resources: [VALUE, PICOTALK_TX_RIGHT, PICOTALK_TX_STATE, PICOTALK_TX_TIMER, SWITCH_1_PIN, SWITCH_2_PIN, SWITCH_3_PIN, SWITCH_4_PIN],
             priority: 2,
         },
-        // TIM14: {
-        //     path: piconode_check_switch,
-        //     resources: [VALUE, PICONODE_CHECK_SWITCH_TIMER, SWITCH_1_PIN, SWITCH_2_PIN, SWITCH_3_PIN, SWITCH_4_PIN],
-        //     priority: 1,
-        // }
     }
 }

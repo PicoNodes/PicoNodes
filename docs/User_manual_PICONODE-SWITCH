@@ -1,0 +1,24 @@
+#+TITLE: User Manual for the PICONODE-SWITCH
+#+SUBTITLE: SUBTITLE - Arial 16/19pt
+#+AUTHER: Therese Kennerberg
+
+* Instruduction
+ The piconode-switch is designed to be used with the piconode kit and is compatible with the piconode kits motherboard. It is meant to give a more handson and visual understanding of the communication between the piconodes. This node is not programmable by the user but is already running a program designed to be used with the motherboard.
+* Features
+The piconode-switch offers the following features:
+- Four switches.
+- One communication pin for communicating to the right.
+* Quick start
+The node is an easy applied feature for the piconode kit developed for the basic in hardware close programming and distributet systems.
+* Getting started
+ Follow these steps to learn how to use the piconode-led:
+1. Power the motherboard
+2. Place the picoode-led on a available slot on the motherboard. This slotshould also have one available slot in any direction next to the piconode-led.
+3. Place th epiconode-switch on the available slot next to the piconode-led OR program a piconode to send a value of the range 1-4 in the direction of the piconode-led.
+4. If you placed a switch then press one button ELSE if you palced a piconode, the piconode will send the value to the piconode-led and a LED will light up symbolizing the value recieved.
+* Hardware and layout
+ The hardware and the PCB-layout are available in the datasheet provided for the piconode kit.
+* Power supply
+ The power supply for the piconode-led is 3.3 V.
+* LEDs
+ THe LEDs are used to symbolize a value recieved from one of the input pins. THere are four input pins for recieving a value, one in each directino. The piconode-led will only recieve a value in the range of 1-4. If it recieves a value out of range it will discard it and no LED will light up. (Should it be able to recieve more then one direction?)
