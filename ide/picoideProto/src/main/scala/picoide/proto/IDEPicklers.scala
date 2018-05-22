@@ -8,6 +8,7 @@ object IDEPicklers {
   implicit val downloaderCommandPickler = compositePickler[DownloaderCommand]
     .addConcreteType[DownloaderCommand.Ping.type]
     .addConcreteType[DownloaderCommand.DownloadBytecode]
+    .addConcreteType[DownloaderCommand.Reset.type]
 
   implicit val ideEventPickler =
     compositePickler[IDEEvent]

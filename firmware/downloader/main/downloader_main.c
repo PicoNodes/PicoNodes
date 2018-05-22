@@ -103,6 +103,13 @@ typedef struct {
   netclient_context *netclient;
 } task_netclient_subtask_ctx;
 
+void netclient_cmd_reset() {
+  ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_12, 0));
+  vTaskDelay(pdMS_TO_TICKS(500));
+  ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_12, 1));
+  vTaskDelay(pdMS_TO_TICKS(500));
+}
+
 void task_netclient_read(void *parameters) {
   task_netclient_subtask_ctx ctx = *(task_netclient_subtask_ctx *)parameters;
   free(parameters);
@@ -124,6 +131,14 @@ void task_netclient_read(void *parameters) {
     if (next_item.len != len) {
       printf("Failed to read net message: read len %d but expected %d\n", next_item.len, len);
       esp_restart();
+    }
+
+    if (next_item.len >= 4) {
+      uint32_t type = bigendian_decode_uint32(next_item.buf);
+      if (type == 2) {
+        netclient_cmd_reset();
+        continue;
+      }
     }
 
     xQueueSend(ctx.queue, &next_item, portMAX_DELAY);

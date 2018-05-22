@@ -12,6 +12,7 @@ import java.util.UUID
 
 import picoide.net.IDEClient
 import picoide.proto.{
+  DownloaderEvent,
   DownloaderInfo,
   IDECommand,
   IDEEvent,
@@ -185,6 +186,12 @@ class AppCircuit(implicit materializer: Materializer)
           updated(value.map(Downloaders.events.modify(event +: _)))
         case Actions.Downloaders.SendInstructions(instructions) =>
           effectOnly(IDEClient.sendBytecode(instructions, commandQueue))
+        case Actions.Downloaders.Reset =>
+          effectOnly(IDEClient.resetDownloader(commandQueue))
+        case Actions.Downloaders.DownloadDone(dlEvent) =>
+          effectOnly(
+            Effect.action(Actions.Downloaders.AddEvent(dlEvent)) + Effect
+              .action(Actions.Downloaders.Reset))
       }
     }
 
@@ -213,6 +220,9 @@ class AppCircuit(implicit materializer: Materializer)
               dler  <- state.all.get(id)
             } yield dler
           )
+        case IDEEvent.FromDownloader(
+            dlEvent: DownloaderEvent.DownloadedBytecode) =>
+          Actions.Downloaders.DownloadDone(dlEvent)
         case IDEEvent.FromDownloader(dlEvent) =>
           Actions.Downloaders.AddEvent(dlEvent)
       }

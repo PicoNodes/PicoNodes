@@ -41,7 +41,11 @@ object Actions {
 
     case class AddEvent(dlEvent: DownloaderEvent) extends Action
 
+    case class DownloadDone(dlEvent: DownloaderEvent.DownloadedBytecode)
+        extends Action
+
     case class SendInstructions(instructions: Seq[Instruction]) extends Action
+    case object Reset                                           extends Action
   }
 
   object CurrentFile {

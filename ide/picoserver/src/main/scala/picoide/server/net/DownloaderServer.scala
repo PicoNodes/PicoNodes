@@ -25,6 +25,10 @@ object DownloaderServer {
           .putInt(1) // Type
           .putBytes(bytecode.toArray)
           .result()
+      case DownloaderCommand.Reset =>
+        ByteString.newBuilder
+          .putInt(2) // type
+          .result()
       case DownloaderCommand.Ping =>
         ByteString()
     }

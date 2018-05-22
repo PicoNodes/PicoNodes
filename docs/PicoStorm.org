@@ -44,6 +44,10 @@ MUST be ignored by the recipient.
 Instructs the node to download the bytecode stored in the payload. The node
 /should/ respond with [[#event-downloaded-bytecode][Downloaded Bytecode]] once done.
 
+** Reset (Type = 2)
+
+Instructs the Downloader to reset all nodes.
+
 * Events
 
 ** Downloaded Bytecode (Type = 1)

@@ -133,4 +133,10 @@ object IDEClient {
         DownloaderCommand.DownloadBytecode(instructions.flatMap(_.assemble))))
       .map(_ => NoAction)
   }
+
+  def resetDownloader(commandQueue: Pot[CommandQueue])(
+      implicit executionContext: ExecutionContext): Effect = Effect {
+    potOffer(commandQueue, IDECommand.ToDownloader(DownloaderCommand.Reset))
+      .map(_ => NoAction)
+  }
 }
