@@ -21,6 +21,8 @@ import picoide.proto.{
 }
 import picoide.utils._
 
+import org.scalajs.dom
+
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -122,8 +124,9 @@ class AppCircuit(implicit materializer: Materializer)
           import PotState._
           action.handle {
             case PotEmpty =>
+              val host = dom.window.location.host
               updated(value.pending(),
-                      IDEClient.connectToCircuit("ws://localhost:8080/connect",
+                      IDEClient.connectToCircuit(s"ws://$host/connect",
                                                  AppCircuit.this))
             case PotPending =>
               noChange
