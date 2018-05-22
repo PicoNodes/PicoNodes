@@ -3,7 +3,7 @@
 #+LATEX_HEADER: \usepackage{xcolor}
 #+LATEX_HEADER: \hypersetup{colorlinks, linkcolor={red!50!black}, citecolor={blue!50!black}, urlcolor={blue!80!black}}
 
-* Frågor till lärare för att ge ett underlag till utvecklingen av piconodes
+* Frågor till elever för att ge ett underlag till utvecklingen av piconodes
 
 ** Allmänt
 
@@ -16,25 +16,21 @@
 +-------------------+---------------------+--------------------+-------------------+
 | A. Ja             | B. Nej              |                    | Ingen uppfattning |
 +-------------------+---------------------+--------------------+-------------------+
-| 3. Tycker ni att det är svårt att lära ut programmering?                         |
+| 3. Tycker ni att det är svårt att lära sig att programmera?                      |
 +-------------------+---------------------+--------------------+-------------------+
 | A. Svårt          | B. Medel            | C. Lätt            | Ingen uppfattning |
 +-------------------+---------------------+--------------------+-------------------+
-| 4. Tycker ni att det finns bra läromedel för att lära ut programmering?          |
-+-------------------+---------------------+--------------------+-------------------+
-| A. Ja             | B. Nej              |                    | Ingen uppfattning |
-+-------------------+---------------------+--------------------+-------------------+
-| 5. Har ni använt några av dessa läromedel för att lära ut programmering/         |
+| 3. Har ni använt några av dessa läromedel för att lära ut programmering/         |
 |    datalogiskt tänkande?                                                         |
 +-------------------+---------------------+--------------------+-------------------+
 | A. Micro:Bit      | B. Scratch          | B. Angry Birds     |                   |
 +-------------------+---------------------+--------------------+-------------------+
+| 5. Tycker ni att det finns bra verktyg för att lära er programmering?            |
++-------------------+---------------------+--------------------+-------------------+
+| A. Ja             | B. Nej              |                    | Ingen uppfattning |
++-------------------+---------------------+--------------------+-------------------+
 | 6. Tycker ni att dom läromedel som finns har pedagogiska instruktioner för       |
-|    lärarna?                                                                      |
-+-------------------+---------------------+--------------------+-------------------+
-| A. Ja             | B. Nej              | C. Medel           | Ingen uppfattning |
-+-------------------+---------------------+--------------------+-------------------+
-| 7. Tycker ni att de läromedel som finns är pedagogiska för eleverna?             |
+|    er elever?                                                                    |
 +-------------------+---------------------+--------------------+-------------------+
 | A. Ja             | B. Nej              | C. Medel           | Ingen uppfattning |
 +-------------------+---------------------+--------------------+-------------------+
@@ -64,11 +60,7 @@
 +------------------------+---------------------+--------------------+----------------------+
 | A. Tydligt             | B. Otydligt         |                    | Ingen uppfattning    |
 +------------------------+---------------------+--------------------+----------------------+
-| 6. Tror ni eleverna blir motiverade att programmera av piconodes?                        |
-+------------------------+---------------------+--------------------+----------------------+
-| A. Ja                  | B. Nej              |                    | Ingen uppfattning    |
-+------------------------+---------------------+--------------------+----------------------+
-| 7. Blir ni motiverade att programmera av piconodes?                                      |
+| 6. Blir ni motiverade att programmera av piconodes?                                      |
 +------------------------+---------------------+--------------------+----------------------+
 | A. Ja                  | B. Nej              |                    | Ingen uppfattning    |
 +------------------------+---------------------+--------------------+----------------------+
