@@ -17,6 +17,22 @@ use stm32f0x0_hal::time::Hertz;
 
 pub const PICOTALK_FREQ: Hertz = Hertz(1000);
 
+#[cfg(feature = "debug")]
+fn panic_debug(s: &str) {
+    panic!("{}", s);
+}
+
+#[cfg(not(feature = "debug"))]
+fn panic_debug(_s: &str) {}
+
+#[cfg(feature = "debug")]
+fn panic_debug_u8(s: &str, f: u8) {
+    panic!("{} {}", s, f);
+}
+
+#[cfg(not(feature = "debug"))]
+fn panic_debug_u8(_s: &str, _f: u8) {}
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum TransmitState {
     HandshakeAdvertise(u8), //Two low
@@ -36,7 +52,7 @@ pub enum RecieveState {
     ReadPreamble(u8),    //Read five preamble, first high then evryother high low
     RecieveData(u8, i8),
     Done(i8),
-    Idle,
+    RestartWait(u8),
 }
 
 /*Statemachine for handshake/recievedata*/
@@ -68,10 +84,11 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
             if InputPin::is_high(pin) {
                 *state = ReadPreamble(0);
             } else {
-                panic!("Expecting high pin for recieving!")
+                panic_debug("Expecting high pin for recieving!");
+                *state = RestartWait(15);
             }
         }
-        ReadPreamble(n) => {
+        ReadPreamble(ref mut n) => {
             if InputPin::is_high(pin) == (*n % 2 == 0) {
                 if *n == 4 {
                     *state = RecieveData(0, 0);
@@ -79,7 +96,8 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
                     *n += 1;
                 }
             } else {
-                panic!("Failed to receive preamble bit {}", *n);
+                panic_debug_u8("Failed to receive preamble bit", *n);
+                *state = RestartWait(14 - *n);
             }
         }
         RecieveData(ref mut n, ref mut value) => {
@@ -95,7 +113,8 @@ pub fn recieve_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut RecieveSt
             }
         }
         Done(_) => {}
-        Idle => {}
+        RestartWait(0) => *state = HandshakeListen(0),
+        RestartWait(ref mut n) => *n -= 1,
         state => panic!("Not a RecieveState: {:?}!", state),
     }
 }
@@ -130,7 +149,8 @@ pub fn transmit_value<P: OutputPin + InputPin>(pin: &mut P, state: &mut Transmit
         }
         HandshakeCheck => {
             if InputPin::is_low(pin) {
-                panic!("Transmission from both sides!");
+                panic_debug("Transmission from both sides!");
+                *state = HandshakeWaitRetry(0);
             } else {
                 *state = Preamble(0);
             }
