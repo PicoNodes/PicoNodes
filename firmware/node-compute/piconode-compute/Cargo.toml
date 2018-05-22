@@ -24,6 +24,7 @@ picostorm = { path = "../picostorm/" }
 picostore = { path = "../picostore/" }
 picotalk = { path = "../picotalk/" }
 picorunner = { path = "../picorunner/" }
+stm32f0x0 = "0.1.0"
 
 [dependencies.cortex-m-rt]
 version = "0.4.0"

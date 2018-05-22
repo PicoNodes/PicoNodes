@@ -8,6 +8,7 @@ extern crate cortex_m_rt;       //Runtime for cortex-m microcontrollers
 extern crate cortex_m_rtfm as rtfm;   //Real Time For the Masses framework for thhe ARM-cortex
 extern crate cortex_m_semihosting;  //Enables coderunning on an ARM-target to use input/output pins
 extern crate stm32f0x0_hal;     //HAL for the stm32f0x0 family. Implementation of the embedded hal traits
+extern crate stm32f0x0;
 extern crate embedded_hal;      //Hardware abstraction layer for embedded systems
 extern crate picostorm;         //Enables seriecommunication with the ESP32 HUZZAH
 extern crate picotalk;      //Enables communication between the nodes
@@ -36,8 +37,9 @@ use cortex_m::asm;
 use embedded_hal::digital::InputPin;
 use embedded_hal::timer::CountDown;
 
+use stm32f0x0::TIM3;
+
 use stm32f0x0_hal::prelude::*;      //Black magic
-use stm32f0x0_hal::stm32f0x0::{self, TIM3};
 use stm32f0x0_hal::serial::{Rx, Tx, Serial, Event as SerialEvent, Error as SerialError};
 use stm32f0x0_hal::gpio::{Output, OpenDrain, gpioa::{PA1, PA4, PA5}, gpiob::PB1};
 use stm32f0x0_hal::timer::{Timer, Event as TimerEvent};
@@ -58,12 +60,9 @@ fn handle_picostorm_msg(_t: &mut Threshold, r: USART1::Resources) {
     let mut tx = r.SERIAL1_TX;
     let mut store = r.STORE;
     let mut reset = r.RESET;
-
-    // embedded-hal doesn't have a flash abstraction yet :(
-    let flash = unsafe { (stm32f0x0::FLASH::ptr() as *mut stm32f0x0::flash::RegisterBlock).as_mut().unwrap() };
-
-    // embedded-hal doesn't have a crc abstraction yet :(
-    let crc_peripheral = unsafe { (stm32f0x0::CRC::ptr() as *mut stm32f0x0::crc::RegisterBlock).as_mut().unwrap() };
+    let mut nvic = r.NVIC;
+    let mut flash = r.FLASH;
+    let mut crc_peripheral = r.CRC;
 
     let cmd = match picostorm::Command::read(&mut *rx) {
         // Disconnected, ignore message
@@ -71,12 +70,10 @@ fn handle_picostorm_msg(_t: &mut Threshold, r: USART1::Resources) {
         x => x.unwrap(),
     };
 
-    // let mut out = hio::hstdout().unwrap();
     match cmd {
         picostorm::Command::DownloadBytecode { ref bytecode } => {
-            // writeln!(out, "download bytecode").unwrap();
-            store.replace(bytecode, flash);
-            let crc = store.crc(crc_peripheral);
+            store.replace(bytecode, &mut flash);
+            let crc = store.crc(&mut crc_peripheral);
             let done_event = picostorm::Event::DownloadedBytecode { crc };
             done_event.write(&mut *tx).unwrap();
             *reset = true;
@@ -85,20 +82,30 @@ fn handle_picostorm_msg(_t: &mut Threshold, r: USART1::Resources) {
             // writeln!(out, "ping!").unwrap();
         },
     }
+
+    // asm::bkpt();
+    nvic.clear_pending(stm32f0x0::Interrupt::USART1);
 }
 
 fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
+    let nvic = p.core.NVIC;
+
     let rcc = p.device.RCC;
     rcc.ahbenr.modify(|_,w| w.crcen().set_bit());
 
+    let flash = p.device.FLASH;
+    // embedded-hal doesn't have a flash abstraction yet :(
+    let flash_raw = unsafe { core::mem::transmute_copy(&flash) };
+
     let mut rcc = rcc.constrain();
-    let mut flash = p.device.FLASH.constrain();
+    let mut flash = flash.constrain();
     let clocks = rcc.cfgr
         .sysclk(8.mhz())
         .hclk(8.mhz())
         .pclk1(8.mhz())
         .pclk2(8.mhz())
         .freeze(&mut flash.acr);
+
     let mut gpioa = p.device.GPIOA.split(&mut rcc.ahb);
     let mut gpiob = p.device.GPIOB.split(&mut rcc.ahb);
 
@@ -123,11 +130,15 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     let tim3 = Timer::tim3(p.device.TIM3, 10.khz(), clocks, &mut rcc.apb1);
 
     let usart1 = p.device.USART1;
-    let mut serial = Serial::usart1(usart1, (usart1_pin_tx, usart1_pin_rx), 4_000.bps(), clocks, &mut rcc.apb2);
+    let mut serial = Serial::usart1(usart1, (usart1_pin_tx, usart1_pin_rx), 400.bps(), clocks, &mut rcc.apb2);
     serial.listen(SerialEvent::Rxne);
+    serial.unlisten(SerialEvent::Txe);
     let (tx, rx) = serial.split();
 
     init::LateResources {
+        NVIC: nvic,
+        CRC: p.device.CRC,
+        FLASH: flash_raw,
         SERIAL1_RX: rx,
         SERIAL1_TX: tx,
         PICOTALK_TIMER: tim3,
@@ -139,42 +150,49 @@ fn init(p: init::Peripherals, _r: init::Resources) -> init::LateResources {
     }
 }
 
-fn idle(t: &mut Threshold, r: idle::Resources) -> ! {
+fn idle(t: &mut Threshold, mut r: idle::Resources) -> ! {
     let store = r.STORE;
     let mut reset = r.RESET;
 
-    let mut interpreter = picorunner::Interpreter::<PicotalkPinout>::new(
-        r.PICOTALK_PIN_DOWN,
-        r.PICOTALK_PIN_LEFT,
-        r.PICOTALK_PIN_UP,
-        r.PICOTALK_PIN_RIGHT,
-        r.PICOTALK_TIMER,
-    );
-    // let mut out = hio::hstdout().unwrap();
-
     loop {
-        let mut instruction_bytes: [u8; picorunner::INSTRUCTION_BYTES] = [0; picorunner::INSTRUCTION_BYTES];
-        store.claim(t, |store, t| {
-            let mut reset = reset.borrow_mut(t);
-            if *reset {
+        let mut interpreter = picorunner::Interpreter::<PicotalkPinout>::new(
+            r.PICOTALK_PIN_DOWN,
+            r.PICOTALK_PIN_LEFT,
+            r.PICOTALK_PIN_UP,
+            r.PICOTALK_PIN_RIGHT,
+            &mut r.PICOTALK_TIMER,
+        );
+        loop {
+            let reset = reset.claim_mut(t, |reset, _t| {
+                let old_reset = *reset;
                 *reset = false;
-                interpreter.prog_counter = 0;
-            } else if interpreter.prog_counter >= store.len() {
-                interpreter.prog_counter = 0;
+                old_reset
+            });
+            if reset {
+                break;
             }
-            let slice = &store[interpreter.prog_counter ..];
-            if slice.len() >= 3 {
-                for (i, byte) in slice.iter().take(3).enumerate() {
-                    instruction_bytes[i] = *byte;
+
+            let mut instruction_bytes: [u8; picorunner::INSTRUCTION_BYTES] = [0; picorunner::INSTRUCTION_BYTES];
+            store.claim(t, |store, _t| {
+                if interpreter.prog_counter >= store.len() {
+                    interpreter.prog_counter = 0;
                 }
-            } else {
-                // instruction_bytes = [0, 0, 127]; // No-op instruction
-                instruction_bytes = [0, 130, 131]; // MOV left right
+                let slice = &store[interpreter.prog_counter ..];
+                if slice.len() >= 3 {
+                    for (i, byte) in slice.iter().take(3).enumerate() {
+                        instruction_bytes[i] = *byte;
+                    }
+                } else {
+                    // instruction_bytes = [0, 0, 127]; // No-op instruction
+                    instruction_bytes = [0, 130, 131]; // MOV left right
+                }
+                false
+            });
+            let instruction = picorunner::decode_instruction(&instruction_bytes);
+            if let Some(instruction) = instruction {
+                picorunner::run_instruction(instruction, &mut interpreter, t);
             }
-        });
-        let instruction = picorunner::decode_instruction(&instruction_bytes);
-        if let Some(instruction) = instruction {
-            picorunner::run_instruction(instruction, &mut interpreter, t);
+            // writeln!(out, "Acc: {}", interpreter.reg_acc).unwrap();
         }
     }
 }
@@ -182,6 +200,9 @@ fn idle(t: &mut Threshold, r: idle::Resources) -> ! {
 app! {
     device: stm32f0x0,
     resources: {
+        static NVIC: stm32f0x0::NVIC;
+        static CRC: stm32f0x0::CRC;
+        static FLASH: stm32f0x0::FLASH;
         static SERIAL1_RX: Rx<stm32f0x0::USART1>;
         static SERIAL1_TX: Tx<stm32f0x0::USART1>;
 
@@ -200,7 +221,7 @@ app! {
     tasks: {
         USART1: {
             path: handle_picostorm_msg,
-            resources: [SERIAL1_RX, SERIAL1_TX, STORE, PICOTALK_TIMER, RESET],
+            resources: [NVIC, CRC, FLASH, SERIAL1_RX, SERIAL1_TX, STORE, PICOTALK_TIMER, RESET],
             priority: 2,
         },
 

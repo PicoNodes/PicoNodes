@@ -126,9 +126,7 @@ void task_netclient_read(void *parameters) {
       esp_restart();
     }
 
-    if (next_item.len > 0) {
-      xQueueSend(ctx.queue, &next_item, portMAX_DELAY);
-    }
+    xQueueSend(ctx.queue, &next_item, portMAX_DELAY);
   }
 
   vTaskDelete(NULL);
@@ -209,7 +207,7 @@ void app_main() {
     queues->event_queue = xQueueCreate(1, sizeof(downloader_queue_buf));
 
     uart_config_t uart_config = {
-      .baud_rate = 4000,
+      .baud_rate = 400,
       .data_bits = UART_DATA_8_BITS,
       .parity = UART_PARITY_DISABLE,
       .stop_bits = UART_STOP_BITS_1,
@@ -242,8 +240,15 @@ void app_main() {
     xTaskCreate(&task_uart_write, "task_uart_write", 16384, uart_writer_ctx, 1, NULL);
     xTaskCreate(&task_uart_read, "task_uart_read", 16384, uart_reader_ctx, 1, NULL);
 
-    ESP_ERROR_CHECK(gpio_set_direction(GPIO_NUM_21, GPIO_MODE_OUTPUT));
-    ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_21, 1));
+    gpio_config_t gpio_reset_cfg = {
+      .pin_bit_mask = GPIO_SEL_12,
+      .mode = GPIO_MODE_OUTPUT,
+      .pull_up_en = GPIO_PULLUP_DISABLE,
+      .pull_down_en = GPIO_FLOATING,
+      .intr_type = GPIO_INTR_DISABLE,
+    };
+    ESP_ERROR_CHECK(gpio_config(&gpio_reset_cfg));
+    ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_12, 1));
 
     ESP_ERROR_CHECK(esp_event_loop_init(event_handler, queues));
 

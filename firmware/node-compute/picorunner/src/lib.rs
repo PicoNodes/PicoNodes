@@ -9,6 +9,8 @@ extern crate picotalk;
 #[macro_use]
 extern crate nb;
 
+use core::fmt::Write;
+
 use rtfm_core::Threshold;
 
 use embedded_hal::digital::*;
@@ -20,6 +22,7 @@ pub use registers::*;
 pub const INSTRUCTION_BYTES: usize = 3;
 
 //The Picoasm instructions structure
+#[derive(Debug)]
 pub enum Instruction {
     Mov(Flag, RegisterOrImmediate, Register), //Mov(RegisterOrImmediate, Register),(RegisterOrImmediate, Register)
     Add(Flag, RegisterOrImmediate), //Need to be Add(RegisterOrImmediate) to be able to get a value from both register and immediate
@@ -73,8 +76,8 @@ pub fn decode_instruction(bytecode: &[u8]) -> Option<Instruction> {
             registers::RegisterOrImmediate::from_i8(op_a),
             registers::Register::from_i8(op_b),
         ),
-        1 if op_b == 0 => Add(flag, registers::RegisterOrImmediate::from_i8(op_a)), //Under construction! Add must also be able to get a value from a register
-        1 if op_b == 1 => Sub(flag, registers::RegisterOrImmediate::from_i8(op_a)), //Same for Sub!
+        1 if op_b == 0 => Add(flag, registers::RegisterOrImmediate::from_i8(op_a)),
+        1 if op_b == 1 => Sub(flag, registers::RegisterOrImmediate::from_i8(op_a)),
         4 => Teq(
             flag,
             registers::RegisterOrImmediate::from_i8(op_a),
@@ -99,11 +102,22 @@ pub fn decode_instruction(bytecode: &[u8]) -> Option<Instruction> {
     })
 }
 
+fn saturate_value(value: i8) -> i8 {
+    if value < -100 {
+        -100
+    } else if value > 100 {
+        100
+    } else {
+        value
+    }
+}
+
 //The func takes the decoded instruction and do actions depending on the operation
 pub fn run_instruction<P: IoPinout>(instruction: Instruction, interpreter: &mut Interpreter<P>, t: &mut Threshold) {
     use Instruction::*;
+    interpreter.prog_counter += INSTRUCTION_BYTES;
     let flag = instruction.get_flag();
-    if flag == interpreter.flag {
+    if flag == Flag::Neather || flag == interpreter.flag {
         match instruction {
             Mov(_, op_a, op_b) => {
                 let value = op_a.read(interpreter, t);
@@ -112,14 +126,16 @@ pub fn run_instruction<P: IoPinout>(instruction: Instruction, interpreter: &mut 
             Add(_, op_a) => {
                 //intruction structure is Instruction::Add(RegisterOrImmediate)
                 let value = interpreter.reg_acc;
-                interpreter.reg_acc = value + op_a.read(interpreter, t);
+                interpreter.reg_acc = saturate_value(value.saturating_add(op_a.read(interpreter, t)));
             }
             Sub(_, op_a) => {
                 let value = interpreter.reg_acc;
-                interpreter.reg_acc = value - op_a.read(interpreter, t);
+                interpreter.reg_acc = saturate_value(value.saturating_sub(op_a.read(interpreter, t)));
             }
             Teq(_, op_a, op_b) => {
-                let state = op_a.read(interpreter, t) == op_b.read(interpreter, t);
+                let a = op_a.read(interpreter, t);
+                let b = op_b.read(interpreter, t);
+                let state = a == b;
                 interpreter.set_flag(state);
             }
             Tgt(_, op_a, op_b) => {
@@ -131,9 +147,11 @@ pub fn run_instruction<P: IoPinout>(instruction: Instruction, interpreter: &mut 
                 interpreter.set_flag(state);
             }
             Tcp(_, op_a, op_b) => {
-                if op_a == op_b {
+                let a = op_a.read(interpreter, t);
+                let b = op_b.read(interpreter, t);
+                if a == b {
                     interpreter.flag = Flag::Neather;
-                } else if op_a < op_b {
+                } else if a < b {
                     interpreter.flag = Flag::False;
                 } else {
                     interpreter.flag = Flag::True;
@@ -141,7 +159,6 @@ pub fn run_instruction<P: IoPinout>(instruction: Instruction, interpreter: &mut 
             }
         }
     }
-    interpreter.prog_counter += INSTRUCTION_BYTES;
 }
 
 #[cfg(test)]
