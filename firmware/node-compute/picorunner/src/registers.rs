@@ -31,11 +31,11 @@ pub struct Interpreter<'a, P: 'a + IoPinout> {
     pub right_pin: &'a mut P::Right,
     pub up_pin: &'a mut P::Up,
     pub down_pin: &'a mut P::Down,
-    pub timer: P::TimerResource,
+    pub timer: &'a mut P::TimerResource,
 }
 
 impl<'a, P: IoPinout> Interpreter<'a, P> {
-    pub fn new(down_pin: &'a mut P::Down, left_pin: &'a mut P::Left, up_pin: &'a mut P::Up, right_pin: &'a mut P::Right, timer: P::TimerResource) -> Interpreter<'a, P> {
+    pub fn new(down_pin: &'a mut P::Down, left_pin: &'a mut P::Left, up_pin: &'a mut P::Up, right_pin: &'a mut P::Right, timer: &'a mut P::TimerResource) -> Interpreter<'a, P> {
         Interpreter {
             reg_acc: 0,
             prog_counter: 0,
@@ -61,21 +61,21 @@ impl<'a, P: IoPinout> Interpreter<'a, P> {
 /***************************** Register Enums *****************************/
 
 //different types of registers.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Debug)]
 pub enum Register {
     Mem(MemRegister),
     Io(IoRegister),
 }
 
 //memory register
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Debug)]
 pub enum MemRegister {
     Acc,
     Null,
 }
 
 //IO registers, one register for each node it can communicate with.
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Debug)]
 pub enum IoRegister {
     Right,
     Left,
@@ -83,13 +83,13 @@ pub enum IoRegister {
     Down,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd)] //Look into if the derive is redundant
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Debug)] //Look into if the derive is redundant
 pub enum RegisterOrImmediate {
     Reg(Register),
     Immediate(i8),
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)] //Adding traits
+#[derive(Clone, Copy, PartialEq, Eq, Debug)] //Adding traits
 pub enum Flag {
     True,
     False,
@@ -152,16 +152,16 @@ impl RegRead for IoRegister { //Not done! no value returned
     fn read<P: IoPinout>(self, interpreter: &mut Interpreter<P>, t: &mut Threshold) -> i8 {
         match self {
             IoRegister::Up => {
-                read_loop(interpreter.up_pin, &mut interpreter.timer, t)
+                read_loop(interpreter.up_pin, interpreter.timer, t)
             },
             IoRegister::Down => {
-                read_loop(interpreter.down_pin, &mut interpreter.timer, t)
+                read_loop(interpreter.down_pin, interpreter.timer, t)
             },
             IoRegister::Right => {
-                read_loop(interpreter.right_pin, &mut interpreter.timer, t)
+                read_loop(interpreter.right_pin, interpreter.timer, t)
             },
             IoRegister::Left => {
-                read_loop(interpreter.left_pin, &mut interpreter.timer, t)
+                read_loop(interpreter.left_pin, interpreter.timer, t)
             },
         }
     }
@@ -190,10 +190,10 @@ fn read_loop<P: OutputPin + InputPin, T: CountDown + Periodic + Send, TR: Resour
 impl RegWrite for IoRegister {
     fn write<P: IoPinout>(self, interpreter: &mut Interpreter<P>, t: &mut Threshold, value: i8) {
         match self {
-            IoRegister::Up => write_loop(interpreter.up_pin, &mut interpreter.timer, t, value),
-            IoRegister::Down => write_loop(interpreter.down_pin, &mut interpreter.timer, t, value),
-            IoRegister::Right => write_loop(interpreter.right_pin, &mut interpreter.timer, t, value),
-            IoRegister::Left => write_loop(interpreter.left_pin, &mut interpreter.timer, t, value),
+            IoRegister::Up => write_loop(interpreter.up_pin, interpreter.timer, t, value),
+            IoRegister::Down => write_loop(interpreter.down_pin, interpreter.timer, t, value),
+            IoRegister::Right => write_loop(interpreter.right_pin, interpreter.timer, t, value),
+            IoRegister::Left => write_loop(interpreter.left_pin, interpreter.timer, t, value),
         }
     }
 }

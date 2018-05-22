@@ -15,7 +15,7 @@ use stm32f0x0_hal::gpio::*;
 use stm32f0x0_hal::prelude::*;
 use stm32f0x0_hal::time::Hertz;
 
-pub const PICOTALK_FREQ: Hertz = Hertz(10000);
+pub const PICOTALK_FREQ: Hertz = Hertz(1000);
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum TransmitState {

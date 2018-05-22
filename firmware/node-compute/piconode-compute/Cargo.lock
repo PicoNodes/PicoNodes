@@ -190,6 +190,7 @@ dependencies = [
  "picostore 0.1.0",
  "picostorm 0.1.0",
  "picotalk 0.1.0",
+ "stm32f0x0 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "stm32f0x0-hal 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

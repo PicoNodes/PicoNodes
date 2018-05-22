@@ -8,7 +8,7 @@ extern crate stm32f0x0;
 use core::slice;
 use core::ops::Deref;
 
-use stm32f0x0::{flash, crc};
+use stm32f0x0::{FLASH, CRC, flash};
 
 use byteorder::{NativeEndian, ByteOrder};
 
@@ -48,7 +48,7 @@ impl PicoStore {
         }
     }
 
-    pub fn crc(&self, crc: &mut crc::RegisterBlock) -> u32 {
+    pub fn crc(&self, crc: &mut CRC) -> u32 {
         crc.cr.write(|w| w.reset().set_bit());
         for byte in self.iter() {
             crc.dr.write(|w| unsafe { w.dr().bits(*byte as u32) });
@@ -56,7 +56,7 @@ impl PicoStore {
         crc.dr.read().dr().bits()
     }
 
-    fn unlock(&mut self, flash: &mut flash::RegisterBlock) {
+    fn unlock(&mut self, flash: &mut FLASH) {
         if flash.cr.read().lock().bit() {
             unsafe {
                 flash.keyr.write(|w| w.fkeyr().bits(0x45670123));
@@ -65,7 +65,7 @@ impl PicoStore {
         }
     }
 
-    fn erase(&mut self, flash: &mut flash::RegisterBlock) {
+    fn erase(&mut self, flash: &mut FLASH) {
         wait_while_busy(&flash.sr);
         flash.cr.modify(|_, w| w.per().set_bit());
         flash
@@ -80,7 +80,7 @@ impl PicoStore {
         flash.cr.modify(|_, w| w.per().clear_bit());
     }
 
-    pub fn replace(&mut self, new: &[u8], flash: &mut flash::RegisterBlock) {
+    pub fn replace(&mut self, new: &[u8], flash: &mut FLASH) {
         self.unlock(flash);
         self.erase(flash);
 
