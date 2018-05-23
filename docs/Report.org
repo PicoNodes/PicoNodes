@@ -13,21 +13,27 @@
 #+END_SRC
 
 * Introduction
-
 The goal of this project outcome is to provide a "hands on" physical
 pedagogical education platform for the schools. The platform will be
 tailored to the new learning outcome goals for the subjects Computational
 Thinking and Programming, which will take effect from June 2018. The
-platform is directed towards teaching parallel programming, using a
+platform is directed towards teaching parallel programming and distributed systems using a
 custom assembler-like language.
 
-** Background
-
-*** Computational thinking in the Swedish schools
-
+* Background
+The digitalization of our society is changing fast and we all want to keep up with it. This put alot of pressure on the scools
+to adopt programming and something called computational thinking in the education. In this process the Swedish agency of
+education is making  changes to the scoolsystem to implement computational thinking weekly on several courses for students in the
+age of x to z. Several countries have implemented programming in the scools and this is making the market in demand of tools to 
+use in the teaching process. Today the most used products for this purpose is Scratch, MicroBit and Code Studio but they are all focusing
+on a software, abstract programming form and the market is short of products for learning how to program hardware and distributed systems.
+With the digitalization the sociaity also demand faster processes and more complex hardware. This results in computers with advanced technics 
+in distributed systems and parallell programming. 
+** Computational thinking in the Swedish schools
+The Swedish agency of education is adopting programming and computational thinking in scools and made goals for the scools to implement
+it in the courses
 Computational thinking is stated by Linköping's University to be
 a process of problem-solving, which includes:
-
 - Formulating a problem in such a way that it becomes possible to use computers to solve it.
 - Breaking down complex problems into smaller parts.
 - Finding repeating patterns and reusing them.
@@ -35,7 +41,7 @@ a process of problem-solving, which includes:
 - Logically organizing and analyzing data.
 - Represent data through abstractions such as models and simulations.
   # FIX ME: Unclear
-- Identifying, analyzing, and implementing possible solutions to find the most
+- Identifying, analyzing  and implementing possible solutions to find the most
   effective one, through a combination of steps and resources.
 - To generalize and use this kind of problem-solving process on other
   kinds of problems.
@@ -129,7 +135,8 @@ In the first stages of the project it is prefered to be more flexible for change
 For this reason a breadboard and jumpingwires are used to test the design before
 making the final one. The MCU-moduels is made in a router  mill so a breakout board
 can be made for the MCU pins to match the breadboard. DipTrace is used for designing
-and routing the PCBs.
+and routing the PCBs. In the last stages of the project the CAD-files will be sent to
+a company for producing the boards.
 
 
 
