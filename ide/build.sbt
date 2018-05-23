@@ -69,7 +69,7 @@ lazy val picoide = project
       "--content-base",
       (sourceDirectory.value / "main" / "web").getAbsolutePath
     ),
-    useYarn := true,
+    //useYarn := true,
     Compile / npmDependencies ++= Seq(
       "react"             -> "16.2.0",
       "react-dom"         -> "16.2.0",

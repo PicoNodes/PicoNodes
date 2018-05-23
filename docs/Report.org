@@ -143,6 +143,8 @@ a company for producing the boards.
 
 ***** Use references!
 ** Delimitations (Avgränsningar, swe)
+The project is limited to 2,5 month so the product will not be ready for the market in this time. This project will build up a ground for future work
+so the product can be represented on the market. 
 ** Outline (Disposition)
 * (Theoretic Background) Use a self-explaining title
 ** Use headings to break the text
