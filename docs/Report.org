@@ -23,7 +23,7 @@ custom assembler-like language.
 
 * Background
 
-The digitalization of our society is moving fast, and we all want to keep up with it. This put a lot of pressure on the schools
+The digitalization of our society is moving quickly, and we all want to keep up with it. This put a lot of pressure on the schools
 to adopt programming and something called computational thinking in the education. In this process the Swedish agency of
 education is making  changes to the school system to implement computational thinking weekly on several courses for students in the
 age of x to z. Several countries have implemented programming in the schools and this is making the market in demand of tools to
@@ -81,26 +81,40 @@ For this reason will the project have a focus on the teachers and how to prepare
 to use the tools the platform provide. This will be in form of documents of concept,
 tutorials?, ...(this might fit some where else)
 
-*** Other tool for supporting computational thinking outcomes
+*** Prior Art / Other tools for supporting computational thinking outcomes
+
+So far, "educational" programming has mostly taken one of two tracks: "toy" languages and environments
+that are designed to be visually exciting (such as Scratch\cite{Scratch}), or disposable limited computers
+(see Raspberry Pi\cite{RaspberryPi} and BBC micro:bit\cite{MicroBit}).
+
+We've tried to go in a slightly different route, inspired by Zachtronics Industries'
+games Shenzhen I/O\cite{ShenzhenIO} and TIS-100\cite{TIS100}.
+
+The Micro:Bit\cite{MicroBit} and Raspberry Pi\cite{RaspberryPi} platforms 
 
 ***** Use references
 ** Problem
 *** Questions
+
 The study have examined following question:
+
 1. How to implement the new outcomes for computational thinking
 2. Implementation of a platform to teach students to do hardware close programming
 3. Evaluation of the pedagogical usefulness of the platform and how you can implement
-the idea to motivate students.
+   the idea to motivate students.
 ***** Use references
 ** Purpose
 ** Goal
 *** Benefits, Ethics and Sustainability
+
 ** Methodology / Methods
+
 State the problem and underlying assumption.
-The National Agency for Education in Sweden are about to implement outcomes for
-computational thinking in June 2018. Their vision for 2020, is that every student have
-developed an adequate competence for digital technology
+Skolverket (the national agency for education in Sweden) are about to implement new
+learning goals outcomes for computational thinking in June 2018. Their vision for
+2020, is that every student has developed an adequate competence for digital technology
 https://liu.se/cetis/konferenser/documents-tis2017/m2-3-datalogiskt-tankande.pdf).
+
 The question formulation in this thesis report is how can you implement computational thinking
 for an parallel and hardware close programming. For the project, a platform was developed to
 be used as a tool in the schools education when teaching programming and was iterative developed
@@ -109,13 +123,23 @@ with questionnaires to the the teachers and students and feedback after they che
 prototypes. The questionnaire is formed so the answers can give us a foundations for developing a
 pedagogical and motivating tool the student can use to achieve the outcomes for computational thinking.
 
+# I guess this means the questionnaires?
 *** data selection
 
 *** Tools
 *** Analyzing the data and procedures
-*** Specific research tools and strategies
-The product will have the UI designed in the browser so the user wont be fixed to one platform. This way either a mobile phone or a laptop can be used for programming the micro-controllers. The MCU of our choice is stm32f030f4p6. This MCU is chosen because it got enough I/Os and memory space for the application and is reasonable cheep. This MCUs are also popular to program in Rust which make it easier to find documentation and support. At least 8 I/O is needed. UART communication(two pins for TX and RX), communications between the MCUs(4 pins), external clock source and coarse grained syncronization clock. A server will be provided by Inicio which contains the drivers for communicating between the platforms and the compiler for the bytecode.
 
+*** Specific research tools and strategies
+
+The product will have the UI designed in the browser so the user wont be fixed to one platform. This way
+either a mobile phone or a laptop can be used for programming the micro-controllers. The MCU of our choice
+is stm32f030f4p6. This MCU is chosen because it got enough I/Os and memory space for the application and
+is reasonable cheep. This MCUs are also popular to program in Rust which make it easier to find documentation
+and support. At least 8 I/O is needed. UART communication(two pins for TX and RX), communications between
+the MCUs(4 pins), external clock source and coarse grained syncronization clock. A server will be provided
+by Inicio which contains the drivers for communicating between the platforms and the compiler for the bytecode.
+
+# is IDE relevant here?
 *** IDE and programming langueges
 
 Rust is used to program the MCU. The MCU of our choice for the is
