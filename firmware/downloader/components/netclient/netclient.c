@@ -2,7 +2,7 @@
 
 #include "netclient.h"
 
-#define SERVER_ADDR "192.168.173.1"
+#define SERVER_ADDR "192.168.137.1"
 #define SERVER_PORT "8081"
 
 static void my_debug( void *ctx, int level,
