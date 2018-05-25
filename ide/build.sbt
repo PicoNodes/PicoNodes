@@ -107,6 +107,7 @@ lazy val picoserver = project
       "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
     flywayUrl := "jdbc:postgresql:///piconodes",
     flywayUser := "piconodes",
+    flywayPassword := "asdf",
     flywayLocations := Seq("db/migration")
   )
   .dependsOn(picoideProtoJVM)
