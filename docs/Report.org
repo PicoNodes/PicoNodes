@@ -87,10 +87,15 @@ So far, "educational" programming has mostly taken one of two tracks: "toy" lang
 that are designed to be visually exciting (such as Scratch\cite{Scratch}), or disposable limited computers
 (see Raspberry Pi\cite{RaspberryPi} and BBC micro:bit\cite{MicroBit}).
 
-We've tried to go in a slightly different route, inspired by Zachtronics Industries'
-games Shenzhen I/O\cite{ShenzhenIO} and TIS-100\cite{TIS100}.
+We've tried to go in a slightly different route, inspired by Zachtronics Industries' games Shenzhen
+I/O\cite{ShenzhenIO} and TIS-100\cite{TIS100}. Instead of giving them a single computer or microcontroller
+for the whole project, we give them a whole bunch of /extremely/ limited microcontrollers, in order to force
+them to think about splitting their projects long before a traditional approach does. To compensate for this,
+we've also provided a simplified way to communicate between them, without having to worry about more complicated
+concerns, such as bits, timing, and clock skew.
 
-The Micro:Bit\cite{MicroBit} and Raspberry Pi\cite{RaspberryPi} platforms 
+To differentiate from the Zachtronics games we've actually built a physical kit using these principles,
+rather than just providing the user with a simulator.
 
 ***** Use references
 ** Problem
