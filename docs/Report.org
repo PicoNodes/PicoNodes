@@ -50,7 +50,7 @@ a process of problem-solving, which includes:
 - To generalize and use this kind of problem-solving process on other
   kinds of problems.
 
-# Can't actually find these categories anywhere..
+# Can't actually find these categories anywhere in HeintzMannila..
 According to Heintz and Mannila\cite{HeintzMannila}, computing in schools should
 have three key stages:
 
@@ -97,39 +97,40 @@ concerns, such as bits, timing, and clock skew.
 To differentiate from the Zachtronics games we've actually built a physical kit using these principles,
 rather than just providing the user with a simulator.
 
-***** Use references
 ** Problem
+
 *** Questions
 
-The study have examined following question:
+This study has (attempted to) examine the following questions:
 
-1. How to implement the new outcomes for computational thinking
-2. Implementation of a platform to teach students to do hardware close programming
-3. Evaluation of the pedagogical usefulness of the platform and how you can implement
-   the idea to motivate students.
-***** Use references
+1. How to implement the new learning outcome goals for computational thinking
+2. Implementation of a platform to teach students to do hardware-close programming
+3. Evaluation of the pedagogical usefulness of the platform, and how you can use
+   it to motivate students.
+
 ** Purpose
 ** Goal
 *** Benefits, Ethics and Sustainability
 
 ** Methodology / Methods
 
-State the problem and underlying assumption.
-Skolverket (the national agency for education in Sweden) are about to implement new
-learning goals outcomes for computational thinking in June 2018. Their vision for
-2020, is that every student has developed an adequate competence for digital technology
+# State the problem and underlying assumption.
+
+Skolverket (the Swedish national agency for education) are about to implement new
+learning outcome goals for computational thinking in June 2018. Their vision for
+2020 is that every student has developed an adequate competence for digital technology
 https://liu.se/cetis/konferenser/documents-tis2017/m2-3-datalogiskt-tankande.pdf).
+# Try to find primary source?
 
-The question formulation in this thesis report is how can you implement computational thinking
-for an parallel and hardware close programming. For the project, a platform was developed to
-be used as a tool in the schools education when teaching programming and was iterative developed
-during the last 3 weeks of the project from evaluation research. The evaluation of the platform was based on research
-with questionnaires to the the teachers and students and feedback after they checked out the products
-prototypes. The questionnaire is formed so the answers can give us a foundations for developing a
-pedagogical and motivating tool the student can use to achieve the outcomes for computational thinking.
+The primary question for this thesis project is: "How can you implement computational thinking
+for an parallel and hardware-close programming?". To try to answer this we developed a platform to
+be used in schools when teaching programming. The evaluation of the platform was based on letting
+school students and teachers play around with a prototype, and then letting them fill out a questionnaire
+about their experience.
 
-# I guess this means the questionnaires?
-*** data selection
+*** School Selection
+
+Initially we wanted to feedback from as diverse a set of schools as possible, with .
 
 *** Tools
 *** Analyzing the data and procedures
