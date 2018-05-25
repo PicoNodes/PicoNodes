@@ -50,7 +50,7 @@ a process of problem-solving, which includes:
 - To generalize and use this kind of problem-solving process on other
   kinds of problems.
 
-# Can't actually find these categories anywhere..
+# Can't actually find these categories anywhere., recosider removing
 According to Heintz and Mannila\cite{HeintzMannila}, computing in schools should
 have three key stages:
 
@@ -93,30 +93,37 @@ games Shenzhen I/O\cite{ShenzhenIO} and TIS-100\cite{TIS100}.
 The Micro:Bit\cite{MicroBit} and Raspberry Pi\cite{RaspberryPi} platforms 
 
 ***** Use references
-** Problem
-*** Questions
+** Research Question
 
-The study have examined following question:
+The study has examined the following questions:
 
-1. How to implement the new outcomes for computational thinking
-2. Implementation of a platform to teach students to do hardware close programming
-3. Evaluation of the pedagogical usefulness of the platform and how you can implement
+1. How to implement the new outcomes for computational thinking presented by the Swedish Agency of Education.
+2. Implementation of a platform to teach tha basics of bare metal programming to students.
+3. Evaluation of the pedagogical usefulness of the platform and how to implement
    the idea to motivate students.
-***** Use references
+
 ** Purpose
+
+Improven the digital literacy.
+
 ** Goal
+
+The goal with the project is to develop a basic prototype for its purpose.
+
 *** Benefits, Ethics and Sustainability
 
+Democracy the politic and encurage youth to learn technology.
 ** Methodology / Methods
 
-State the problem and underlying assumption.
+# State the problem and underlying assumption.
+
 Skolverket (the national agency for education in Sweden) are about to implement new
 learning goals outcomes for computational thinking in June 2018. Their vision for
 2020, is that every student has developed an adequate competence for digital technology
 https://liu.se/cetis/konferenser/documents-tis2017/m2-3-datalogiskt-tankande.pdf).
 
 The question formulation in this thesis report is how can you implement computational thinking
-for an parallel and hardware close programming. For the project, a platform was developed to
+ For the project, a platform was developed to
 be used as a tool in the schools education when teaching programming and was iterative developed
 during the last 3 weeks of the project from evaluation research. The evaluation of the platform was based on research
 with questionnaires to the the teachers and students and feedback after they checked out the products
@@ -175,8 +182,7 @@ The project is limited to 2,5 month so the product will not be ready for the mar
 so the product can be represented on the market. The prototype will be of simple sort, enough so the student can visualize the aplication of the product.
 Further development and improvment will be mentioned in the chapter further opertunities. 
 ** Outline (Disposition)
-* (Theoretic Background) Use a self-explaining title
-** Use headings to break the text
+** Use headings to break the tex
 * (Engineering-related content, Methodologies and Methods) Use a self-explaining title
 ** Engineering-related and scientific content:
 ** (The work)
