@@ -38,8 +38,7 @@ in distributed systems and parallel programming.
 
 ** Computational thinking in the Swedish schools
 
-The Swedish agency of education is adopting programming and computational thinking in schools and made goals for the schools to implement
-it in the courses
+The Swedish agency of education is adopting programming and computational thinking in schools and made goals for the schools to implement.
 Computational thinking is stated by Linköping's University to be
 a process of problem-solving, which includes:
 - Formulating a problem in such a way that it becomes possible to use computers to solve it.
@@ -53,6 +52,21 @@ a process of problem-solving, which includes:
   effective one, through a combination of steps and resources.
 - To generalize and use this kind of problem-solving process on other
   kinds of problems.
+This new way of thinking will not be implemented in one course but distributed on several courses and practise weekly in the scoolschedule.
+Today the teachers are in a period of trial and error for implementing the goals and each municipal make there own decisions for tools and programming language to use.
+
+The reason to implement computational thinking in scools is to use the advantages from digitalization and the possibilities of using computers for support.
+# might remove this part
+One important thing to consider in the process of educating computational thinking
+and programming is to have very clear guidance and considerations for the teachers,
+who need to understand the learning concept fully to be able to teach it.
+In a inquiry made by Microsoft and CAS, 68% of the teachers is worried that the
+students have more understanding for the subject then they do and that 81%
+of the teachers wish for more agile training and material for the subject https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
+For this reason will the project have some focus on the teachers and how to prepare them
+to use the tools the platform provide. This will be in form of documents of concept,
+tutorials?, ...(this might fit some where else)
+
 
 # Can't actually find these categories anywhere in HeintzMannila.., recosider removing
 According to Heintz and Mannila\cite{HeintzMannila}, computing in schools should
@@ -75,15 +89,7 @@ and state the problem in a way so computers can help solving the problem. This a
 evolve skills in handling complex problems, perseverance when working on big problems,
 tolerance for ambiguity, ability to handle open stated problems and ability to communicate
 and cooperate with others https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
-One important thing to consider in the process of educating computational thinking
-and programming is to have very clear guidance and considerations for the teachers,
-who need to understand the learning concept fully to be able to teach it.
-In a inquiry made by Microsoft and CAS, 68% of the teachers is worried that the
-students have more understanding for the subject then they do and that 81%
-of the teachers wish for more agile training and material for the subject https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
-For this reason will the project have a focus on the teachers and how to prepare them
-to use the tools the platform provide. This will be in form of documents of concept,
-tutorials?, ...(this might fit some where else)
+
 
 *** Prior Art / Other tools for supporting computational thinking outcomes
 
@@ -195,6 +201,8 @@ lab's LPKF ProtoMat mill.
 The project is limited to 2,5 month so the product will not be ready for the market in this time. This project will build up a ground for future work
 so the product can be represented on the market. The prototype will be of simple sort, enough so the student can visualize the aplication of the product.
 Further development and improvment will be mentioned in the chapter further opertunities.
+The product will also be targeted for students in eighth grade, both students who have programmed before and students who are new to it. This will make
+the study limited for how older/younger student experience the product.
 ** Outline (Disposition)
 ** Use headings to break the tex
 * (Engineering-related content, Methodologies and Methods) Use a self-explaining title
