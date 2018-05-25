@@ -50,7 +50,7 @@ a process of problem-solving, which includes:
 - To generalize and use this kind of problem-solving process on other
   kinds of problems.
 
-# Can't actually find these categories anywhere., recosider removing
+# Can't actually find these categories anywhere in HeintzMannila.., recosider removing
 According to Heintz and Mannila\cite{HeintzMannila}, computing in schools should
 have three key stages:
 
@@ -87,13 +87,17 @@ So far, "educational" programming has mostly taken one of two tracks: "toy" lang
 that are designed to be visually exciting (such as Scratch\cite{Scratch}), or disposable limited computers
 (see Raspberry Pi\cite{RaspberryPi} and BBC micro:bit\cite{MicroBit}).
 
-We've tried to go in a slightly different route, inspired by Zachtronics Industries'
-games Shenzhen I/O\cite{ShenzhenIO} and TIS-100\cite{TIS100}.
+We've tried to go in a slightly different route, inspired by Zachtronics Industries' games Shenzhen
+I/O\cite{ShenzhenIO} and TIS-100\cite{TIS100}. Instead of giving them a single computer or microcontroller
+for the whole project, we give them a whole bunch of /extremely/ limited microcontrollers, in order to force
+them to think about splitting their projects long before a traditional approach does. To compensate for this,
+we've also provided a simplified way to communicate between them, without having to worry about more complicated
+concerns, such as bits, timing, and clock skew.
 
-The Micro:Bit\cite{MicroBit} and Raspberry Pi\cite{RaspberryPi} platforms 
+To differentiate from the Zachtronics games we've actually built a physical kit using these principles,
+rather than just providing the user with a simulator.
 
-***** Use references
-** Research Question
+** Research Questions
 
 The study has examined the following questions:
 
@@ -117,10 +121,17 @@ Democracy the politic and encurage youth to learn technology.
 
 # State the problem and underlying assumption.
 
-Skolverket (the national agency for education in Sweden) are about to implement new
-learning goals outcomes for computational thinking in June 2018. Their vision for
-2020, is that every student has developed an adequate competence for digital technology
+Skolverket (the Swedish national agency for education) are about to implement new
+learning outcome goals for computational thinking in June 2018. Their vision for
+2020 is that every student has developed an adequate competence for digital technology
 https://liu.se/cetis/konferenser/documents-tis2017/m2-3-datalogiskt-tankande.pdf).
+# Try to find primary source?
+
+The primary question for this thesis project is: "How can you implement computational thinking
+for an parallel and hardware-close programming?". To try to answer this we developed a platform to
+be used in schools when teaching programming. The evaluation of the platform was based on letting
+school students and teachers play around with a prototype, and then letting them fill out a questionnaire
+about their experience.
 
 The question formulation in this thesis report is how can you implement computational thinking
  For the project, a platform was developed to
@@ -130,8 +141,9 @@ with questionnaires to the the teachers and students and feedback after they che
 prototypes. The questionnaire is formed so the answers can give us a foundations for developing a
 pedagogical and motivating tool the student can use to achieve the outcomes for computational thinking.
 
-# I guess this means the questionnaires?
-*** data selection
+*** School Selection
+
+Initially we wanted to feedback from as diverse a set of schools as possible, with .
 
 *** Tools
 *** Analyzing the data and procedures
