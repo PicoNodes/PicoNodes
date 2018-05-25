@@ -34,8 +34,7 @@ in distributed systems and parallel programming.
 
 ** Computational thinking in the Swedish schools
 
-The Swedish agency of education is adopting programming and computational thinking in schools and made goals for the schools to implement
-it in the courses
+The Swedish agency of education is adopting programming and computational thinking in schools and made goals for the schools to implement.
 Computational thinking is stated by Linköping's University to be
 a process of problem-solving, which includes:
 - Formulating a problem in such a way that it becomes possible to use computers to solve it.
@@ -49,6 +48,9 @@ a process of problem-solving, which includes:
   effective one, through a combination of steps and resources.
 - To generalize and use this kind of problem-solving process on other
   kinds of problems.
+This new way of thinking will not be implemented in one course but distributed on several courses and practise weekly in the scoolschedule.
+Today the teachers are in a period of trial and error for implementing the goals and each municipal make there own decisions for tools and programming language to use.
+
 
 # Can't actually find these categories anywhere in HeintzMannila.., recosider removing
 According to Heintz and Mannila\cite{HeintzMannila}, computing in schools should
