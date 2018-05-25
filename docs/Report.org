@@ -139,7 +139,7 @@ and support. At least 8 I/O is needed. UART communication(two pins for TX and RX
 the MCUs(4 pins), external clock source and coarse grained syncronization clock. A server will be provided
 by Inicio which contains the drivers for communicating between the platforms and the compiler for the bytecode.
 
-# is IDE relevant here?
+# is IDE relevant here? might be cus its restricting further development?
 *** IDE and programming langueges
 
 Rust is used to program the MCU. The MCU of our choice for the is
@@ -172,7 +172,8 @@ a company for producing the boards.
 ***** Use references!
 ** Delimitations (Avgränsningar, swe)
 The project is limited to 2,5 month so the product will not be ready for the market in this time. This project will build up a ground for future work
-so the product can be represented on the market.
+so the product can be represented on the market. The prototype will be of simple sort, enough so the student can visualize the aplication of the product.
+Further development and improvment will be mentioned in the chapter further opertunities. 
 ** Outline (Disposition)
 * (Theoretic Background) Use a self-explaining title
 ** Use headings to break the text
