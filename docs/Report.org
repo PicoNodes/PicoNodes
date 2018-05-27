@@ -21,6 +21,13 @@ Thinking and Programming\cite{KTek2017} (which will take effect from June 2018).
 platform is directed towards teaching parallel programming and distributed systems using a
 custom assembler-like language.
 
+** Sustainable development
+Conflict minerals, security, composed, 
+# This belongs in further work, local network?
+Before the product can be used on the market, it should be secure from outside penetrations to prevent it to be used in 
+a distributed denial-of-service attack. 
+The components should be CE marked to sustain good quality and to insure that induvidual components standards are secured. Also RoHS standards should be uptained for 
+for minimizing the use of enviromentally hazardous substances.
 * Background
 
 The digitalization of our society is moving quickly, and we all want to keep up with it. This put a lot of pressure on the schools
@@ -31,10 +38,6 @@ use in the teaching process. Today the most used products for this purpose is Sc
 on a software, abstract programming form and the market is short of products for learning how to program hardware and distributed systems.
 With the digitalization the society also demand faster processes and more complex hardware. This results in computers with advanced technologies
 in distributed systems and parallel programming.
-
-** Terms and abbreviations
-
-- MCU: Microcontroller
 
 ** Computational thinking in the Swedish schools
 
@@ -107,8 +110,6 @@ concerns, such as bits, timing, and clock skew.
 To differentiate from the Zachtronics games we've actually built a physical kit using these principles,
 rather than just providing the user with a simulator.
 
-** Real-time systems
-
 ** Research Questions
 
 The study has examined the following questions:
@@ -129,8 +130,7 @@ The goal with the project is to develop a basic prototype for its purpose.
 *** Benefits, Ethics and Sustainability
 
 Democracy the politic and encurage youth to learn technology.
-
-* Method
+** Methodology / Methods
 
 # State the problem and underlying assumption.
 
@@ -140,69 +140,74 @@ learning outcome goals for computational thinking in June 2018. Their vision for
 https://liu.se/cetis/konferenser/documents-tis2017/m2-3-datalogiskt-tankande.pdf).
 # Try to find primary source?
 
-The primary question for this thesis project is: "How can you teach computational thinking in a context
-of parallel bare-metal programming?". To try to answer this we developed a platform to
+The primary question for this thesis project is: "How can you implement computational thinking
+for an parallel and hardware-close programming?". To try to answer this we developed a platform to
 be used in schools when teaching programming. The evaluation of the platform was based on letting
 school students and teachers play around with a prototype, and then letting them fill out a questionnaire
 about their experience.
 
-** School Selection
+The question formulation in this thesis report is how can you implement computational thinking
+ For the project, a platform was developed to
+be used as a tool in the schools education when teaching programming and was iterative developed
+during the last 3 weeks of the project from evaluation research. The evaluation of the platform was based on research
+with questionnaires to the the teachers and students and feedback after they checked out the products
+prototypes. The questionnaire is formed so the answers can give us a foundations for developing a
+pedagogical and motivating tool the student can use to achieve the outcomes for computational thinking.
 
-Initially we wanted to feedback from as diverse a set of schools as possible, with respect to facets such as
-household income and prior experience in the field.
+*** School Selection
 
-However, due to limited interest from schools we only got to try it with students in relatively wealthy areas,
-who had already signed up for optional "tech" classes.
+Initially we wanted to feedback from as diverse a set of schools as possible, with .
 
-** Tools
+*** Tools
+*** Analyzing the data and procedures
 
-*** Microcontrollers
+*** Specific research tools and strategies
 
-We chose to base our system around STMicrolectronics' STM32F030\cite{stm32f030} series of microcontrollers. We made
-this choice because it was contains both the very cheap F4P6 chip, as well as the beefier but compatible C8T6 which
-we used for debugging our software. The whole series also offered enough peripherals for our needs (primarily, a
-software-controlled timer and a single UART channel).
-
-As a bonus we also both had experience with the STM32 lineup from earlier projects.
-
-For our downloader unit we used the ESP32 microcontroller, because it has a relatively large developer community,
-plenty of resources, and a built-in Wi-Fi transceiver. Cost was also a far smaller problem here, since we need much
-smaller quantities of these. ST also has a few Wi-Fi-capable chips, but they are all marked Not Recommended for New
-Designs.
+The product will have the UI designed in the browser so the user wont be fixed to one platform. This way
+either a mobile phone or a laptop can be used for programming the micro-controllers. The MCU of our choice
+is stm32f030f4p6. This MCU is chosen because it got enough I/Os and memory space for the application and
+is reasonable cheep. This MCUs are also popular to program in Rust which make it easier to find documentation
+and support. At least 8 I/O is needed. UART communication(two pins for TX and RX), communications between
+the MCUs(4 pins), external clock source and coarse grained syncronization clock. A server will be provided
+by Inicio which contains the drivers for communicating between the platforms and the compiler for the bytecode.
 
 # is IDE relevant here? might be cus its restricting further development?
-*** Programming Languages
+*** IDE and programming langueges
 
-We used Rust to program the Node MCUs. This was both because of Rust's improved safety features over C (such as pointers
-with limited lifetimes, and move semantics), as well as the improved type system.
+Rust is used to program the MCU. The MCU of our choice for the is
+stm32f030f4p6. C is also an option and can be prefered
+if anyone would like to use IDE such as EWARM or STM32Cube to generate
+initiallisation code but is not suported by Linux. Rust is better from a safety
+perspective because it is harder to read something from more then one thread
+and it verifies pointers are still alive when they are used so you will not be
+able to keep a pointer beyond their objects lifetime. Rust also suits very well
+with our Bytecode model since our abstract sytax tree contains different legal
+values depending on the instruction. Alot of different IDE can be used for Rust,
+in this project we will use Emacs because both Scala program and the report is
+written here.
 
-For example, the support for tagged unions (also known as algebraic data types or sum types) allowed us to represent our
-PicoTalk state machines without needing either a lot of repeated states (~Blah1~, ~Blah2~, ~Blah3~), or manually reinterpreting
-variables depending on the current state.
+The homepage is programmed in Scala. Scala is very practical for not changing
+languege when writing the client and server. This makes it easier when communicating
+between the server and client.
 
-We used C for programming the downloader, because the ESP32 MCU is based on the rather uncommon Xtensa architecture, which
-LLVM (used by the Rust compiler) does not support. This wasn't as much of a hindrance, since the downloader is mostly responsible
-for relaying messages between the server and the connected node.
+*** CAD and CAM tools
+In the first stages of the project it is prefered to be more flexible for changes.
+For this reason a breadboard and jumpingwires are used to test the design before
+making the final one. The MCU-moduels is made in a router  mill so a breakout board
+can be made for the MCU pins to match the breadboard. DipTrace is used for designing
+and routing the PCBs. In the last stages of the project the CAD-files will be sent to
+a company for producing the boards.
 
-The website was developed using Scala for both the front- and backend. This was very useful to keep the codebases consistent, and
-helped avoid of code repetition when defining view models, for example. In theory it would also have been nice to stay consistent
-with the MCUs, but because of the resource constraints we wouldn't have been able to share as much code anyway.
 
-*** PCB design
 
-We started out prototyping using solderless breadboards and jumper cables, so that we would have more flexibility when changing
-plans. However, since our MCUs are SMD-based we still had to mill our breakout boards. We also designed a "debug" board for
-the STM32F030C8T6, with the same pinout as the STM32F030F4P6 that we were using as our design target.
 
-Once we were happy with our design we made a more formal design in our CAD program KiCad. Finally we milled our PCBs using our
-lab's LPKF ProtoMat mill.
-
+***** Use references!
 ** Delimitations (Avgränsningar, swe)
 The project is limited to 2,5 month so the product will not be ready for the market in this time. This project will build up a ground for future work
 so the product can be represented on the market. The prototype will be of simple sort, enough so the student can visualize the aplication of the product.
-Further development and improvment will be mentioned in the chapter further opertunities.
-The product will also be targeted for students in eighth grade, both students who have programmed before and students who are new to it. This will make
-the study limited for how older/younger student experience the product.
+Further development and improvment will be mentioned in the chapter further opertunities. 
+The product will also be targeted for students in eighth grade, both students who have programmed before and students who are new to it. This will make 
+the study limited for how older/younger student experience the product. 
 ** Outline (Disposition)
 ** Use headings to break the tex
 * (Engineering-related content, Methodologies and Methods) Use a self-explaining title
