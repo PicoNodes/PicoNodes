@@ -21,13 +21,10 @@ Thinking and Programming\cite{KTek2017} (which will take effect from June 2018).
 platform is directed towards teaching parallel programming and distributed systems using a
 custom assembler-like language.
 
-** Sustainable development
-Conflict minerals, security, composed, 
-# This belongs in further work, local network?
-Before the product can be used on the market, it should be secure from outside penetrations to prevent it to be used in 
-a distributed denial-of-service attack. 
-The components should be CE marked to sustain good quality and to insure that induvidual components standards are secured. Also RoHS standards should be uptained for 
-for minimizing the use of enviromentally hazardous substances.
+** Outline
+
+#Describe the outline of the thesis
+
 * Background
 
 The digitalization of our society is moving quickly, and we all want to keep up with it. This put a lot of pressure on the schools
@@ -129,7 +126,16 @@ The goal with the project is to develop a basic prototype for its purpose.
 
 *** Benefits, Ethics and Sustainability
 
-Democracy the politic and encurage youth to learn technology.
+#This sentece sounds wrong
+The benefits of the product is to democracy the politic and encurage youth to learn technology.
+** Sustainable development
+Conflict minerals, security, composed, 
+# This belongs in further work, local network?
+Before the product can be used on the market, it should be secure from outside penetrations to prevent it to be used in 
+a distributed denial-of-service attack. 
+The components should be CE marked to sustain good quality and to insure that induvidual components standards are secured. Also RoHS standards should be uptained  
+for minimizing the use of enviromentally hazardous substances.
+The components need to be cheep to be able to give them away in the scools and
 ** Methodology / Methods
 
 # State the problem and underlying assumption.
@@ -156,10 +162,21 @@ pedagogical and motivating tool the student can use to achieve the outcomes for 
 
 *** School Selection
 
-Initially we wanted to feedback from as diverse a set of schools as possible, with .
+Initially we wanted to feedback from as diverse a set of schools as possible but because of the lack of interest from the scools, only one 
+volunteered to evaluate the prototype. To try to gather as much data as possible, family members was asked to participate.
 
 *** Tools
+
+
+
 *** Analyzing the data and procedures
+
+The data are gathered by questionairs with two sections. One section is about their experience in generall with encounter programming and 
+section two is about thier experince with the prototype. This is to evaluate what disposition the students can have about programming and 
+if we change that disposition. The teachers and student are handed  a similar questionair but with straighten questions towards the use of the product 
+teaching/learning. 
+# should we have the questions in the report?
+The data will be used to evaluate the product and for suggestions to future work.
 
 *** Specific research tools and strategies
 
@@ -197,8 +214,6 @@ making the final one. The MCU-moduels is made in a router  mill so a breakout bo
 can be made for the MCU pins to match the breadboard. DipTrace is used for designing
 and routing the PCBs. In the last stages of the project the CAD-files will be sent to
 a company for producing the boards.
-
-
 
 
 ***** Use references!
