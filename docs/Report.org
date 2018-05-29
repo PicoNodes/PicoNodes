@@ -21,9 +21,20 @@ Thinking and Programming\cite{KTek2017} (which will take effect from June 2018).
 platform is directed towards teaching parallel programming and distributed systems using a
 custom assembler-like language.
 
-** Outline
+** Delimitations (Avgränsningar, swe)
 
-#Describe the outline of the thesis
+The project is limited to 2,5 month so the product will not be ready for the market in this time. This project will build up a ground for future work
+so the product can be represented on the market. The prototype will be of simple sort, enough so the student can visualize the aplication of the product.
+Further development and improvment will be mentioned in the chapter further opertunities.
+The product will also be targeted for students in eighth grade, both students who have programmed before and students who are new to it. This will make
+the study limited for how older/younger student experience the product.
+
+** Outline (Disposition)
+
+Chapter two is presenting the background for the thesis. Why computational thinking is relevant in the scools, the purpose and goals with the project and the benefits and 
+sustainability with the product. Chapter three contains the method with the possibilities to implement the idea considering the pros and cons. A propose of the tools and programming
+languages used and how the data are gathered to evaluate the product. The result of our product is presented in chapter four and chapter five analyze the data wich is used to 
+suggest improvements in further work with the prototype with the purpose to let it be used in the scools. 
 
 * Background
 
@@ -63,8 +74,11 @@ who need to understand the learning concept fully to be able to teach it.
 In a inquiry made by Microsoft and CAS, 68% of the teachers is worried that the
 students have more understanding for the subject then they do and that 81%
 of the teachers wish for more agile training and material for the subject https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
-For this reason will the project have some focus on the teachers and how to prepare them
-to use the tools the platform provide. This will be in form of documents of concept,
+One challange for the society is to get qualified teachers to deliver the new curriculum because the teachers are anxious to develop new 
+learning resources and have insecurity in dealing with new and unfamiliar teaching material. K�lla: https://files.eric.ed.gov/fulltext/EJ1137876.pdf 
+For this reasons the project will have some focus on the teachers and how to prepare them
+to use the tools the platform provide. The UI will be scaled down as much as possible to be easy to use with few steps to set-up for more focus on the programming.
+This will be in form of documents of concept,
 tutorials?, ...(this might fit some where else)
 
 
@@ -136,13 +150,7 @@ a distributed denial-of-service attack.
 The components should be CE marked to sustain good quality and to insure that individual components standards are secured. Also RoHS standards should be uptained
 for minimizing the use of enviromentally hazardous substances.
 The components need to be cheep to be able to give them away in the scools and
-** Delimitations (Avgränsningar, swe)
-The project is limited to 2,5 month so the product will not be ready for the market in this time. This project will build up a ground for future work
-so the product can be represented on the market. The prototype will be of simple sort, enough so the student can visualize the aplication of the product.
-Further development and improvment will be mentioned in the chapter further opertunities.
-The product will also be targeted for students in eighth grade, both students who have programmed before and students who are new to it. This will make
-the study limited for how older/younger student experience the product.
-** Outline (Disposition)
+
 ** Use headings to break the tex
 
 * Methodology / Methods
@@ -169,14 +177,16 @@ with questionnaires to the the teachers and students and feedback after they che
 prototypes. The questionnaire is formed so the answers can give us a foundations for developing a
 pedagogical and motivating tool the student can use to achieve the outcomes for computational thinking.
 
-** School Selection
+** Targeted User (and school Selection)
 
+The product is directed to student in 8:th grade. The platform is aiming to be a good base for students without programming practise as well to be challenging enough
+on a higher level for a more experienced programmer. The manual is in english so the students must understand english well. 
 Initially we wanted to feedback from as diverse a set of schools as possible but because of the lack of interest from the scools, only one
 volunteered to evaluate the prototype. To try to gather as much data as possible, family members was asked to participate for the avaluation of the prototype.
 
-** Tools
+** Tools (for gathering data?)
 
-
+Questioniars is used to get an evaluation from the students testing the prototype. 
 
 ** Analyzing the data and procedures
 
