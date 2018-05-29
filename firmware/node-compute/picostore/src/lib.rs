@@ -7,6 +7,7 @@ extern crate stm32f0x0;
 
 use core::slice;
 use core::ops::Deref;
+use core::marker::PhantomData;
 
 use stm32f0x0::{FLASH, CRC, flash};
 
@@ -24,7 +25,9 @@ static mut PICOSTORE_CODE_BYTES: u16 = 0;
 
 static mut TAKEN: bool = false;
 
-pub struct PicoStore;
+pub struct PicoStore {
+    _marker: PhantomData<()>,
+}
 
 fn wait_while_busy(sr: &flash::SR) {
     while sr.read().bsy().bit() {}
@@ -37,7 +40,9 @@ impl PicoStore {
                 None
             } else {
                 TAKEN = true;
-                Some(PicoStore)
+                Some(PicoStore {
+                    _marker: PhantomData,
+                })
             }
         }
     }
