@@ -1,6 +1,10 @@
 #+TITLE: Title Template for Degree Project
 #+SUBTITLE: SUBTITLE - Arial 16/19pt
 #+AUTHOR: Therese Kennerberg, Teo Klestrup Röijezon
+# Include SVG graphics
+#+LATEX_HEADER: \usepackage{svg}
+# LaTeX export results in jumbled text scaling
+#+LATEX_HEADER: \svgsetup{inkscapelatex=false,inkscapearea=page}
 # Fancy links
 #+LATEX_HEADER: \usepackage{xcolor}
 #+LATEX_HEADER: \hypersetup{colorlinks, linkcolor={red!50!black}, citecolor={blue!50!black}, urlcolor={blue!80!black}}
@@ -9,7 +13,11 @@
 #+LATEX_HEADER: \addbibresource{piconodes.bib}
 #+BEGIN_SRC emacs-lisp :results silent :exports results
   (setq org-latex-pdf-process '("latexmk -shell-escape -bibtex -pdf %f")
-        org-latex-listings 'minted)
+        org-latex-listings 'minted
+        org-ditaa-jar-path "lib/ditaa-0.11.0-standalone.jar")
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((ditaa . t))) ; this line activates ditaa
 #+END_SRC
 
 * Introduction
@@ -225,6 +233,58 @@ and routing the PCBs. In the last stages of the project the CAD-files will be se
 a company for producing the boards.
 
 * Result
+
+** Communication Layout
+
+We decided to use a mesh interconnect (see Figure [[fig:mesh-grid]]), where each node is connected
+to its direct neighbors. This is relatively simple to route, has no chance of collisions, and
+# Explain absolute vs relative addressing in background?
+requires no form of absolute addressing.
+
+#+BEGIN_SRC ditaa :file Report-comm-layout.svg :cmdline --svg
+  +-------------*-------------+        +-------------*-------------+        +-------------*-------------+
+  |             Up            |        |             Up            |        |             Up            |
+  |                           |        |                           |        |                           |
+  |       **PicoNode 1**      |        |       **PicoNode 2**      |        |       **PicoNode 3**      |
+  *Left                  Right*<------>*Left                  Right*<------>*Left                  Right*
+  |                           |        |                           |        |                           |
+  |                           |        |                           |        |                           |
+  |            Down           |        |            Down           |        |            Down           |
+  +-------------*-------------+        +-------------*-------------+        +-------------*-------------+
+                ^                                    ^                                    ^
+                |                                    |                                    |
+                |                                    |                                    |
+                |                                    |                                    |
+                v                                    v                                    v
+  +-------------*-------------+        +-------------*-------------+        +-------------*-------------+
+  |             Up            |        |             Up            |        |             Up            |
+  |                           |        |                           |        |                           |
+  |       **PicoNode 4**      |        |       **PicoNode 5**      |        |       **PicoNode 6**      |
+  *Left                  Right*<------>*Left                  Right*<------>*Left                  Right*
+  |                           |        |                           |        |                           |
+  |                           |        |                           |        |                           |
+  |            Down           |        |            Down           |        |            Down           |
+  +-------------*-------------+        +-------------*-------------+        +-------------*-------------+
+                ^                                    ^                                    ^
+                |                                    |                                    |
+                |                                    |                                    |
+                |                                    |                                    |
+                v                                    v                                    v
+  +-------------*-------------+        +-------------*-------------+        +-------------*-------------+
+  |             Up            |        |             Up            |        |             Up            |
+  |                           |        |                           |        |                           |
+  |       **PicoNode 7**      |        |       **PicoNode 8**      |        |       **PicoNode 9**      |
+  *Left                  Right*<------>*Left                  Right*<------>*Left                  Right*
+  |                           |        |                           |        |                           |
+  |                           |        |                           |        |                           |
+  |            Down           |        |            Down           |        |            Down           |
+  +-------------*-------------+        +-------------*-------------+        +-------------*-------------+
+#+END_SRC
+
+#+CAPTION: The PicoNode grid layout
+#+LABEL: fig:mesh-grid
+#+RESULTS:
+[[file:Report-comm-layout.svg]]
 
 * Analysis
 
