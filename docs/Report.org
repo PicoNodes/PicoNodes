@@ -16,7 +16,7 @@
 
 The goal of this project outcome is to provide a hands-on physical
 pedagogical education platform for schools. The platform will be
-tailored towards Skolverket's new learning outcome goals for the subjects Computational
+tailored towards Skolverket's new cirriculum and learning outcomes for the subjects Computational
 Thinking and Programming\cite{KTek2017} (which will take effect from June 2018). The
 platform is directed towards teaching parallel programming and distributed systems using a
 custom assembler-like language.
@@ -68,20 +68,6 @@ Today the teachers are in a period of trial and error for implementing the goals
 
 The reason to implement computational thinking in scools is to use the advantages from digitalization and the possibilities of using computers for support.
 # might remove this part
-One important thing to consider in the process of educating computational thinking
-and programming is to have very clear guidance and considerations for the teachers,
-who need to understand the learning concept fully to be able to teach it.
-In a inquiry made by Microsoft and CAS, 68% of the teachers is worried that the
-students have more understanding for the subject then they do and that 81%
-of the teachers wish for more agile training and material for the subject https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
-One challange for the society is to get qualified teachers to deliver the new curriculum because the teachers are anxious to develop new 
-learning resources and have insecurity in dealing with new and unfamiliar teaching material. K‰lla: https://files.eric.ed.gov/fulltext/EJ1137876.pdf 
-For this reasons the project will have some focus on the teachers and how to prepare them
-to use the tools the platform provide. The UI will be scaled down as much as possible to be easy to use with few steps to set-up for more focus on the programming.
-This will be in form of documents of concept,
-tutorials?, ...(this might fit some where else)
-
-
 # Can't actually find these categories anywhere in HeintzMannila.., recosider removing
 According to Heintz and Mannila\cite{HeintzMannila}, computing in schools should
 have three key stages:
@@ -96,18 +82,24 @@ have three key stages:
    connection between the program and hardware.
 
 This project is directed to be used by student in the ages of 14-15, fitting the
-last key stage very well.
-The importance of computational thinking and programming in schools is stated by Mannila and Heintz
-from Link√∂ping's university to be the problem solving processes which include describe, analyze
-and state the problem in a way so computers can help solving the problem. This ability will
-evolve skills in handling complex problems, perseverance when working on big problems,
-tolerance for ambiguity, ability to handle open stated problems and ability to communicate
-and cooperate with others https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
-
+last key stage very well. https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
+One important thing to consider in the process of educating computational thinking
+and programming is to have very clear guidance and considerations for the teachers,
+who need to understand the learning concept fully to be able to teach it.
+In a inquiry made by Microsoft and CAS, 68% of the teachers is worried that the
+students have more understanding for the subject then they do and that 81%
+of the teachers wish for more agile training and material for the subject https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
+One challange for the society is to get qualified teachers to deliver the new curriculum because the teachers are anxious to develop new 
+learning resources and have insecurity in dealing with new and unfamiliar teaching material. K‰lla: https://files.eric.ed.gov/fulltext/EJ1137876.pdf 
+For this reasons the project will have some focus on the teachers and how to prepare them
+to use the tools the platform provide. The UI will be scaled down as much as possible to be easy to use with few steps to set-up for more focus on the programming.
+This will be in form of documents of concept,
+tutorials?, ...(this might fit some where else)
 
 *** Prior Art / Other tools for supporting computational thinking outcomes
 
 So far, "educational" programming has mostly taken one of two tracks: "toy" languages and environments
+
 that are designed to be visually exciting (such as Scratch\cite{Scratch}), or disposable limited computers
 (see Raspberry Pi\cite{RaspberryPi} and BBC micro:bit\cite{MicroBit}).
 
@@ -136,20 +128,20 @@ Improven the digital literacy.
 
 ** Goal
 
-The goal with the project is to develop a basic prototype for its purpose.
+The goal with the project is to develop a basic prototype of a educational platform to be used in the Swedish scools.
 
 *** Benefits, Ethics and Sustainability
 
 # This sentece sounds wrong
 The benefits of the product is to democracy the politic and encurage youth to learn technology.
-** Sustainable development
+**** Sustainable development
 Conflict minerals, security, composed,
 # This belongs in further work, local network?
 Before the product can be used on the market, it should be secure from outside penetrations to prevent it to be used in
 a distributed denial-of-service attack.
 The components should be CE marked to sustain good quality and to insure that individual components standards are secured. Also RoHS standards should be uptained
-for minimizing the use of enviromentally hazardous substances.
-The components need to be cheep to be able to give them away in the scools and
+for minimizing the use of enviromentally hazardous substances. Cheep components is nessearly when distributing in the scool but is not imortant when developing the 
+prototype. It is taken under consideration and suggestions are given in chapter x to minimize the cost for an endproduct.
 
 ** Use headings to break the tex
 
@@ -177,18 +169,16 @@ with questionnaires to the the teachers and students and feedback after they che
 prototypes. The questionnaire is formed so the answers can give us a foundations for developing a
 pedagogical and motivating tool the student can use to achieve the outcomes for computational thinking.
 
-** Targeted User (and school Selection)
+** Targeted user and scool selection
 
 The product is directed to student in 8:th grade. The platform is aiming to be a good base for students without programming practise as well to be challenging enough
 on a higher level for a more experienced programmer. The manual is in english so the students must understand english well. 
 Initially we wanted to feedback from as diverse a set of schools as possible but because of the lack of interest from the scools, only one
 volunteered to evaluate the prototype. To try to gather as much data as possible, family members was asked to participate for the avaluation of the prototype.
 
-** Tools (for gathering data?)
+** Evaluation
 
 Questioniars is used to get an evaluation from the students testing the prototype. 
-
-** Analyzing the data and procedures
 
 The data are gathered by questionairs with two sections. One section is about their experience in generall with encounter programming and
 section two is about thier experince with the prototype. This is to evaluate what disposition the students can have about programming and
