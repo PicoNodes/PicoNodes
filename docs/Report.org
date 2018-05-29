@@ -41,13 +41,6 @@ Further development and improvment will be mentioned in Chapter [[#further_oppor
 The product will be targeted towards students in eighth grade, both students who have programmed before and students
 who are new to it.
 
-** Outline (Disposition)
-
-Chapter two is presenting the background for the thesis. Why computational thinking is relevant in the scools, the purpose and goals with the project and the benefits and
-sustainability with the product. Chapter three contains the method with the possibilities to implement the idea considering the pros and cons. A propose of the tools and programming
-languages used and how the data are gathered to evaluate the product. The result of our product is presented in chapter four and chapter five analyze the data wich is used to
-suggest improvements in further work with the prototype with the purpose to let it be used in the scools.
-
 * Background
 
 The digitalization of our society is moving quickly, and we all want to keep up with it. This puts a lot of pressure on the schools
@@ -61,6 +54,8 @@ use in the teaching process. Many products to help teach this subject already ex
 on providing a simple environment for programming a single isolated computer. This is great, but we believe it's just
 as important to understand how multiple computers interact in networks, as well as how low-level assembler programming
 works.
+
+** TODO Terminology
 
 ** Computational thinking in Swedish schools
 
@@ -142,27 +137,28 @@ Improving the digital literacy of school students, in Sweden and abroad.
 
 The goal with the project is to develop a basic prototype of a educational platform to be used in the Swedish scools.
 
-# Maybe this is its own?
-*** Ethics and Sustainability
+** Ethics and Sustainability
 
 It's important to make sure that the product is produced in a sustainable manner. For example, care should be taken to avoid
-conflict minerals, security, composed,
+conflict minerals, child labour, and so on.
 
-# This belongs in further work, local network?
-Before the product can be used on the market, it should be secure from outside penetrations to prevent it to be used in
-a distributed denial-of-service attack.
-The components should be CE marked to sustain good quality and to insure that individual components standards are secured. Also RoHS standards should be uptained
-for minimizing the use of enviromentally hazardous substances. Cheep components is nessearly when distributing in the scool but is not imortant when developing the
-prototype. It is taken under consideration and suggestions are given in chapter x to minimize the cost for an endproduct.
+It should also be secure enough that it can't be snooped on, or abused by malware and botnets. Currently all traffic between
+the downloaders and the server is encrypted and authenticated, and reasonable care has been taken to ensure that the
+communication is handled safely. However, the security has not been professionally audited, and it has been designed
+under the assumption that it will be used in an isolated network.
 
-** Use headings to break the tex
+The server also doesn't currently authenticate users.
 
-* Methodology / Methods
+Finally, as an educational product we believe that it's very important that the students have the freedom to tinker with it freely,
+and that they have access to all the design materials. Any educational product is ultimately about setting up "illusions" so that
+the user can focus on what's important, but it's just as vital that they are allowed to peek behind the curtain once they feel
+ready.
+
+* Method
 
 # State the problem and underlying assumption.
 
-Skolverket is about to implement new
-learning outcome goals for computational thinking in June 2018. Their vision for
+Skolverket is about to implement new learning goals for computational thinking in June 2018. Their vision for
 2020 is that every student has developed an adequate competence for digital technology
 https://liu.se/cetis/konferenser/documents-tis2017/m2-3-datalogiskt-tankande.pdf).
 # Try to find primary source?
