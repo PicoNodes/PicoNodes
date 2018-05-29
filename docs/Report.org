@@ -24,14 +24,25 @@
 
 The goal of this project outcome is to provide a hands-on physical
 pedagogical education platform for schools. The platform will be
-tailored towards Skolverket's new learning outcome goals for the subjects Computational
+tailored towards Skolverket's new cirriculum and learning outcomes for the subjects Computational
 Thinking and Programming\cite{KTek2017} (which will take effect from June 2018). The
 platform is directed towards teaching parallel programming and distributed systems using a
 custom assembler-like language.
 
-** Outline
+** Delimitations (Avgränsningar, swe)
 
-#Describe the outline of the thesis
+The project is limited to 2,5 month so the product will not be ready for the market in this time. This project will build up a ground for future work
+so the product can be represented on the market. The prototype will be of simple sort, enough so the student can visualize the aplication of the product.
+Further development and improvment will be mentioned in the chapter further opertunities.
+The product will also be targeted for students in eighth grade, both students who have programmed before and students who are new to it. This will make
+the study limited for how older/younger student experience the product.
+
+** Outline (Disposition)
+
+Chapter two is presenting the background for the thesis. Why computational thinking is relevant in the scools, the purpose and goals with the project and the benefits and 
+sustainability with the product. Chapter three contains the method with the possibilities to implement the idea considering the pros and cons. A propose of the tools and programming
+languages used and how the data are gathered to evaluate the product. The result of our product is presented in chapter four and chapter five analyze the data wich is used to 
+suggest improvements in further work with the prototype with the purpose to let it be used in the scools. 
 
 * Background
 
@@ -65,17 +76,6 @@ Today the teachers are in a period of trial and error for implementing the goals
 
 The reason to implement computational thinking in scools is to use the advantages from digitalization and the possibilities of using computers for support.
 # might remove this part
-One important thing to consider in the process of educating computational thinking
-and programming is to have very clear guidance and considerations for the teachers,
-who need to understand the learning concept fully to be able to teach it.
-In a inquiry made by Microsoft and CAS, 68% of the teachers is worried that the
-students have more understanding for the subject then they do and that 81%
-of the teachers wish for more agile training and material for the subject https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
-For this reason will the project have some focus on the teachers and how to prepare them
-to use the tools the platform provide. This will be in form of documents of concept,
-tutorials?, ...(this might fit some where else)
-
-
 # Can't actually find these categories anywhere in HeintzMannila.., recosider removing
 According to Heintz and Mannila\cite{HeintzMannila}, computing in schools should
 have three key stages:
@@ -90,18 +90,24 @@ have three key stages:
    connection between the program and hardware.
 
 This project is directed to be used by student in the ages of 14-15, fitting the
-last key stage very well.
-The importance of computational thinking and programming in schools is stated by Mannila and Heintz
-from Linköping's university to be the problem solving processes which include describe, analyze
-and state the problem in a way so computers can help solving the problem. This ability will
-evolve skills in handling complex problems, perseverance when working on big problems,
-tolerance for ambiguity, ability to handle open stated problems and ability to communicate
-and cooperate with others https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
-
+last key stage very well. https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
+One important thing to consider in the process of educating computational thinking
+and programming is to have very clear guidance and considerations for the teachers,
+who need to understand the learning concept fully to be able to teach it.
+In a inquiry made by Microsoft and CAS, 68% of the teachers is worried that the
+students have more understanding for the subject then they do and that 81%
+of the teachers wish for more agile training and material for the subject https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
+One challange for the society is to get qualified teachers to deliver the new curriculum because the teachers are anxious to develop new 
+learning resources and have insecurity in dealing with new and unfamiliar teaching material. K�lla: https://files.eric.ed.gov/fulltext/EJ1137876.pdf 
+For this reasons the project will have some focus on the teachers and how to prepare them
+to use the tools the platform provide. The UI will be scaled down as much as possible to be easy to use with few steps to set-up for more focus on the programming.
+This will be in form of documents of concept,
+tutorials?, ...(this might fit some where else)
 
 *** Prior Art / Other tools for supporting computational thinking outcomes
 
 So far, "educational" programming has mostly taken one of two tracks: "toy" languages and environments
+
 that are designed to be visually exciting (such as Scratch\cite{Scratch}), or disposable limited computers
 (see Raspberry Pi\cite{RaspberryPi} and BBC micro:bit\cite{MicroBit}).
 
@@ -130,27 +136,22 @@ Improven the digital literacy.
 
 ** Goal
 
-The goal with the project is to develop a basic prototype for its purpose.
+The goal with the project is to develop a basic prototype of a educational platform to be used in the Swedish scools.
 
+# Maybe this is its own?
 *** Benefits, Ethics and Sustainability
 
 # This sentece sounds wrong
 The benefits of the product is to democracy the politic and encurage youth to learn technology.
-** Sustainable development
+**** Sustainable development
 Conflict minerals, security, composed,
 # This belongs in further work, local network?
 Before the product can be used on the market, it should be secure from outside penetrations to prevent it to be used in
 a distributed denial-of-service attack.
 The components should be CE marked to sustain good quality and to insure that individual components standards are secured. Also RoHS standards should be uptained
-for minimizing the use of enviromentally hazardous substances.
-The components need to be cheep to be able to give them away in the scools and
-** Delimitations (Avgränsningar, swe)
-The project is limited to 2,5 month so the product will not be ready for the market in this time. This project will build up a ground for future work
-so the product can be represented on the market. The prototype will be of simple sort, enough so the student can visualize the aplication of the product.
-Further development and improvment will be mentioned in the chapter further opertunities.
-The product will also be targeted for students in eighth grade, both students who have programmed before and students who are new to it. This will make
-the study limited for how older/younger student experience the product.
-** Outline (Disposition)
+for minimizing the use of enviromentally hazardous substances. Cheep components is nessearly when distributing in the scool but is not imortant when developing the 
+prototype. It is taken under consideration and suggestions are given in chapter x to minimize the cost for an endproduct.
+
 ** Use headings to break the tex
 
 * Methodology / Methods
@@ -177,16 +178,16 @@ with questionnaires to the the teachers and students and feedback after they che
 prototypes. The questionnaire is formed so the answers can give us a foundations for developing a
 pedagogical and motivating tool the student can use to achieve the outcomes for computational thinking.
 
-** School Selection
+** Targeted user and scool selection
 
+The product is directed to student in 8:th grade. The platform is aiming to be a good base for students without programming practise as well to be challenging enough
+on a higher level for a more experienced programmer. The manual is in english so the students must understand english well. 
 Initially we wanted to feedback from as diverse a set of schools as possible but because of the lack of interest from the scools, only one
 volunteered to evaluate the prototype. To try to gather as much data as possible, family members was asked to participate for the avaluation of the prototype.
 
-** Tools
+** Evaluation
 
-
-
-** Analyzing the data and procedures
+Questioniars is used to get an evaluation from the students testing the prototype. 
 
 The data are gathered by questionairs with two sections. One section is about their experience in generall with encounter programming and
 section two is about thier experince with the prototype. This is to evaluate what disposition the students can have about programming and
@@ -205,13 +206,12 @@ and support. At least 8 I/O is needed. UART communication(two pins for TX and RX
 the MCUs(4 pins), external clock source and coarse grained syncronization clock. A server will be provided
 by Inicio which contains the drivers for communicating between the platforms and the compiler for the bytecode.
 
-# is IDE relevant here? might be cus its restricting further development?
-** IDE and programming langueges
+** Programming Langueges
 
-Rust is used to program the MCU. The MCU of our choice for the is
+Rust is used to program the MCU. The MCU of our choice is
 stm32f030f4p6. C is also an option and can be prefered
 if anyone would like to use IDE such as EWARM or STM32Cube to generate
-initiallisation code but is not suported by Linux. Rust is better from a safety
+initiallisation code but this IDE is not suported by Linux and is why we are using Rust. Rust is also better from a safety
 perspective because it is harder to read something from more then one thread
 and it verifies pointers are still alive when they are used so you will not be
 able to keep a pointer beyond their objects lifetime. Rust also suits very well
@@ -225,12 +225,11 @@ languege when writing the client and server. This makes it easier when communica
 between the server and client.
 
 ** CAD and CAM tools
+
 In the first stages of the project it is prefered to be more flexible for changes.
 For this reason a breadboard and jumpingwires are used to test the design before
-making the final one. The MCU-moduels is made in a router  mill so a breakout board
-can be made for the MCU pins to match the breadboard. DipTrace is used for designing
-and routing the PCBs. In the last stages of the project the CAD-files will be sent to
-a company for producing the boards.
+making the final one. The MCU-moduels is made in a routermill so a breakout board
+can be made for the MCU pins to match the breadboard.
 
 * Result
 
