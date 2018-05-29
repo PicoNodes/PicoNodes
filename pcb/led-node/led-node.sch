@@ -349,4 +349,18 @@ Connection ~ 7000 4450
 Connection ~ 7000 3650
 Wire Wire Line
 	6800 3650 7000 3650
+Text Label 3150 2900 0    50   ~ 0
+SWDIO
+Text Label 3150 3100 0    50   ~ 0
+SWCLK
+Text Label 3150 2800 0    50   ~ 0
+nRST
+Text Label 5150 3200 0    50   ~ 0
+Down
+Text Label 5150 2900 0    50   ~ 0
+Left
+Text Label 4050 3900 0    50   ~ 0
+Up
+Text Label 5150 3300 0    50   ~ 0
+Right
 $EndSCHEMATC

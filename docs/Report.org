@@ -241,6 +241,8 @@ to its direct neighbors. This is relatively simple to route, has no chance of co
 # Explain absolute vs relative addressing in background?
 requires no form of absolute addressing.
 
+All lines are connected to 4.7KΩ pull-up resistor.
+
 #+BEGIN_SRC ditaa :file Report-comm-layout.svg :cmdline --svg
   +-------------*-------------+        +-------------*-------------+        +-------------*-------------+
   |             Up            |        |             Up            |        |             Up            |
@@ -281,10 +283,37 @@ requires no form of absolute addressing.
   +-------------*-------------+        +-------------*-------------+        +-------------*-------------+
 #+END_SRC
 
-#+CAPTION: The PicoNode grid layout
+#+CAPTION: The PicoNode 2D mesh layout
 #+LABEL: fig:mesh-grid
 #+RESULTS:
 [[file:Report-comm-layout.svg]]
+
+** Node Design
+
+There are a few design elements that are common to all nodes, to ensure that they can all be placed in any position
+on the motherboard, and so that they can all be debugged using the same tools.
+
+Using the LED node (Figure [[fig:led-node-pcb-front]]) as an example, they all share the following features:
+
+- They are all 30.48x27.94mm
+- The angled corner marks the correct orientation
+- The grips (in the top and bottom) help you to remove the nodes from a packed motherboard
+- The pins all follow this layout (from left to right):
+  - Top row:
+    - 3.3V power (VDD)
+    - SWCLK (used for debugging only, normally NC)
+    - Ground
+    - SWDIO (used for debugging only, normally NC)
+    - Reset (active low)
+  - Bottom row:
+    - Down
+    - Left
+    - Up
+    - Right
+
+#+CAPTION: The front side of the LED Node PCB
+#+LABEL: fig:led-node-pcb-front
+[[./led-node-pcb-front.png]]
 
 * Analysis
 
