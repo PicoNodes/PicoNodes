@@ -170,7 +170,11 @@ impl RegRead for IoRegister { //Not done! no value returned
 fn read_loop<P: OutputPin + InputPin, T: CountDown + Periodic + Send, TR: Resource<Data=T>>(pin: &mut P, timer: &mut TR, t: &mut Threshold) -> i8 where T::Time: From<Hertz> {
     use picotalk::*;
     let mut state = RecieveState::HandshakeListen(0);
+
+    // Wait for a falling edge
+    while InputPin::is_low(pin) {}
     while InputPin::is_high(pin) {}
+
     timer.claim_mut(t, |timer, _t| timer.start(PICOTALK_FREQ));
     loop {
         if let Some(value) = timer.claim_mut(t, |timer, _t| loop {
