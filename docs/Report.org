@@ -235,6 +235,9 @@ a company for producing the boards.
 * Result
 
 ** Communication Layout
+   :PROPERTIES:
+   :CUSTOM_ID: comm_layout
+   :END:
 
 We decided to use a mesh interconnect (see Figure [[fig:mesh-grid]]), where each node is connected
 to its direct neighbors. This is relatively simple to route, has no chance of collisions, and
@@ -310,10 +313,38 @@ Using the LED node (Figure [[fig:led-node-pcb-front]]) as an example, they all s
     - Left
     - Up
     - Right
+- They are all powered by STM32F030F4P6 MCUs
 
 #+CAPTION: The front side of the LED Node PCB
 #+LABEL: fig:led-node-pcb-front
 [[./led-node-pcb-front.png]]
+
+** Nodes
+
+We designed and fabricated three different Nodes: a LED display Node (see Figure [[fig:led-node-pcb-front]]), a button
+input Node (see Figure [[fig:button-node-pcb-front]]), and a programmable compute Node (see Figure
+[[fig:compute-node-pcb-front]]) to connect them.
+
+#+CAPTION: The front side of the button Node PCB
+#+LABEL: fig:button-node-pcb-front
+[[./button-node-pcb-front.png]]
+
+#+CAPTION: The front side of the compute Node PCB (the RX/TX pins are supposed to be female, but limited by the CAD software)
+#+LABEL: fig:compute-node-pcb-front
+[[./compute-node-pcb-front.png]]
+
+** Motherboard
+
+We designed a motherboard based on the [[#comm_layout][communication layout]] mentioned earlier, visualized in Figure [[fig:motherboard-pcb-front]].
+It also provides power, ground, and a reset control to all the nodes.
+
+#+CAPTION: The front side of the motherboard PCB (female connectors are not shown due to CAD software limitations)
+#+LABEL: fig:motherboard-pcb-front
+[[./motherboard-pcb-front.png]]
+
+** PicoASM
+
+We designed a simple assembler dialect,
 
 * Analysis
 
