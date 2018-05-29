@@ -1,3 +1,4 @@
+# -*- mode: org; coding: utf-8; -*-
 #+TITLE: Title Template for Degree Project
 #+SUBTITLE: SUBTITLE - Arial 16/19pt
 #+AUTHOR: Therese Kennerberg, Teo Klestrup Röijezon
@@ -24,87 +25,90 @@
 
 The goal of this project outcome is to provide a hands-on physical
 pedagogical education platform for schools. The platform will be
-tailored towards Skolverket's new cirriculum and learning outcomes for the subjects Computational
+tailored towards Skolverket's new cirriculum and learning goals for the subjects Computational
 Thinking and Programming\cite{KTek2017} (which will take effect from June 2018). The
-platform is directed towards teaching parallel programming and distributed systems using a
+platform is aimed towards teaching parallel programming and distributed systems using a
 custom assembler-like language.
 
-** Delimitations (Avgränsningar, swe)
+** Delimitations
 
-The project is limited to 2,5 month so the product will not be ready for the market in this time. This project will build up a ground for future work
-so the product can be represented on the market. The prototype will be of simple sort, enough so the student can visualize the aplication of the product.
-Further development and improvment will be mentioned in the chapter further opertunities.
-The product will also be targeted for students in eighth grade, both students who have programmed before and students who are new to it. This will make
-the study limited for how older/younger student experience the product.
+The project is limited to 2.5 months, so the product will not be ready for the market in this time. Rather, the
+project aims to build up a ground for a future product that can be represented on the market. It will be a simple
+prototype, primarily so that the students can try it out.
+
+Further development and improvment will be mentioned in Chapter [[#further_opportunities]].
+
+The product will be targeted towards students in eighth grade, both students who have programmed before and students
+who are new to it.
 
 ** Outline (Disposition)
 
-Chapter two is presenting the background for the thesis. Why computational thinking is relevant in the scools, the purpose and goals with the project and the benefits and 
+Chapter two is presenting the background for the thesis. Why computational thinking is relevant in the scools, the purpose and goals with the project and the benefits and
 sustainability with the product. Chapter three contains the method with the possibilities to implement the idea considering the pros and cons. A propose of the tools and programming
-languages used and how the data are gathered to evaluate the product. The result of our product is presented in chapter four and chapter five analyze the data wich is used to 
-suggest improvements in further work with the prototype with the purpose to let it be used in the scools. 
+languages used and how the data are gathered to evaluate the product. The result of our product is presented in chapter four and chapter five analyze the data wich is used to
+suggest improvements in further work with the prototype with the purpose to let it be used in the scools.
 
 * Background
 
-The digitalization of our society is moving quickly, and we all want to keep up with it. This put a lot of pressure on the schools
-to adopt programming and something called computational thinking in the education. In this process the Swedish agency of
-education is making  changes to the school system to implement computational thinking weekly on several courses for students in the
-age of x to z. Several countries have implemented programming in the schools and this is making the market in demand of tools to
-use in the teaching process. Today the most used products for this purpose is Scratch, Micro:Bit and Code Studio but they are all focusing
-on a software, abstract programming form and the market is short of products for learning how to program hardware and distributed systems.
-With the digitalization the society also demand faster processes and more complex hardware. This results in computers with advanced technologies
-in distributed systems and parallel programming.
+The digitalization of our society is moving quickly, and we all want to keep up with it. This puts a lot of pressure on the schools
+to teach programming and computational thinking in the education. For this reason Skolverket is adding computational thinking
+# Better word than elementary?
+to the elementary school curriculum.
 
-** Computational thinking in the Swedish schools
+# Source for this claim
+Several countries have implemented programming into their schools, and this is creating market demand for tools to
+use in the teaching process. Many products to help teach this subject already exist, but they are generally all focused
+on providing a simple environment for programming a single isolated computer. This is great, but we believe it's just
+as important to understand how multiple computers interact in networks, as well as how low-level assembler programming
+works.
 
-The Swedish agency of education is adopting programming and computational thinking in schools and made goals for the schools to implement.
-Computational thinking is stated by Linköping's University to be
-a process of problem-solving, which includes:
+** Computational thinking in Swedish schools
+
+Skolverket is adopting programming and computational thinking in schools and has set up goals for the schools to implement.
+
+Computational thinking is stated by Linköping's University to be a process of problem-solving which includes:
+
 - Formulating a problem in such a way that it becomes possible to use computers to solve it.
 - Breaking down complex problems into smaller parts.
 - Finding repeating patterns and reusing them.
 - Creating algorithms to automate the solution of a problem.
 - Logically organizing and analyzing data.
 - Represent data through abstractions such as models and simulations.
-  # FIX ME: Unclear
-- Identifying, analyzing  and implementing possible solutions to find the most
-  effective one, through a combination of steps and resources.
+- Identifying, analyzing, and implementing possible solutions to find the most
+  effective one.
 - To generalize and use this kind of problem-solving process on other
   kinds of problems.
-This new way of thinking will not be implemented in one course but distributed on several courses and practise weekly in the scoolschedule.
-Today the teachers are in a period of trial and error for implementing the goals and each municipal make there own decisions for tools and programming language to use.
 
-The reason to implement computational thinking in scools is to use the advantages from digitalization and the possibilities of using computers for support.
-# might remove this part
-# Can't actually find these categories anywhere in HeintzMannila.., recosider removing
 According to Heintz and Mannila\cite{HeintzMannila}, computing in schools should
 have three key stages:
 
-1. Years 5-6: algorithms and instructions, to create and debug simple
+1. Ages 5-6: algorithms and instructions, to create and debug simple
    programs, with a focus on logical thinking.
-2. Years 7-11: Develop and debug greater problems
+2. Ages 7-11: Develop and debug greater problems
    with given goals and use programming concept with variables, sequences,
    selection and repetition.
-   # FIX ME: Binaries?
-3. Years 12-14: Two or more programming languages, Boolean logic, binaries,
+3. Ages 12-14: Two or more programming languages, Boolean logic, binary numbers,
    connection between the program and hardware.
 
 This project is directed to be used by student in the ages of 14-15, fitting the
-last key stage very well. https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
-One important thing to consider in the process of educating computational thinking
+last key stage quite well.
+
+One important thing to consider in the process of teaching computational thinking
 and programming is to have very clear guidance and considerations for the teachers,
 who need to understand the learning concept fully to be able to teach it.
+
+# Find the primary source or scrap
 In a inquiry made by Microsoft and CAS, 68% of the teachers is worried that the
 students have more understanding for the subject then they do and that 81%
 of the teachers wish for more agile training and material for the subject https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
-One challange for the society is to get qualified teachers to deliver the new curriculum because the teachers are anxious to develop new 
-learning resources and have insecurity in dealing with new and unfamiliar teaching material. K�lla: https://files.eric.ed.gov/fulltext/EJ1137876.pdf 
-For this reasons the project will have some focus on the teachers and how to prepare them
-to use the tools the platform provide. The UI will be scaled down as much as possible to be easy to use with few steps to set-up for more focus on the programming.
-This will be in form of documents of concept,
-tutorials?, ...(this might fit some where else)
 
-*** Prior Art / Other tools for supporting computational thinking outcomes
+Another challange the teachers are anxious to develop new learning resources, and feel insecure
+in dealing with new and unfamiliar teaching material.\Cite{Bower17} For this reasons the project
+will keep the teachers, and how to prepare them to use the tools the platform provides, in mind.
+The UI will be as simple as possible, so that it is easy to use with few steps to set-up, so that
+they can focus on the programming.
+
+*** Prior Art
 
 So far, "educational" programming has mostly taken one of two tracks: "toy" languages and environments
 
@@ -125,31 +129,30 @@ rather than just providing the user with a simulator.
 
 The study has examined the following questions:
 
-1. How to implement the new outcomes for computational thinking presented by the Swedish Agency of Education.
+1. How to implement the new outcomes for computational thinking presented by Skolverket.
 2. Implementation of a platform to teach tha basics of bare metal programming to students.
 3. Evaluation of the pedagogical usefulness of the platform and how to implement
    the idea to motivate students.
 
 ** Purpose
 
-Improven the digital literacy.
+Improving the digital literacy of school students, in Sweden and abroad.
 
 ** Goal
 
 The goal with the project is to develop a basic prototype of a educational platform to be used in the Swedish scools.
 
 # Maybe this is its own?
-*** Benefits, Ethics and Sustainability
+*** Ethics and Sustainability
 
-# This sentece sounds wrong
-The benefits of the product is to democracy the politic and encurage youth to learn technology.
-**** Sustainable development
-Conflict minerals, security, composed,
+It's important to make sure that the product is produced in a sustainable manner. For example, care should be taken to avoid
+conflict minerals, security, composed,
+
 # This belongs in further work, local network?
 Before the product can be used on the market, it should be secure from outside penetrations to prevent it to be used in
 a distributed denial-of-service attack.
 The components should be CE marked to sustain good quality and to insure that individual components standards are secured. Also RoHS standards should be uptained
-for minimizing the use of enviromentally hazardous substances. Cheep components is nessearly when distributing in the scool but is not imortant when developing the 
+for minimizing the use of enviromentally hazardous substances. Cheep components is nessearly when distributing in the scool but is not imortant when developing the
 prototype. It is taken under consideration and suggestions are given in chapter x to minimize the cost for an endproduct.
 
 ** Use headings to break the tex
@@ -158,7 +161,7 @@ prototype. It is taken under consideration and suggestions are given in chapter 
 
 # State the problem and underlying assumption.
 
-Skolverket (the Swedish national agency for education) are about to implement new
+Skolverket is about to implement new
 learning outcome goals for computational thinking in June 2018. Their vision for
 2020 is that every student has developed an adequate competence for digital technology
 https://liu.se/cetis/konferenser/documents-tis2017/m2-3-datalogiskt-tankande.pdf).
@@ -181,13 +184,13 @@ pedagogical and motivating tool the student can use to achieve the outcomes for 
 ** Targeted user and scool selection
 
 The product is directed to student in 8:th grade. The platform is aiming to be a good base for students without programming practise as well to be challenging enough
-on a higher level for a more experienced programmer. The manual is in english so the students must understand english well. 
+on a higher level for a more experienced programmer. The manual is in english so the students must understand english well.
 Initially we wanted to feedback from as diverse a set of schools as possible but because of the lack of interest from the scools, only one
 volunteered to evaluate the prototype. To try to gather as much data as possible, family members was asked to participate for the avaluation of the prototype.
 
 ** Evaluation
 
-Questioniars is used to get an evaluation from the students testing the prototype. 
+Questioniars is used to get an evaluation from the students testing the prototype.
 
 The data are gathered by questionairs with two sections. One section is about their experience in generall with encounter programming and
 section two is about thier experince with the prototype. This is to evaluate what disposition the students can have about programming and
@@ -348,6 +351,9 @@ We designed a simple assembler dialect,
 * Analysis
 
 * Further Opportunities
+  :PROPERTIES:
+  :CUSTOM_ID: further_opportunities
+  :END:
 
 * References
 
