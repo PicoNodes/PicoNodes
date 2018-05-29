@@ -129,14 +129,22 @@ The goal with the project is to develop a basic prototype for its purpose.
 # This sentece sounds wrong
 The benefits of the product is to democracy the politic and encurage youth to learn technology.
 ** Sustainable development
-Conflict minerals, security, composed, 
+Conflict minerals, security, composed,
 # This belongs in further work, local network?
-Before the product can be used on the market, it should be secure from outside penetrations to prevent it to be used in 
-a distributed denial-of-service attack. 
-The components should be CE marked to sustain good quality and to insure that individual components standards are secured. Also RoHS standards should be uptained  
+Before the product can be used on the market, it should be secure from outside penetrations to prevent it to be used in
+a distributed denial-of-service attack.
+The components should be CE marked to sustain good quality and to insure that individual components standards are secured. Also RoHS standards should be uptained
 for minimizing the use of enviromentally hazardous substances.
 The components need to be cheep to be able to give them away in the scools and
-** Methodology / Methods
+** Delimitations (Avgränsningar, swe)
+The project is limited to 2,5 month so the product will not be ready for the market in this time. This project will build up a ground for future work
+so the product can be represented on the market. The prototype will be of simple sort, enough so the student can visualize the aplication of the product.
+Further development and improvment will be mentioned in the chapter further opertunities.
+The product will also be targeted for students in eighth grade, both students who have programmed before and students who are new to it. This will make
+the study limited for how older/younger student experience the product.
+** Outline (Disposition)
+** Use headings to break the tex
+* Methodology / Methods
 
 # State the problem and underlying assumption.
 
@@ -153,32 +161,32 @@ school students and teachers play around with a prototype, and then letting them
 about their experience.
 
 The question formulation in this thesis report is how can you implement computational thinking
- For the project, a platform was developed to
+For the project, a platform was developed to
 be used as a tool in the schools education when teaching programming and was iterative developed
 during the last 3 weeks of the project from evaluation research. The evaluation of the platform was based on research
 with questionnaires to the the teachers and students and feedback after they checked out the products
 prototypes. The questionnaire is formed so the answers can give us a foundations for developing a
 pedagogical and motivating tool the student can use to achieve the outcomes for computational thinking.
 
-*** School Selection
+** School Selection
 
-Initially we wanted to feedback from as diverse a set of schools as possible but because of the lack of interest from the scools, only one 
+Initially we wanted to feedback from as diverse a set of schools as possible but because of the lack of interest from the scools, only one
 volunteered to evaluate the prototype. To try to gather as much data as possible, family members was asked to participate for the avaluation of the prototype.
 
-*** Tools
+** Tools
 
 
 
-*** Analyzing the data and procedures
+** Analyzing the data and procedures
 
-The data are gathered by questionairs with two sections. One section is about their experience in generall with encounter programming and 
-section two is about thier experince with the prototype. This is to evaluate what disposition the students can have about programming and 
-if we change that disposition. The teachers and student are handed  a similar questionair but with straighten questions towards the use of the product 
-teaching/learning. 
+The data are gathered by questionairs with two sections. One section is about their experience in generall with encounter programming and
+section two is about thier experince with the prototype. This is to evaluate what disposition the students can have about programming and
+if we change that disposition. The teachers and student are handed  a similar questionair but with straighten questions towards the use of the product
+teaching/learning.
 # should we have the questions in the report?
 The data will be used to evaluate the product and for suggestions to future work.
 
-*** Specific research tools and strategies
+** Specific research tools and strategies
 
 The product will have the UI designed in the browser so the user wont be fixed to one platform. This way
 either a mobile phone or a laptop can be used for programming the micro-controllers. The MCU of our choice
@@ -189,7 +197,7 @@ the MCUs(4 pins), external clock source and coarse grained syncronization clock.
 by Inicio which contains the drivers for communicating between the platforms and the compiler for the bytecode.
 
 # is IDE relevant here? might be cus its restricting further development?
-*** IDE and programming langueges
+** IDE and programming langueges
 
 Rust is used to program the MCU. The MCU of our choice for the is
 stm32f030f4p6. C is also an option and can be prefered
@@ -207,7 +215,7 @@ The homepage is programmed in Scala. Scala is very practical for not changing
 languege when writing the client and server. This makes it easier when communicating
 between the server and client.
 
-*** CAD and CAM tools
+** CAD and CAM tools
 In the first stages of the project it is prefered to be more flexible for changes.
 For this reason a breadboard and jumpingwires are used to test the design before
 making the final one. The MCU-moduels is made in a router  mill so a breakout board
@@ -215,15 +223,6 @@ can be made for the MCU pins to match the breadboard. DipTrace is used for desig
 and routing the PCBs. In the last stages of the project the CAD-files will be sent to
 a company for producing the boards.
 
-***** Use references!
-** Delimitations (Avgränsningar, swe)
-The project is limited to 2,5 month so the product will not be ready for the market in this time. This project will build up a ground for future work
-so the product can be represented on the market. The prototype will be of simple sort, enough so the student can visualize the aplication of the product.
-Further development and improvment will be mentioned in the chapter further opertunities. 
-The product will also be targeted for students in eighth grade, both students who have programmed before and students who are new to it. This will make 
-the study limited for how older/younger student experience the product. 
-** Outline (Disposition)
-** Use headings to break the tex
 * (Engineering-related content, Methodologies and Methods) Use a self-explaining title
 ** Engineering-related and scientific content:
 ** (The work)
