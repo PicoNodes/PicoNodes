@@ -144,6 +144,7 @@ The product will also be targeted for students in eighth grade, both students wh
 the study limited for how older/younger student experience the product.
 ** Outline (Disposition)
 ** Use headings to break the tex
+
 * Methodology / Methods
 
 # State the problem and underlying assumption.
@@ -223,12 +224,11 @@ can be made for the MCU pins to match the breadboard. DipTrace is used for desig
 and routing the PCBs. In the last stages of the project the CAD-files will be sent to
 a company for producing the boards.
 
-* (Engineering-related content, Methodologies and Methods) Use a self-explaining title
-** Engineering-related and scientific content:
-** (The work)
-** (Result)
-** (Conclusions)
-** Further Opportunities
+* Result
+
+* Analysis
+
+* Further Opportunities
 
 * References
 
