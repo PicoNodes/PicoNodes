@@ -208,12 +208,12 @@ the MCUs(4 pins), external clock source and coarse grained syncronization clock.
 by Inicio which contains the drivers for communicating between the platforms and the compiler for the bytecode.
 
 # is IDE relevant here? might be cus its restricting further development?
-** IDE and programming langueges
+** Programming Langueges
 
-Rust is used to program the MCU. The MCU of our choice for the is
+Rust is used to program the MCU. The MCU of our choice is
 stm32f030f4p6. C is also an option and can be prefered
 if anyone would like to use IDE such as EWARM or STM32Cube to generate
-initiallisation code but is not suported by Linux. Rust is better from a safety
+initiallisation code but this IDE is not suported by Linux and is why we are using Rust. Rust is also better from a safety
 perspective because it is harder to read something from more then one thread
 and it verifies pointers are still alive when they are used so you will not be
 able to keep a pointer beyond their objects lifetime. Rust also suits very well
@@ -229,10 +229,8 @@ between the server and client.
 ** CAD and CAM tools
 In the first stages of the project it is prefered to be more flexible for changes.
 For this reason a breadboard and jumpingwires are used to test the design before
-making the final one. The MCU-moduels is made in a router  mill so a breakout board
-can be made for the MCU pins to match the breadboard. DipTrace is used for designing
-and routing the PCBs. In the last stages of the project the CAD-files will be sent to
-a company for producing the boards.
+making the final one. The MCU-moduels is made in a routermill so a breakout board
+can be made for the MCU pins to match the breadboard.
 
 * Result
 
