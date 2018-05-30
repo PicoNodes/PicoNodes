@@ -2,6 +2,11 @@
 #+TITLE: Title Template for Degree Project
 #+SUBTITLE: SUBTITLE - Arial 16/19pt
 #+AUTHOR: Therese Kennerberg, Teo Klestrup Röijezon
+# Fancy code blocks
+#+LATEX_HEADER: \usepackage{mdframed}
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \setminted{linenos}
+#+LATEX_HEADER: \surroundwithmdframed{minted}
 # Include SVG graphics
 #+LATEX_HEADER: \usepackage{svg}
 # LaTeX export results in jumbled text scaling
@@ -15,10 +20,13 @@
 #+BEGIN_SRC emacs-lisp :results silent :exports results
   (setq org-latex-pdf-process '("latexmk -shell-escape -bibtex -pdf %f")
         org-latex-listings 'minted
-        org-ditaa-jar-path "lib/ditaa-0.11.0-standalone.jar")
+        org-ditaa-jar-path "lib/ditaa-0.11.0-standalone.jar"
+        org-plantuml-jar-path "lib/plantuml.1.2018.3.jar"
+        org-latex-default-figure-position "tbp")
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((ditaa . t))) ; this line activates ditaa
+   '((ditaa . t)
+     (plantuml . t)))
 #+END_SRC
 
 * Introduction
@@ -232,17 +240,15 @@ can be made for the MCU pins to match the breadboard.
 
 * Result
 
-** Communication Layout
+** Communication
    :PROPERTIES:
-   :CUSTOM_ID: comm_layout
+   :CUSTOM_ID: comm
    :END:
 
 We decided to use a mesh interconnect (see Figure [[fig:mesh-grid]]), where each node is connected
 to its direct neighbors. This is relatively simple to route, has no chance of collisions, and
 # Explain absolute vs relative addressing in background?
 requires no form of absolute addressing.
-
-All lines are connected to 4.7KΩ pull-up resistor.
 
 #+BEGIN_SRC ditaa :file Report-comm-layout.svg :cmdline --svg
   +-------------*-------------+        +-------------*-------------+        +-------------*-------------+
@@ -289,12 +295,117 @@ All lines are connected to 4.7KΩ pull-up resistor.
 #+RESULTS:
 [[file:Report-comm-layout.svg]]
 
+*** PicoTalk
+    :PROPERTIES:
+    :CUSTOM_ID: picotalk
+    :END:
+
+The Nodes communicate using a custom asynchronous single-wire protocol called PicoTalk. We did this because we wanted to use a
+mesh interconnect instead of a shared bus, and because we didn't have the hardware support or pin count to connect each pair
+using a more common protocol, such as UART. It is /not/ a master/slave protocol, the transmitter/receiver roles are negotiated
+for each message.
+
+Because it is asynchronous, each side must provide its own clock. The clocks must be calibrated to 10kHz. The clocks are also
+reset for each message, in order to avoid clock skew corruption.
+
+The communication line is held high while idle by a 4.7KΩ pull-up resistor on the motherboard. Thus all participants should be configured in
+open drain mode, with their internal pull-ups disabled.
+
+PicoTalk can be divided into four primary stages, as shown in Figure [[fig:picotalk-diagram]]: Idle, Handshake, Preamble, and Message.
+
+In the Idle stage neither party is trying to transmit anything. When a party wants to transmit they enter the Handshake stage,
+by transmitting two low ticks. They then wait for a single low tick in response. If no response is heard after three ticks then
+the transmitter restarts the Handshake stage. The preamble stage is 5 ticks of alternating high and low signals. This is used to
+ensure that the clocks are calibrated correctly. Afterwards the message (a single byte) is sent, least significant bit first.
+The bus then returns to the Idle stage.
+
+  #+BEGIN_SRC plantuml :file Report-PicoTalk-timing.svg
+    concise "Status" as Status
+    concise "Transmitter" as TX
+    concise "Receiver" as RX
+
+    Status is Idle
+    TX is 1
+    RX is 1
+
+    @0
+
+    @+1
+    Status is "Failing handshake (no RX)"
+    TX is 0
+
+    @+2
+    TX is 1
+
+    @+3
+    Status is Handshake
+    TX is 0
+
+    @+2
+    TX is 1
+
+    @+1
+    RX is 0
+
+    @+1
+    Status is "Waiting for Preamble"
+    RX is 1
+
+    @+2
+    Status is Preamble
+    TX is 1
+
+    @+1
+    TX is 0
+
+    @+1
+    TX is 1
+
+    @+1
+    TX is 0
+
+    @+1
+    TX is 1
+
+    @+1
+    Status is Message
+    TX is "M[0]"
+    @+1
+    TX is "M[1]"
+    @+1
+    TX is "M[2]"
+    @+1
+    TX is "M[3]"
+    @+1
+    TX is "M[4]"
+    @+1
+    TX is "M[5]"
+    @+1
+    TX is "M[6]"
+    @+1
+    TX is "M[7]"
+
+    @+1
+    Status is Idle
+    TX is 1
+  #+END_SRC
+
+  #+CAPTION: The stages of PicoTalk
+  #+NAME: fig:picotalk-diagram
+  #+RESULTS:
+  [[file:Report-PicoTalk-timing.svg]]
+
 ** Node Design
 
 There are a few design elements that are common to all nodes, to ensure that they can all be placed in any position
 on the motherboard, and so that they can all be debugged using the same tools.
 
 Using the LED node (Figure [[fig:led-node-pcb-front]]) as an example, they all share the following features:
+
+#+CAPTION: The front side of the LED Node PCB
+#+LABEL: fig:led-node-pcb-front
+#+ATTR_LATEX: :width 4cm
+[[./led-node-pcb-front.png]]
 
 - They are all 30.48x27.94mm
 - The angled corner marks the correct orientation
@@ -313,27 +424,28 @@ Using the LED node (Figure [[fig:led-node-pcb-front]]) as an example, they all s
     - Right
 - They are all powered by STM32F030F4P6 MCUs
 
-#+CAPTION: The front side of the LED Node PCB
-#+LABEL: fig:led-node-pcb-front
-[[./led-node-pcb-front.png]]
-
 ** Nodes
 
 We designed and fabricated three different Nodes: a LED display Node (see Figure [[fig:led-node-pcb-front]]), a button
 input Node (see Figure [[fig:button-node-pcb-front]]), and a programmable compute Node (see Figure
-[[fig:compute-node-pcb-front]]) to connect them.
+[[fig:compute-node-pcb-front]]) to connect them. They are documented further in their respective appendices (see Appendix
+[[#appendix-piconode-led]], [[#appendix-piconode-switch]], and [[#appendix-piconode-compute]], respectively).
+
+# Bring them inline instead?
 
 #+CAPTION: The front side of the button Node PCB
 #+LABEL: fig:button-node-pcb-front
+#+ATTR_LATEX: :width 4cm
 [[./button-node-pcb-front.png]]
 
 #+CAPTION: The front side of the compute Node PCB (the RX/TX pins are supposed to be female, but limited by the CAD software)
 #+LABEL: fig:compute-node-pcb-front
+#+ATTR_LATEX: :width 4cm
 [[./compute-node-pcb-front.png]]
 
 ** Motherboard
 
-We designed a motherboard based on the [[#comm_layout][communication layout]] mentioned earlier, visualized in Figure [[fig:motherboard-pcb-front]].
+We designed a motherboard based on the [[#comm][communication layout]] mentioned earlier, visualized in Figure [[fig:motherboard-pcb-front]].
 It also provides power, ground, and a reset control to all the nodes.
 
 #+CAPTION: The front side of the motherboard PCB (female connectors are not shown due to CAD software limitations)
@@ -342,7 +454,21 @@ It also provides power, ground, and a reset control to all the nodes.
 
 ** PicoASM
 
-We designed a simple assembler dialect,
+We designed a simple assembler dialect, based on Shenzhen I/O's assembler language\cite{ShenzhenIO}. It is documented
+in further detail in Appendix [[#appendix-piconode-compute]]. Contrary to typical x86 desktop processors it does not have
+any jump or branch instructions. Instead any instruction can be associated with a conditional flag, which is set by
+our test instructions. An example PicoASM program is given in Listing [[lst:picoasm-prng]], which acts as a simple "wheel
+of fortune", given a Button Node on the left side, and a LED Node on the right side.
+
+#+CAPTION: An example PicoASM program: a "wheel of fortune" that spins while an input greater than zero is given
+#+LABEL: lst:picoasm-prng
+#+BEGIN_SRC text
+  tcp left 0
++ mov acc right
++ teq acc 4
++ mov 1 acc
+- add 1
+#+END_SRC
 
 * Analysis
 
@@ -351,6 +477,27 @@ We designed a simple assembler dialect,
   :CUSTOM_ID: further_opportunities
   :END:
 
-* References
+#+LATEX: \appendix
+
+* PicoNode-Compute manual
+  :PROPERTIES:
+  :CUSTOM_ID: appendix-piconode-compute
+  :END:
+
+FIXME
+
+* PicoNode-Switch manual
+  :PROPERTIES:
+  :CUSTOM_ID: appendix-piconode-switch
+  :END:
+
+FIXME
+
+* PicoNode-LED manual
+  :PROPERTIES:
+  :CUSTOM_ID: appendix-piconode-led
+  :END:
+
+FIXME
 
 \printbibliography
