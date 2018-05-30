@@ -2,6 +2,8 @@
 #+TITLE: Title Template for Degree Project
 #+SUBTITLE: SUBTITLE - Arial 16/19pt
 #+AUTHOR: Therese Kennerberg, Teo Klestrup Röijezon
+# Fancy acronyms
+#+LATEX_HEADER: \usepackage{acronym}
 # Fancy code blocks
 #+LATEX_HEADER: \usepackage{mdframed}
 #+LATEX_HEADER: \usepackage{minted}
@@ -64,6 +66,14 @@ as important to understand how multiple computers interact in networks, as well 
 works.
 
 ** TODO Terminology
+
+#+BEGIN_acronym
+\acro{MCU}{Microcontroller Unit}
+\acro{PCB}{Printed Circuit Board}
+\acro{CAD}{Computer-Assisted Design}
+\acro{CAM}{Computer-Assisted Manufacturing}
+\acro{IDE}{Integrated Developer Environment}
+#+END_acronym
 
 ** Computational thinking in Swedish schools
 
