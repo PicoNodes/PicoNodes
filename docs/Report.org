@@ -470,6 +470,22 @@ of fortune", given a Button Node on the left side, and a LED Node on the right s
 - add 1
 #+END_SRC
 
+** PicoIDE
+
+We provided a web-based editor called PicoIDE, which allows you to edit programs and upload them to Compute nodes. It
+be seen in Figure [[fig:picoide-screenshot]]. It is intended that this runs on a server on the same network as the
+Downloaders.
+
+#+CAPTION: A screenshot of PicoIDE, with a few saved files and showing the program in Listing [[lst:picoasm-prng]]
+#+LABEL: fig:picoide-screenshot
+[[./picoide-screenshot.png]]
+
+*** Security
+
+Downloaders communication is encrypted using TLS, with verification of client and server certificates. Browser
+communication is not encrypted by default, but it is recommended that this is done using a reverse proxy, such
+as Nginx. There is currently no user authentication system.
+
 * Analysis
 
 * Further Opportunities
