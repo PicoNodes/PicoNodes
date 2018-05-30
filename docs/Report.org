@@ -36,7 +36,7 @@
 The goal of this project outcome is to provide a hands-on physical
 pedagogical education platform for schools. The platform will be
 tailored towards Skolverket's new cirriculum and learning goals for the subjects Computational
-Thinking and Programming\cite{KTek2017} (which will take effect from June 2018). The
+Thinking and Programming\cite{KTek2017} (which will take effect from Juli 2018). The
 platform is aimed towards teaching parallel programming and distributed systems using a
 custom assembler-like language.
 
@@ -111,9 +111,11 @@ and programming is to have very clear guidance and considerations for the teache
 who need to understand the learning concept fully to be able to teach it.
 
 # Find the primary source or scrap
-In a inquiry made by Microsoft and CAS, 68% of the teachers is worried that the
-students have more understanding for the subject then they do and that 81%
-of the teachers wish for more agile training and material for the subject https://www.ida.liu.se/~frehe08/FredrikHeintzLindaMannila-skolverket-20150302.pdf.
+
+A study made in 2017 by Lararnas Riksforbund show that 8 of 10 mathteachers with student in 8:th and 9:th grade 
+feels insecure about teaching programming and 54% of the teachers don't 
+have any experince in programming at all.
+# Lararnas riksforbund, letar kalla..
 
 Another challange the teachers are anxious to develop new learning resources, and feel insecure
 in dealing with new and unfamiliar teaching material.\Cite{Bower17} For this reasons the project
@@ -176,7 +178,7 @@ ready.
 
 # State the problem and underlying assumption.
 
-Skolverket is about to implement new learning goals for computational thinking in June 2018. Their vision for
+Skolverket is about to implement new learning goals for computational thinking in Juli 2018. Their vision for
 2020 is that every student has developed an adequate competence for digital technology
 https://liu.se/cetis/konferenser/documents-tis2017/m2-3-datalogiskt-tankande.pdf).
 # Try to find primary source?
@@ -497,6 +499,27 @@ communication is not encrypted by default, but it is recommended that this is do
 as Nginx. There is currently no user authentication system.
 
 * Analysis
+
+Eftersom en prototyp hann sammanställas så kunde en analys göras av hur studenter i årskurs 8 göras tillsammans med deras lärare.
+På grund av bristande intresse och dåligt med tid kunde vi endast få en skola att göra en utvärdering samt några släktingar. Resultatet var bättre än väntat, 
+7 av 8 elever och läraren fann PicoNode conceptet enkelt att förstå eller pedagogiskt, en elev tyckte att konceptet var rörigt.
+Ingen elev fann våra intruktioner svåra att följa och det visuellla upplägget var tydligt. 6 elever blev motiverade att programmera med PicoNodes och två hade ingen 
+uppfattning. Alla eleverna hade stött på programmering tidigare och i skolan hade dom jobbat lite med JavaScript. 6 elever fann det medelsvårt med att lära sig programmera 
+och två tyckte att det var enkelt.
+
+To get scools to help us evaluate the prototype has ben challenging, even though we were well in time, half a year in advanced, with requests.
+This has made us short of data to evaluate and only some observations of how the students interact with our product. The feedback we got was better then 
+expected, most of the students got motiveted to program with PicoNodes. 
+
+One of the challanges was to define the functions of the nodes. Some nodes needed to be programmable but to be able to visualize the program written by the user, 
+"action" nodes was needed. To define the nodes with more specific funcionallity, a seperation between the actionnodes and programmable nodes was made. One switchnode, 
+one lednode and 8 computenode was developed. This mean some restrictions in the placement of the nodes on the motherboard. A try was also done to develop a third 
+kind of node to display all the values possible in the communication between the nodes. The node was a lixiedisplay but the light did not hit the numbers enough. 
+Is was very doable but would have taken to much time from the critical parts of the project. The lednode was used instead of visulazing the value transmitted but 
+limited to four values.
+
+Another problem was that we run out of memory for debugging the program on the nodes. The program that run on the nodes in the endproduct was ok but all the debugging 
+tools during the development needed more space. So to keep down the work, a testnode was developed in the same serie of microcontrollers and used for debugging.   
 
 * Further Opportunities
   :PROPERTIES:
