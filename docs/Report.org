@@ -1,13 +1,6 @@
 # -*- mode: org; coding: utf-8; -*-
 #+TITLE: A Physical Platform For Teaching Distributed Systems In A Simplified Setting
 #+AUTHOR: Therese Kennerberg, Teo Klestrup Röijezon
-# Fancy acronyms
-#+LATEX_HEADER: \usepackage{acronym}
-# Fancy code blocks
-#+LATEX_HEADER: \usepackage{mdframed}
-#+LATEX_HEADER: \usepackage{minted}
-#+LATEX_HEADER: \setminted{linenos}
-#+LATEX_HEADER: \surroundwithmdframed{minted}
 # Include SVG graphics
 #+LATEX_HEADER: \usepackage{svg}
 # LaTeX export results in jumbled text scaling
@@ -21,13 +14,10 @@
 #+BEGIN_SRC emacs-lisp :results silent :exports results
   (setq org-latex-pdf-process '("latexmk -shell-escape -bibtex -pdf %f")
         org-latex-listings 'minted
-        org-ditaa-jar-path "lib/ditaa-0.11.0-standalone.jar"
-        org-plantuml-jar-path "lib/plantuml.1.2018.3.jar"
-        org-latex-default-figure-position "tbp")
+        org-ditaa-jar-path "lib/ditaa-0.11.0-standalone.jar")
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((ditaa . t)
-     (plantuml . t)))
+   '((ditaa . t))) ; this line activates ditaa
 #+END_SRC
 
 * Introduction
@@ -81,7 +71,7 @@ works.
 
 \ac{Skolverket} is adopting programming and computational thinking in schools and has set up goals for the schools to implement.
 
-Computational thinking is stated by Linköping's University to be a process of problem-solving which includes:
+Computational thinking is stated by Linköping's University\cite{HeintzMannila}, to be a process of problem-solving which includes:
 
 - Formulating a problem in such a way that it becomes possible to use computers to solve it.
 - Breaking down complex problems into smaller parts.
@@ -254,15 +244,17 @@ can be made for the MCU pins to match the breadboard.
 
 * Result
 
-** Communication
+** Communication Layout
    :PROPERTIES:
-   :CUSTOM_ID: comm
+   :CUSTOM_ID: comm_layout
    :END:
 
 We decided to use a mesh interconnect (see Figure [[fig:mesh-grid]]), where each node is connected
 to its direct neighbors. This is relatively simple to route, has no chance of collisions, and
 # Explain absolute vs relative addressing in background?
 requires no form of absolute addressing.
+
+All lines are connected to 4.7KΩ pull-up resistor.
 
 #+BEGIN_SRC ditaa :file Report-comm-layout.svg :cmdline --svg
   +-------------*-------------+        +-------------*-------------+        +-------------*-------------+
@@ -309,117 +301,12 @@ requires no form of absolute addressing.
 #+RESULTS:
 [[file:Report-comm-layout.svg]]
 
-*** PicoTalk
-    :PROPERTIES:
-    :CUSTOM_ID: picotalk
-    :END:
-
-The Nodes communicate using a custom asynchronous single-wire protocol called PicoTalk. We did this because we wanted to use a
-mesh interconnect instead of a shared bus, and because we didn't have the hardware support or pin count to connect each pair
-using a more common protocol, such as UART. It is /not/ a master/slave protocol, the transmitter/receiver roles are negotiated
-for each message.
-
-Because it is asynchronous, each side must provide its own clock. The clocks must be calibrated to 10kHz. The clocks are also
-reset for each message, in order to avoid clock skew corruption.
-
-The communication line is held high while idle by a 4.7KΩ pull-up resistor on the motherboard. Thus all participants should be configured in
-open drain mode, with their internal pull-ups disabled.
-
-PicoTalk can be divided into four primary stages, as shown in Figure [[fig:picotalk-diagram]]: Idle, Handshake, Preamble, and Message.
-
-In the Idle stage neither party is trying to transmit anything. When a party wants to transmit they enter the Handshake stage,
-by transmitting two low ticks. They then wait for a single low tick in response. If no response is heard after three ticks then
-the transmitter restarts the Handshake stage. The preamble stage is 5 ticks of alternating high and low signals. This is used to
-ensure that the clocks are calibrated correctly. Afterwards the message (a single byte) is sent, least significant bit first.
-The bus then returns to the Idle stage.
-
-  #+BEGIN_SRC plantuml :file Report-PicoTalk-timing.svg
-    concise "Status" as Status
-    concise "Transmitter" as TX
-    concise "Receiver" as RX
-
-    Status is Idle
-    TX is 1
-    RX is 1
-
-    @0
-
-    @+1
-    Status is "Failing handshake (no RX)"
-    TX is 0
-
-    @+2
-    TX is 1
-
-    @+3
-    Status is Handshake
-    TX is 0
-
-    @+2
-    TX is 1
-
-    @+1
-    RX is 0
-
-    @+1
-    Status is "Waiting for Preamble"
-    RX is 1
-
-    @+2
-    Status is Preamble
-    TX is 1
-
-    @+1
-    TX is 0
-
-    @+1
-    TX is 1
-
-    @+1
-    TX is 0
-
-    @+1
-    TX is 1
-
-    @+1
-    Status is Message
-    TX is "M[0]"
-    @+1
-    TX is "M[1]"
-    @+1
-    TX is "M[2]"
-    @+1
-    TX is "M[3]"
-    @+1
-    TX is "M[4]"
-    @+1
-    TX is "M[5]"
-    @+1
-    TX is "M[6]"
-    @+1
-    TX is "M[7]"
-
-    @+1
-    Status is Idle
-    TX is 1
-  #+END_SRC
-
-  #+CAPTION: The stages of PicoTalk
-  #+NAME: fig:picotalk-diagram
-  #+RESULTS:
-  [[file:Report-PicoTalk-timing.svg]]
-
 ** Node Design
 
 There are a few design elements that are common to all nodes, to ensure that they can all be placed in any position
 on the motherboard, and so that they can all be debugged using the same tools.
 
 Using the LED node (Figure [[fig:led-node-pcb-front]]) as an example, they all share the following features:
-
-#+CAPTION: The front side of the LED Node PCB
-#+LABEL: fig:led-node-pcb-front
-#+ATTR_LATEX: :width 4cm
-[[./led-node-pcb-front.png]]
 
 - They are all 30.48x27.94mm
 - The angled corner marks the correct orientation
@@ -438,28 +325,29 @@ Using the LED node (Figure [[fig:led-node-pcb-front]]) as an example, they all s
     - Right
 - They are all powered by STM32F030F4P6 MCUs
 
+#+CAPTION: The front side of the LED Node PCB
+#+LABEL: fig:led-node-pcb-front
+[[./led-node-pcb-front.png]]
+
 ** Nodes
 
 We designed and fabricated three different Nodes: a LED display Node (see Figure [[fig:led-node-pcb-front]]), a button
 input Node (see Figure [[fig:button-node-pcb-front]]), and a programmable compute Node (see Figure
-[[fig:compute-node-pcb-front]]) to connect them. They are documented further in their respective appendices (see Appendix
-[[#appendix-piconode-led]], [[#appendix-piconode-switch]], and [[#appendix-piconode-compute]], respectively).
 
-# Bring them inline instead?
+
+[[fig:compute-node-pcb-front]]) to connect them.
 
 #+CAPTION: The front side of the button Node PCB
 #+LABEL: fig:button-node-pcb-front
-#+ATTR_LATEX: :width 4cm
 [[./button-node-pcb-front.png]]
 
 #+CAPTION: The front side of the compute Node PCB (the RX/TX pins are supposed to be female, but limited by the CAD software)
 #+LABEL: fig:compute-node-pcb-front
-#+ATTR_LATEX: :width 4cm
 [[./compute-node-pcb-front.png]]
 
 ** Motherboard
 
-We designed a motherboard based on the [[#comm][communication layout]] mentioned earlier, visualized in Figure [[fig:motherboard-pcb-front]].
+We designed a motherboard based on the [[#comm_layout][communication layout]] mentioned earlier, visualized in Figure [[fig:motherboard-pcb-front]].
 It also provides power, ground, and a reset control to all the nodes.
 
 #+CAPTION: The front side of the motherboard PCB (female connectors are not shown due to CAD software limitations)
@@ -468,50 +356,58 @@ It also provides power, ground, and a reset control to all the nodes.
 
 ** PicoASM
 
-We designed a simple assembler dialect, based on Shenzhen I/O's assembler language\cite{ShenzhenIO}. It is documented
-in further detail in Appendix [[#appendix-piconode-compute]]. Contrary to typical x86 desktop processors it does not have
-any jump or branch instructions. Instead any instruction can be associated with a conditional flag, which is set by
-our test instructions. An example PicoASM program is given in Listing [[lst:picoasm-prng]], which acts as a simple "wheel
-of fortune", given a Button Node on the left side, and a LED Node on the right side.
-
-#+CAPTION: An example PicoASM program: a "wheel of fortune" that spins while an input greater than zero is given
-#+LABEL: lst:picoasm-prng
-#+BEGIN_SRC text
-  tcp left 0
-+ mov acc right
-+ teq acc 4
-+ mov 1 acc
-- add 1
-#+END_SRC
-
-** PicoIDE
-
-We provided a web-based \ac{IDE} called PicoIDE, which allows you to edit programs and upload them to Compute nodes. It
-be seen in Figure [[fig:picoide-screenshot]]. It is intended that this runs on a server on the same network as the
-Downloaders.
-
-#+CAPTION: A screenshot of PicoIDE, with a few saved files and showing the program in Listing [[lst:picoasm-prng]]
-#+LABEL: fig:picoide-screenshot
-[[./picoide-screenshot.png]]
-
-*** Security
-
-Downloaders communication is encrypted using TLS, with verification of client and server certificates. Browser
-communication is not encrypted by default, but it is recommended that this is done using a reverse proxy, such
-as Nginx. There is currently no user authentication system.
+We designed a simple assembler dialect,
 
 * Analysis
 
-Eftersom en prototyp hann sammanställas så kunde en analys göras av hur studenter i årskurs 8 göras tillsammans med deras lärare.
-På grund av bristande intresse och dåligt med tid kunde vi endast få en skola att göra en utvärdering samt några släktingar. Resultatet var bättre än väntat,
-7 av 8 elever och läraren fann PicoNode conceptet enkelt att förstå eller pedagogiskt, en elev tyckte att konceptet var rörigt.
-Ingen elev fann våra intruktioner svåra att följa och det visuellla upplägget var tydligt. 6 elever blev motiverade att programmera med PicoNodes och två hade ingen
-uppfattning. Alla eleverna hade stött på programmering tidigare och i skolan hade dom jobbat lite med JavaScript. 6 elever fann det medelsvårt med att lära sig programmera
-och två tyckte att det var enkelt.
+We have under this project developed an educational platform, with the aim, that the platfrom can be used by teachers with students in the 8:th grade to teach programming.
+We also wanted to get an evaluation of the prototype, from surveys and observation in different scools. A prototype got developed with time left for an evauation
+but the lack of intresse and/or no time for the teachers in the scools, got us one scool offer to try PicoNodes. The evaluation was better then aspected, most of the students
+got motivated by PicoNodes and wanted to learn more programming from it.
 
-To get schools to help us evaluate the prototype has ben challenging, even though we were well in time, half a year in advanced, with requests.
+** Evaluation of the endproduct, anwsers to the questions
+
+# Is endproduct the right term?
+
+The implemetation of the platform is in form of a motherboard with a matrix of 3 x 3 spots. Each spot is connected to the surrounding spots in four directions, up, down, left and
+right. On each spot, one of three nodes can be placed, LEDnode, Switchnode and Computenode. The computenodes is programmed with a assembler-like laungage, we call picoasm,
+throu our homepage that can run locally on the teachers computer with a local server. To be able to download the program on the nodes, WIFI-communication with a server
+is used(se bilaga arkitektur?) and then UART for loading the program onto the nodes from the WIFI-module.
+LED- and switchnode can be used to visualize the values transmitted and recieved.
+
+To motivate students, the prototype is of simple sort with few steps for set-up. We designed it to be easy to start programming but with the idea of developing challanging stages
+for practice. Some exercises where made but the students could not test them indevidually because we where limited to one platform and one hour.
+Instead all the students took turn to download thier program on the prototype. With the UI, the students was able to write their own solution on the browser with Ipads and then take
+turn to run it on the nodes (placed on the motherboard). To keep the threshold low for the unexperienced programmer, the first exercises should be simple until the user is familiar
+with the language. Ideas for exercises is discussed further in chapter Further Oppertuneties.
+
+# How can it support?
+
+# The questions should be tailored a bit, 1 and 2 is very similar
+1. How to implement the new outcomes for computational thinking presented by Skolverket.
+2. Implementation of a platform to teach tha basics of bare metal programming to students.
+3. Evaluation of the pedagogical usefulness of the platform and how to implement
+   the idea to motivate students.
+
+To get scools to help us evaluate the prototype has ben challenging, even though we were well in time, half a year in advanced, with requests.
+This has made us short of data to evaluate and only some observations of how the students interact with our product. To be able to develop the answer of how to
+implement the new outcomes for computational thinking from Skolverket, more data need to be selected with a reflected program to try in several scools.
+
+# Remove?
+This can not be the only tool achieving the goal but is a useful aid for visualizing some of
+the computational foundation, as distributed systems and close metal programming. The students gets activated by the need to do actions in form of placing nodes. They
+also need to analyse what node to place where. By the fact that they are limited, force them to analyse the problem and then devide it to parts with smaller problems.To get scools to help us evaluate the prototype has ben challenging, even though we were well in time, half a year in advanced, with requests.
 This has made us short of data to evaluate and only some observations of how the students interact with our product. The feedback we got was better then
-expected, most of the students got motiveted to program with PicoNodes.
+expected, most of the students got motiveted to program with PicoNodes. For the first question of how to implement the new outcomes for computational thinking,
+we found the platform to be a very good solution. This can not be the only tool achieving the goal but is a useful aid for visualizing some of
+the computational foundation, as distributed systems and close metal programming. The students gets activated by the need to do actions in form of placing nodes. They
+also need to analyse what node to place where. By the fact that they are limited, force them to analyse the problem and then devide it to parts with smaller problems.
+
+
+# try to sum up everyting under
+Some misscalculations was made when developingthe board. The motherboard run out of power, and the MCUs run out of memory.
+
+** PicoNodes
 
 One of the challanges was to define the functions of the nodes. Some nodes needed to be programmable but to be able to visualize the program written by the user,
 "action" nodes was needed. To define the nodes with more specific funcionallity, a seperation between the actionnodes and programmable nodes was made. One switchnode,
@@ -520,35 +416,28 @@ kind of node to display all the values possible in the communication between the
 Is was very doable but would have taken to much time from the critical parts of the project. The lednode was used instead of visulazing the value transmitted but
 limited to four values.
 
-Another problem was that we run out of memory for debugging the program on the nodes. The program that run on the nodes in the endproduct was ok but all the debugging
-tools during the development needed more space. So to keep down the work, a testnode was developed in the same serie of \acp{MCU} and used for debugging.
+** Memory
 
+Another problem was that we run out of memory for debugging the program on the nodes. The program that run on the nodes in the endproduct was ok but all the debugging
+tools during the development needed more space. So to keep down the work, a testnode was developed in the same serie of microcontrollers and used for debugging.
+
+# This is not good, remove?
+** Powersource
+
+For powering the motherboard revision one, one IOpin supporting 3.3 V and 1.5 A, was drawn out from the downloader. This pin needed to be able to support 9 Piconodes and 6 LEDs.
+This was corrected in the last revision to be able to give power support
+for all nine nodes connected to the motherboard according to the calculation 9 x 0.120 A + 0.500 A plus 6 leds(~15 A piece) with e regulator. The last revision of the motherboard
+is powered through a 5 V IOpin from the HUZZAH module and then processed through a regulator to optain 3.3 V and 1.5 A.
+
+** Piconodes
+
+An alternative for the PicoTalk was to have a common clock source. This would bring the nodes syncronized when communicating and could have an easier implementation for the handshake.
+An external clocksource connected to all the nodes by connections on the motherboard.
 * Further Opportunities
   :PROPERTIES:
   :CUSTOM_ID: further_opportunities
   :END:
 
-#+LATEX: \appendix
-
-* PicoNode-Compute manual
-  :PROPERTIES:
-  :CUSTOM_ID: appendix-piconode-compute
-  :END:
-
-FIXME
-
-* PicoNode-Switch manual
-  :PROPERTIES:
-  :CUSTOM_ID: appendix-piconode-switch
-  :END:
-
-FIXME
-
-* PicoNode-LED manual
-  :PROPERTIES:
-  :CUSTOM_ID: appendix-piconode-led
-  :END:
-
-FIXME
+* References
 
 \printbibliography
