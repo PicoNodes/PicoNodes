@@ -1,6 +1,8 @@
 # -*- mode: org; coding: utf-8; -*-
 #+TITLE: A Physical Platform For Teaching Distributed Systems In A Simplified Setting
 #+AUTHOR: Therese Kennerberg, Teo Klestrup Röijezon
+# Fancy math!
+#+LATEX_HEADER: \usepackage{siunitx}
 # Fancy acronyms
 #+LATEX_HEADER: \usepackage{acronym}
 # Fancy code blocks
@@ -536,7 +538,80 @@ shared clock bus, equalizing clock skew between the nodes. However, that would h
 complicated \ac{PCB} design. Also, we liked having an uneven number of pins, since that also acted as a guide to orient the Node
 correctly in its socket.
 
+*** Power Usage
+
 We had also miscalculated the power usage of the setup. Initially we relied on the Huzzah32's built-in voltage regulator. However,
+that voltage regulator (AP2112) is only specified for loads below \SI{600}{\mA}. After recalculating our worst-case estimates we realized that
+our total load is described by Equations [[eqn:power-consumption-symbolic-n-pullups]] through [[eqn:power-consumption-symbolic-i-total]]. In
+these formulas, \(W_{node}\) is the number of Node columns, \(H_{node}\) is the number of Node rows, \(I_{node}\) is the maximum current
+draw of each Node, \(I_{downloader}\) is the maximum current draw of the Downloader, and \(R_{pullup}\) is the resistance of the PicoTalk
+pull-up resistors.
+
+#+LABEL: eqn:power-consumption-symbolic-n-pullups
+\begin{equation}
+N_{pullups} = W_{node} * H_{node} * 2 + W_{node} + H_{node}
+\end{equation}
+
+#+LABEL: eqn:power-consumption-symbolic-i-pullups
+\begin{equation}
+I_{pullups} = \frac{U}{R_{pullup}} * N_{pullups}
+\end{equation}
+
+#+LABEL: eqn:power-consumption-symbolic-i-nodes
+\begin{equation}
+I_{nodes} = W_{node} * H_{node} * I_{node}
+\end{equation}
+
+#+LABEL: eqn:power-consumption-symbolic-i-board
+\begin{equation}
+I_{board} = I_{pullups} + I_{nodes}
+\end{equation}
+
+#+LABEL: eqn:power-consumption-symbolic-i-total
+\begin{equation}
+I_{total} = I_{board} + I_{downloader}
+\end{equation}
+
+Plugging in our numbers, this gives us a board power usage of \SI{1.1}{\A}, and a total power usage of \SI{1.6}{\A}. Once we had realized
+how far out of spec this was, we set up a separate voltage regulator. However, since we discovered this after we had already made our motherboard,
+we also made a mezzanine board with the voltage regulation logic.
+
+*Image of VR Mezzanine goes here*
+
+**** Calculation, drop?
+
+In our case, our motherboard is a \(3 * 3\) grid, so \(W_{node} = H_{node} = 3\). Our STM32 \acp{MCU} are rated for \SI{120}{\mA} each,
+so that's our \(I_{node}\) since that's our primary Node component. The ESP32 \(\ac{MCU}\) documentation recommends a
+\SI{500}{\mA} power supply, so we'll set that as our \(I_{downloader}\). Our pull-ups are specified to be \(R_{pullup} = \SI{4.7}{\kilo\ohm}\).
+Finally, our logic level \(U\) is \SI{3.3}{\V}. Plugging in these numbers, we get Formulas [[eqn:power-consumption-n-pullups]] through
+[[eqn:power-consumption-i-total]].
+
+#+LABEL: eqn:power-consumption-n-pullups
+\begin{equation}
+N_{pullups} = 3 * 3 * 2 + 3 + 3 = 24
+\end{equation}
+
+#+LABEL: eqn:power-consumption-i-pullups
+\begin{equation}
+I_{pullups} \approx \frac{3.3}{4700} * 24 \approx \SI{0.017}{\A} = \SI{17}{\mA}
+\end{equation}
+
+#+LABEL: eqn:power-consumption-i-nodes
+\begin{equation}
+I_{nodes} \approx 3 * 3 * 0.120 \approx \SI{1.1}{\A}
+\end{equation}
+
+#+LABEL: eqn:power-consumption-i-board
+\begin{equation}
+I_{board} \approx 0.017 + 1.1 \approx \SI{1.1}{\A}
+\end{equation}
+
+#+LABEL: eqn:power-consumption-i-total
+\begin{equation}
+I_{total} \approx 1.1 + 0.5 = \SI{1.6}{\A}
+\end{equation}
+
+
 
 ** Node Selection
 
