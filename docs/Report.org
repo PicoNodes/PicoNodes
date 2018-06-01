@@ -576,43 +576,6 @@ Plugging in our numbers, this gives us a board power usage of \SI{1.1}{\A}, and 
 how far out of spec this was, we set up a separate voltage regulator. However, since we discovered this after we had already made our motherboard,
 we also made a mezzanine board with the voltage regulation logic.
 
-*Image of VR Mezzanine goes here*
-
-**** Calculation, drop?
-
-In our case, our motherboard is a \(3 * 3\) grid, so \(W_{node} = H_{node} = 3\). Our STM32 \acp{MCU} are rated for \SI{120}{\mA} each,
-so that's our \(I_{node}\) since that's our primary Node component. The ESP32 \(\ac{MCU}\) documentation recommends a
-\SI{500}{\mA} power supply, so we'll set that as our \(I_{downloader}\). Our pull-ups are specified to be \(R_{pullup} = \SI{4.7}{\kilo\ohm}\).
-Finally, our logic level \(U\) is \SI{3.3}{\V}. Plugging in these numbers, we get Formulas [[eqn:power-consumption-n-pullups]] through
-[[eqn:power-consumption-i-total]].
-
-#+LABEL: eqn:power-consumption-n-pullups
-\begin{equation}
-N_{pullups} = 3 * 3 * 2 + 3 + 3 = 24
-\end{equation}
-
-#+LABEL: eqn:power-consumption-i-pullups
-\begin{equation}
-I_{pullups} \approx \frac{3.3}{4700} * 24 \approx \SI{0.017}{\A} = \SI{17}{\mA}
-\end{equation}
-
-#+LABEL: eqn:power-consumption-i-nodes
-\begin{equation}
-I_{nodes} \approx 3 * 3 * 0.120 \approx \SI{1.1}{\A}
-\end{equation}
-
-#+LABEL: eqn:power-consumption-i-board
-\begin{equation}
-I_{board} \approx 0.017 + 1.1 \approx \SI{1.1}{\A}
-\end{equation}
-
-#+LABEL: eqn:power-consumption-i-total
-\begin{equation}
-I_{total} \approx 1.1 + 0.5 = \SI{1.6}{\A}
-\end{equation}
-
-
-
 ** Node Selection
 
 Another problem we had was defining what Nodes to make. We obviously needed a programmable Node, but we also wanted some way to let the user affect the computation,
