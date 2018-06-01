@@ -220,40 +220,47 @@ teaching/learning.
 # should we have the questions in the report?
 The data will be used to evaluate the product and for suggestions to future work.
 
-** Specific research tools and strategies
+** Tools
 
-The product will have the UI designed in the browser so the user wont be fixed to one platform. This way
-either a mobile phone or a laptop can be used for programming the micro-controllers. The MCU of our choice
-is stm32f030f4p6. This MCU is chosen because it got enough I/Os and memory space for the application and
-is reasonable cheep. This MCUs are also popular to program in Rust which make it easier to find documentation
-and support. At least 8 I/O is needed. UART communication(two pins for TX and RX), communications between
-the MCUs(4 pins), external clock source and coarse grained synchronization clock. A server will be provided
-by Inicio which contains the drivers for communicating between the platforms and the compiler for the bytecode.
+*** Microcontrollers
 
-** Programming Languages
+We chose to base our system around STMicrolectronics' STM32F030\cite{stm32f030} series of microcontrollers. We made
+this choice because it was contains both the very cheap F4P6 chip, as well as the beefier but compatible C8T6 which
+we used for debugging our software. The whole series also offered enough peripherals for our needs (primarily, a
+software-controlled timer and a single UART channel).
 
-Rust is used to program the MCU. The MCU of our choice is
-stm32f030f4p6. C is also an option and can be preferred
-if anyone would like to use IDE such as EWARM or STM32Cube to generate
-initiallisation code but this IDE is not suported by Linux and is why we are using Rust. Rust is also better from a safety
-perspective because it is harder to read something from more then one thread
-and it verifies pointers are still alive when they are used so you will not be
-able to keep a pointer beyond their objects lifetime. Rust also suits very well
-with our Bytecode model since our abstract sytax tree contains different legal
-values depending on the instruction. Alot of different IDE can be used for Rust,
-in this project we will use Emacs because both Scala program and the report is
-written here.
+As a bonus we also both had experience with the STM32 lineup from earlier projects.
 
-The homepage is programmed in Scala. Scala is very practical for not changing
-languege when writing the client and server. This makes it easier when communicating
-between the server and client.
+For our downloader unit we used the ESP32 microcontroller, because it has a relatively large developer community,
+plenty of resources, and a built-in Wi-Fi transceiver. Cost was also a far smaller problem here, since we need much
+smaller quantities of these. ST also has a few Wi-Fi-capable chips, but they are all marked Not Recommended for New
+Designs.
 
-** CAD and CAM tools
+*** Programming Languages
 
-In the first stages of the project it is prefered to be more flexible for changes.
-For this reason a breadboard and jumpingwires are used to test the design before
-making the final one. The MCU-moduels is made in a routermill so a breakout board
-can be made for the MCU pins to match the breadboard.
+We used Rust to program the Node MCUs. This was both because of Rust's improved safety features over C (such as pointers
+with limited lifetimes, and move semantics), as well as the improved type system.
+
+For example, the support for tagged unions (also known as algebraic data types or sum types) allowed us to represent our
+PicoTalk state machines without needing either a lot of repeated states (~Blah1~, ~Blah2~, ~Blah3~), or manually reinterpreting
+variables depending on the current state.
+
+We used C for programming the downloader, because the ESP32 MCU is based on the rather uncommon Xtensa architecture, which
+LLVM (used by the Rust compiler) does not support. This wasn't as much of a hindrance, since the downloader is mostly responsible
+for relaying messages between the server and the connected node.
+
+The website was developed using Scala for both the front- and backend. This was very useful to keep the codebases consistent, and
+helped avoid of code repetition when defining view models, for example. In theory it would also have been nice to stay consistent
+with the MCUs, but because of the resource constraints we wouldn't have been able to share as much code anyway.
+
+*** PCB design
+
+We started out prototyping using solderless breadboards and jumper cables, so that we would have more flexibility when changing
+plans. However, since our MCUs are SMD-based we still had to mill our breakout boards. We also designed a "debug" board for
+the STM32F030C8T6, with the same pinout as the STM32F030F4P6 that we were using as our design target.
+
+Once we were happy with our design we made a more formal design in our CAD program KiCad. Finally we milled our PCBs using our
+lab's LPKF ProtoMat mill.
 
 * Result
 
