@@ -36,7 +36,7 @@
 
 The goal of this project outcome is to provide a hands-on physical
 pedagogical education platform for schools. The platform will be
-tailored towards \ac{Skolverket}'s new cirriculum and learning goals for the subjects Computational
+tailored towards \ac{Skolverket}'s new curriculum and learning goals for the subjects Computational
 Thinking and Programming\cite{KTek2017} (which will take effect from July 2018\cite{HesslingPaues17}). The
 platform is aimed towards teaching parallel programming and distributed systems using a
 custom assembler language.
@@ -48,11 +48,11 @@ custom assembler language.
 
 The study has examined the following questions:
 
-1. Implementation of a platform to teach tha basics of bare metal programming to students.
+1. Implementation of a platform to teach the basics of bare metal programming to students.
 2. Evaluation of the pedagogical usefulness of the platform and how to implement
    the idea to motivate students.
 
-** Delimitations
+** Delimitation
 
 The project is limited to 2.5 months, so the product will not be ready for the market in this time. Rather, the
 project aims to build up a ground for a future product that can be represented on the market. It will be a simple
@@ -63,7 +63,7 @@ Further development opportunities will be mentioned in Chapter [[#further_opport
 The product will be targeted towards students in eighth grade, both students who have programmed before and students
 who are new to it.
 
-Because of the limited timeframe we have not undergone compliance testing (such as for RF and EMC emissions), which
+Because of the limited time frame we have not undergone compliance testing (such as for RF and EMC emissions), which
 would be required for commercialization.
 
 * Background
@@ -82,7 +82,7 @@ works.
 ** Terminology and Acronyms
 
 #+BEGIN_acronym
-\acro{MCU}{Microcontroller Unit}
+\acro{MCU}{Micro-controller Unit}
 \acro{PCB}{Printed Circuit Board}
 \acro{CAD}{Computer-Assisted Design}
 \acro{CAM}{Computer-Assisted Manufacturing}
@@ -130,12 +130,12 @@ who need to understand the learning concept fully to be able to teach it.
 
 # Find the primary source or scrap
 
-A study made in 2017 by Lärarnas Riksforbund show that 8 of 10 mathteachers with students in the 8:th and
-9:th grade feel insecure about teaching programming, and 54% of the teachers don't have any experince
+A study made in 2017 by Lärarnas Riksförbund show that 8 of 10 math teachers with students in the 8:th and
+9:th grade feel insecure about teaching programming, and 54% of the teachers don't have any experience
 programming at all.
-# Lararnas riksforbund, letar källa..
+# Lärarnas Riksförbund, letar källa..
 
-Another challange is that the teachers are anxious to develop new learning resources, and feel insecure
+Another challenge is that the teachers are anxious to develop new learning resources, and feel insecure
 when dealing with new and unfamiliar teaching material.\Cite{Bower17} For these reasons the project
 will keep the teachers, and how to prepare them for using the platform's tools, in mind.
 
@@ -157,7 +157,7 @@ to worry about more complicated concerns, such as bits, timing, and clock skew.
 
 Compared to the Zachtronics games, building this as a physical kit required us to consider practicality
 to a bigger degree. Shenzhen I/O's free-form \ac{PCB} layout system gives the user an extra degree of freedom,
-but requiring the user to wait for (and pay for) the \acp{PCB} to be remanufactured after each design
+but requiring the user to wait for (and pay for) the \acp{PCB} to be re-manufactured after each design
 change would have been very stifling. Alternately, you could have a pre-manufactured \ac{PCB} but let
 the user set up connections as they pleased, using jumper wires. However, we also rejected this design
 due to space constraints and the messy design it would have produced.
@@ -173,7 +173,7 @@ To develop a basic prototype of a educational platform to be used in the Swedish
 ** Ethics and Sustainability
 
 It's important to make sure that the product is produced in a sustainable manner. For example, care should be taken to avoid
-conflict minerals, child labour, and so on.
+conflict minerals, child labor, and so on.
 
 It should also be secure enough that it can't be snooped on, or abused by malware and botnets. Currently all traffic between
 the downloaders and the server is encrypted and authenticated, and reasonable care has been taken to ensure that the
@@ -202,28 +202,20 @@ be used in schools when teaching programming. The evaluation of the platform was
 school students and teachers play around with a prototype, and then letting them fill out a questionnaire
 about their experience.
 
-The question formulation in this thesis report is how can you implement computational thinking
-For the project, a platform was developed to
-be used as a tool in the schools education when teaching programming and was iterative developed
-during the last 3 weeks of the project from evaluation research. The evaluation of the platform was based on research
-with questionnaires to the the teachers and students and feedback after they checked out the products
-prototypes. The questionnaire is formed so the answers can give us a foundations for developing a
-pedagogical and motivating tool the student can use to achieve the outcomes for computational thinking.
-
 ** Targeted user and school selection
 
-The product is directed to student in 8:th grade. The platform is aiming to be a good base for students without programming practise as well to be challenging enough
-on a higher level for a more experienced programmer. The manual is in english so the students must understand english well.
+The product is directed to students in 8:th grade. The platform is aiming to be a good base for students without programming practice as well to be challenging enough
+on a higher level for a more experienced programmer. The manual is in English so the students must understand English well.
 Initially we wanted to feedback from as diverse a set of schools as possible but because of the lack of interest from the schools, only one
-volunteered to evaluate the prototype. To try to gather as much data as possible, family members was asked to participate for the avaluation of the prototype.
+volunteered to evaluate the prototype. To try to gather as much data as possible, family members was asked to participate for the evaluation of the prototype.
 
 ** Evaluation
 
-Questioniars is used to get an evaluation from the students testing the prototype.
+We used a questionnaire to get an evaluation from the students testing the prototype.
 
-The data are gathered by questionairs with two sections. One section is about their experience in generall with encounter programming and
-section two is about thier experince with the prototype. This is to evaluate what disposition the students can have about programming and
-if we change that disposition. The teachers and student are handed  a similar questionair but with straighten questions towards the use of the product
+The data are gathered by questionnaires with two sections. One section is about their experience in general with encounter programming and
+section two is about their experience with the prototype. This is to evaluate what disposition the students can have about programming and
+if we change that disposition. The teachers and student are handed  a similar questionnaire but with straighten questions towards the use of the product
 teaching/learning.
 # should we have the questions in the report?
 The data will be used to evaluate the product and for suggestions to future work.
@@ -235,13 +227,13 @@ either a mobile phone or a laptop can be used for programming the micro-controll
 is stm32f030f4p6. This MCU is chosen because it got enough I/Os and memory space for the application and
 is reasonable cheep. This MCUs are also popular to program in Rust which make it easier to find documentation
 and support. At least 8 I/O is needed. UART communication(two pins for TX and RX), communications between
-the MCUs(4 pins), external clock source and coarse grained syncronization clock. A server will be provided
+the MCUs(4 pins), external clock source and coarse grained synchronization clock. A server will be provided
 by Inicio which contains the drivers for communicating between the platforms and the compiler for the bytecode.
 
-** Programming Langueges
+** Programming Languages
 
 Rust is used to program the MCU. The MCU of our choice is
-stm32f030f4p6. C is also an option and can be prefered
+stm32f030f4p6. C is also an option and can be preferred
 if anyone would like to use IDE such as EWARM or STM32Cube to generate
 initiallisation code but this IDE is not suported by Linux and is why we are using Rust. Rust is also better from a safety
 perspective because it is harder to read something from more then one thread
