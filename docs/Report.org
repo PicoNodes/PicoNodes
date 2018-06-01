@@ -1,6 +1,5 @@
 # -*- mode: org; coding: utf-8; -*-
-#+TITLE: Title Template for Degree Project
-#+SUBTITLE: SUBTITLE - Arial 16/19pt
+#+TITLE: A Physical Platform For Teaching Distributed Systems In A Simplified Setting
 #+AUTHOR: Therese Kennerberg, Teo Klestrup Röijezon
 # Include SVG graphics
 #+LATEX_HEADER: \usepackage{svg}
@@ -25,10 +24,18 @@
 
 The goal of this project outcome is to provide a hands-on physical
 pedagogical education platform for schools. The platform will be
-tailored towards Skolverket's new cirriculum and learning goals for the subjects Computational
-Thinking and Programming\cite{KTek2017} (which will take effect from Juli 2018). The
+tailored towards \ac{Skolverket}'s new cirriculum and learning goals for the subjects Computational
+Thinking and Programming\cite{KTek2017} (which will take effect from July 2018\cite{HesslingPaues17}). The
 platform is aimed towards teaching parallel programming and distributed systems using a
-custom assembler-like language.
+custom assembler language.
+
+** Research Questions
+
+The study has examined the following questions:
+
+1. Implementation of a platform to teach tha basics of bare metal programming to students.
+2. Evaluation of the pedagogical usefulness of the platform and how to implement
+   the idea to motivate students.
 
 ** Delimitations
 
@@ -36,7 +43,7 @@ The project is limited to 2.5 months, so the product will not be ready for the m
 project aims to build up a ground for a future product that can be represented on the market. It will be a simple
 prototype, primarily so that the students can try it out.
 
-Further development and improvment will be mentioned in Chapter [[#further_opportunities]].
+Further development opportunities will be mentioned in Chapter [[#further_opportunities]].
 
 The product will be targeted towards students in eighth grade, both students who have programmed before and students
 who are new to it.
@@ -44,9 +51,8 @@ who are new to it.
 * Background
 
 The digitalization of our society is moving quickly, and we all want to keep up with it. This puts a lot of pressure on the schools
-to teach programming and computational thinking in the education. For this reason Skolverket is adding computational thinking
-# Better word than elementary?
-to the elementary school curriculum.
+to teach programming and computational thinking in the education. For this reason \ac{Skolverket} is adding computational thinking
+to the primary school curriculum.
 
 # Source for this claim
 Several countries have implemented programming into their schools, and this is creating market demand for tools to
@@ -55,11 +61,23 @@ on providing a simple environment for programming a single isolated computer. Th
 as important to understand how multiple computers interact in networks, as well as how low-level assembler programming
 works.
 
-** TODO Terminology
+** Terminology and Acronyms
+
+#+BEGIN_acronym
+\acro{MCU}{Microcontroller Unit}
+\acro{PCB}{Printed Circuit Board}
+\acro{CAD}{Computer-Assisted Design}
+\acro{CAM}{Computer-Assisted Manufacturing}
+\acro{IDE}{Integrated Developer Environment}
+\acro{USB}{Universal Serial Bus}
+\acro{LED}{Light-Emitting Diode}
+\acro{RTFM}{Real-Time For the Masses}
+\acro{Skolverket}{The Swedish agency of education}
+#+END_acronym
 
 ** Computational thinking in Swedish schools
 
-Skolverket is adopting programming and computational thinking in schools and has set up goals for the schools to implement.
+\ac{Skolverket} is adopting programming and computational thinking in schools and has set up goals for the schools to implement.
 
 Computational thinking is stated by Linköping's University\cite{HeintzMannila}, to be a process of problem-solving which includes:
 
@@ -85,7 +103,7 @@ have three key stages:
 3. Ages 12-14: Two or more programming languages, Boolean logic, binary numbers,
    connection between the program and hardware.
 
-This project is directed to be used by student in the ages of 14-15, fitting the
+This project is directed to be used by student in the ages of 14-15, and fits the
 last key stage quite well.
 
 One important thing to consider in the process of teaching computational thinking
@@ -94,42 +112,37 @@ who need to understand the learning concept fully to be able to teach it.
 
 # Find the primary source or scrap
 
-A study made in 2017 by Lararnas Riksforbund show that 8 of 10 mathteachers with student in 8:th and 9:th grade 
-feels insecure about teaching programming and 54% of the teachers don't 
-have any experince in programming at all.
-# Lararnas riksforbund, letar kalla..
+A study made in 2017 by Lärarnas Riksforbund show that 8 of 10 mathteachers with students in the 8:th and
+9:th grade feel insecure about teaching programming, and 54% of the teachers don't have any experince
+programming at all.
+# Lararnas riksforbund, letar källa..
 
-Another challange the teachers are anxious to develop new learning resources, and feel insecure
-in dealing with new and unfamiliar teaching material.\Cite{Bower17} For this reasons the project
-will keep the teachers, and how to prepare them to use the tools the platform provides, in mind.
-The UI will be as simple as possible, so that it is easy to use with few steps to set-up, so that
-they can focus on the programming.
+Another challange is that the teachers are anxious to develop new learning resources, and feel insecure
+when dealing with new and unfamiliar teaching material.\Cite{Bower17} For these reasons the project
+will keep the teachers, and how to prepare them for using the platform's tools, in mind.
+
+The UI should be kept as simple as possible, so that it is easy to use with few setup steps, letting
+them focus on the important part: the programming.
 
 *** Prior Art
 
 So far, "educational" programming has mostly taken one of two tracks: "toy" languages and environments
-
 that are designed to be visually exciting (such as Scratch\cite{Scratch}), or disposable limited computers
 (see Raspberry Pi\cite{RaspberryPi} and BBC micro:bit\cite{MicroBit}).
 
 We've tried to go in a slightly different route, inspired by Zachtronics Industries' games Shenzhen
-I/O\cite{ShenzhenIO} and TIS-100\cite{TIS100}. Instead of giving them a single computer or microcontroller
-for the whole project, we give them a whole bunch of /extremely/ limited microcontrollers, in order to force
-them to think about splitting their projects long before a traditional approach does. To compensate for this,
-we've also provided a simplified way to communicate between them, without having to worry about more complicated
-concerns, such as bits, timing, and clock skew.
+I/O\cite{ShenzhenIO} and TIS-100\cite{TIS100}. Instead of giving them a single computer or \ac{MCU}
+for the whole project, we give them a whole bunch of /extremely/ limited \acp{MCU}, in order to force
+them to think about splitting their projects a long time before a traditional approach would have. To
+compensate for this, we've also provided a simplified way to communicate between them, without having
+to worry about more complicated concerns, such as bits, timing, and clock skew.
 
-To differentiate from the Zachtronics games we've actually built a physical kit using these principles,
-rather than just providing the user with a simulator.
-
-** Research Questions
-
-The study has examined the following questions:
-
-1. How to implement the new outcomes for computational thinking presented by Skolverket.
-2. Implementation of a platform to teach tha basics of bare metal programming to students.
-3. Evaluation of the pedagogical usefulness of the platform and how to implement
-   the idea to motivate students.
+Compared to the Zachtronics games, building this as a physical kit required us to consider practicality
+to a bigger degree. Shenzhen I/O's free-form \ac{PCB} layout system gives the user an extra degree of freedom,
+but requiring the user to wait for (and pay for) the \acp{PCB} to be remanufactured after each design
+change would have been very stifling. Alternately, you could have a pre-manufactured \ac{PCB} but let
+the user set up connections as they pleased, using jumper wires. However, we also rejected this design
+due to space constraints and the messy design it would have produced.
 
 ** Purpose
 
@@ -137,7 +150,7 @@ Improving the digital literacy of school students, in Sweden and abroad.
 
 ** Goal
 
-The goal with the project is to develop a basic prototype of a educational platform to be used in the Swedish scools.
+To develop a basic prototype of a educational platform to be used in the Swedish schools.
 
 ** Ethics and Sustainability
 
@@ -160,7 +173,7 @@ ready.
 
 # State the problem and underlying assumption.
 
-Skolverket is about to implement new learning goals for computational thinking in Juli 2018. Their vision for
+\ac{Skolverket} is about to implement new learning goals for computational thinking in July 2018. Their vision for
 2020 is that every student has developed an adequate competence for digital technology
 https://liu.se/cetis/konferenser/documents-tis2017/m2-3-datalogiskt-tankande.pdf).
 # Try to find primary source?
@@ -179,11 +192,11 @@ with questionnaires to the the teachers and students and feedback after they che
 prototypes. The questionnaire is formed so the answers can give us a foundations for developing a
 pedagogical and motivating tool the student can use to achieve the outcomes for computational thinking.
 
-** Targeted user and scool selection
+** Targeted user and school selection
 
 The product is directed to student in 8:th grade. The platform is aiming to be a good base for students without programming practise as well to be challenging enough
 on a higher level for a more experienced programmer. The manual is in english so the students must understand english well.
-Initially we wanted to feedback from as diverse a set of schools as possible but because of the lack of interest from the scools, only one
+Initially we wanted to feedback from as diverse a set of schools as possible but because of the lack of interest from the schools, only one
 volunteered to evaluate the prototype. To try to gather as much data as possible, family members was asked to participate for the avaluation of the prototype.
 
 ** Evaluation
@@ -351,32 +364,53 @@ We designed a simple assembler dialect,
 * Analysis
 
 We have under this project developed an educational platform, with the aim, that the platfrom can be used by teachers with students in the 8:th grade to teach programming.
+<<<<<<< HEAD
 We also wanted to get an evaluation of the prototype, from surveys and observation in different schools. A prototype got developed with time left for an evauation 
 but the lack of interest and/or no time for the teachers in the scools, got us one scool offer to try PicoNodes. The evaluation was better then aspected, most of the students
+=======
+We also wanted to get an evaluation of the prototype, from surveys and observation in different scools. A prototype got developed with time left for an evauation
+but the lack of intresse and/or no time for the teachers in the scools, got us one scool offer to try PicoNodes. The evaluation was better then aspected, most of the students
+>>>>>>> b1b8042d3305fcd13a21fb1256aada59c8d62157
 got motivated by PicoNodes and wanted to learn more programming from it.
 
 ** Evaluation of the endproduct, anwsers to the questions
 
 # Is endproduct the right term?
 
-The implemetation of the platform is in form of a motherboard with a matrix of 3 x 3 spots. Each spot is connected to the surrounding spots in four directions, up, down, left and 
+The implemetation of the platform is in form of a motherboard with a matrix of 3 x 3 spots. Each spot is connected to the surrounding spots in four directions, up, down, left and
 right. On each spot, one of three nodes can be placed, LEDnode, Switchnode and Computenode. The computenodes is programmed with a assembler-like laungage, we call picoasm,
-throu our homepage that can run locally on the teachers computer with a local server. To be able to download the program on the nodes, WIFI-communication with a server 
+throu our homepage that can run locally on the teachers computer with a local server. To be able to download the program on the nodes, WIFI-communication with a server
 is used(se bilaga arkitektur?) and then UART for loading the program onto the nodes from the WIFI-module.
 LED- and switchnode can be used to visualize the values transmitted and recieved.
 
 To motivate students, the prototype is of simple sort with few steps for set-up. We designed it to be easy to start programming but with the idea of developing challanging stages
 for practice. Some exercises where made but the students could not test them indevidually because we where limited to one platform and one hour.
 Instead all the students took turn to download thier program on the prototype. With the UI, the students was able to write their own solution on the browser with Ipads and then take
-turn to run it on the nodes (placed on the motherboard). To keep the threshold low for the unexperienced programmer, the first exercises should be simple until the user is familiar 
+turn to run it on the nodes (placed on the motherboard). To keep the threshold low for the unexperienced programmer, the first exercises should be simple until the user is familiar
 with the language. Ideas for exercises is discussed further in chapter Further Oppertuneties.
 
 To get scools to help us evaluate the prototype has ben challenging, even though we were well in time, half a year in advanced, with requests.
+<<<<<<< HEAD
 This has made us short of data to evaluate and only some observations of how the students interact with our product.
+=======
+This has made us short of data to evaluate and only some observations of how the students interact with our product. To be able to develop the answer of how to
+implement the new outcomes for computational thinking from Skolverket, more data need to be selected with a reflected program to try in several scools.
+
+# Remove?
+This can not be the only tool achieving the goal but is a useful aid for visualizing some of
+the computational foundation, as distributed systems and close metal programming. The students gets activated by the need to do actions in form of placing nodes. They
+also need to analyse what node to place where. By the fact that they are limited, force them to analyse the problem and then devide it to parts with smaller problems.To get scools to help us evaluate the prototype has ben challenging, even though we were well in time, half a year in advanced, with requests.
+This has made us short of data to evaluate and only some observations of how the students interact with our product. The feedback we got was better then
+expected, most of the students got motiveted to program with PicoNodes. For the first question of how to implement the new outcomes for computational thinking,
+we found the platform to be a very good solution. This can not be the only tool achieving the goal but is a useful aid for visualizing some of
+the computational foundation, as distributed systems and close metal programming. The students gets activated by the need to do actions in form of placing nodes. They
+also need to analyse what node to place where. By the fact that they are limited, force them to analyse the problem and then devide it to parts with smaller problems.
+>>>>>>> b1b8042d3305fcd13a21fb1256aada59c8d62157
 
 Some miscalculations where made during the process. 
 
 # try to sum up everyting under
+<<<<<<< HEAD
 Some misscalculations was made when developing the board. The motherboard run out of power, and the MCUs run out of memory.
  
 ** PicoNodes
@@ -389,12 +423,23 @@ Some nodes needed to be programmable but to be able to visualize the program wri
 one lednode and 8 computenode was developed. This mean some restrictions in the placement of the nodes on the motherboard. A try was also done to develop a third 
 kind of node to display all the values possible in the communication between the nodes. The node was a lixiedisplay but the light did not hit the numbers enough. 
 Is was very doable but would have taken to much time from the critical parts of the project. The lednode was used instead of visulazing the value transmitted but 
+=======
+Some misscalculations was made when developingthe board. The motherboard run out of power, and the MCUs run out of memory.
+
+** PicoNodes
+
+One of the challanges was to define the functions of the nodes. Some nodes needed to be programmable but to be able to visualize the program written by the user,
+"action" nodes was needed. To define the nodes with more specific funcionallity, a seperation between the actionnodes and programmable nodes was made. One switchnode,
+one lednode and 8 computenode was developed. This mean some restrictions in the placement of the nodes on the motherboard. A try was also done to develop a third
+kind of node to display all the values possible in the communication between the nodes. The node was a lixiedisplay but the light did not hit the numbers enough.
+Is was very doable but would have taken to much time from the critical parts of the project. The lednode was used instead of visulazing the value transmitted but
+>>>>>>> b1b8042d3305fcd13a21fb1256aada59c8d62157
 limited to four values.
 
 ** Memory
 
-Another problem was that we run out of memory for debugging the program on the nodes. The program that run on the nodes in the endproduct was ok but all the debugging 
-tools during the development needed more space. So to keep down the work, a testnode was developed in the same serie of microcontrollers and used for debugging. 
+Another problem was that we run out of memory for debugging the program on the nodes. The program that run on the nodes in the endproduct was ok but all the debugging
+tools during the development needed more space. So to keep down the work, a testnode was developed in the same serie of microcontrollers and used for debugging.
 
 # This is not good, remove?
 ** Powersource
@@ -404,10 +449,10 @@ This was corrected in the last revision to be able to give power support
 for all nine nodes connected to the motherboard according to the calculation 9 x 0.120 A + 0.500 A plus 6 leds(~15 A piece) with e regulator. The last revision of the motherboard
 is powered through a 5 V IOpin from the HUZZAH module and then processed through a regulator to optain 3.3 V and 1.5 A.
 
-** Piconodes 
+** Piconodes
 
 An alternative for the PicoTalk was to have a common clock source. This would bring the nodes syncronized when communicating and could have an easier implementation for the handshake.
-An external clocksource connected to all the nodes by connections on the motherboard.  
+An external clocksource connected to all the nodes by connections on the motherboard.
 * Further Opportunities
   :PROPERTIES:
   :CUSTOM_ID: further_opportunities
