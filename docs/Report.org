@@ -351,8 +351,8 @@ We designed a simple assembler dialect,
 * Analysis
 
 We have under this project developed an educational platform, with the aim, that the platfrom can be used by teachers with students in the 8:th grade to teach programming.
-We also wanted to get an evaluation of the prototype, from surveys and observation in different scools. A prototype got developed with time left for an evauation 
-but the lack of intresse and/or no time for the teachers in the scools, got us one scool offer to try PicoNodes. The evaluation was better then aspected, most of the students
+We also wanted to get an evaluation of the prototype, from surveys and observation in different schools. A prototype got developed with time left for an evauation 
+but the lack of interest and/or no time for the teachers in the scools, got us one scool offer to try PicoNodes. The evaluation was better then aspected, most of the students
 got motivated by PicoNodes and wanted to learn more programming from it.
 
 ** Evaluation of the endproduct, anwsers to the questions
@@ -371,35 +371,20 @@ Instead all the students took turn to download thier program on the prototype. W
 turn to run it on the nodes (placed on the motherboard). To keep the threshold low for the unexperienced programmer, the first exercises should be simple until the user is familiar 
 with the language. Ideas for exercises is discussed further in chapter Further Oppertuneties.
 
-# How can it support?
-
-# The questions should be tailored a bit, 1 and 2 is very similar
-1. How to implement the new outcomes for computational thinking presented by Skolverket.
-2. Implementation of a platform to teach tha basics of bare metal programming to students.
-3. Evaluation of the pedagogical usefulness of the platform and how to implement
-   the idea to motivate students.
-
 To get scools to help us evaluate the prototype has ben challenging, even though we were well in time, half a year in advanced, with requests.
-This has made us short of data to evaluate and only some observations of how the students interact with our product. To be able to develop the answer of how to 
-implement the new outcomes for computational thinking from Skolverket, more data need to be selected with a reflected program to try in several scools.
+This has made us short of data to evaluate and only some observations of how the students interact with our product.
 
-# Remove?
-This can not be the only tool achieving the goal but is a useful aid for visualizing some of 
-the computational foundation, as distributed systems and close metal programming. The students gets activated by the need to do actions in form of placing nodes. They
-also need to analyse what node to place where. By the fact that they are limited, force them to analyse the problem and then devide it to parts with smaller problems.To get scools to help us evaluate the prototype has ben challenging, even though we were well in time, half a year in advanced, with requests.
-This has made us short of data to evaluate and only some observations of how the students interact with our product. The feedback we got was better then 
-expected, most of the students got motiveted to program with PicoNodes. For the first question of how to implement the new outcomes for computational thinking,
-we found the platform to be a very good solution. This can not be the only tool achieving the goal but is a useful aid for visualizing some of 
-the computational foundation, as distributed systems and close metal programming. The students gets activated by the need to do actions in form of placing nodes. They
-also need to analyse what node to place where. By the fact that they are limited, force them to analyse the problem and then devide it to parts with smaller problems.
-
+Some miscalculations where made during the process. 
 
 # try to sum up everyting under
-Some misscalculations was made when developingthe board. The motherboard run out of power, and the MCUs run out of memory.
+Some misscalculations was made when developing the board. The motherboard run out of power, and the MCUs run out of memory.
  
 ** PicoNodes
 
-One of the challanges was to define the functions of the nodes. Some nodes needed to be programmable but to be able to visualize the program written by the user, 
+One of the challanges was to define the functions of the nodes. To complement the programmable nodes, the values transmitted and recieved needed to be visualized. This could be done 
+with adding funcionalities on the programmable nodes but we decided to develop seperate nodes for this purpose.
+
+Some nodes needed to be programmable but to be able to visualize the program written by the user, 
 "action" nodes was needed. To define the nodes with more specific funcionallity, a seperation between the actionnodes and programmable nodes was made. One switchnode, 
 one lednode and 8 computenode was developed. This mean some restrictions in the placement of the nodes on the motherboard. A try was also done to develop a third 
 kind of node to display all the values possible in the communication between the nodes. The node was a lixiedisplay but the light did not hit the numbers enough. 
