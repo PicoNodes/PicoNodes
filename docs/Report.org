@@ -530,7 +530,11 @@ the others were either observing or preparing their own programs on their tablet
 
 ** Development Issues
 
-Some miscalculations where made during the development process. For example, our original PicoTalk implementation had severe
+Some miscalculations where made during the development process.
+
+*** PicoTalk Timing
+
+For example, our original PicoTalk implementation had severe
 clock skew issues, where the transmitter and receiver would start synchronized, but slowly go out of sync during the message.
 To solve this we ended up requiring the receiver to resynchronize their internal clock for each message (see also Chapter
 [[#picotalk]]). This also limited the speeds that the nodes could communicate at. Another way to solve this could have been a
@@ -538,7 +542,19 @@ shared clock bus, equalizing clock skew between the nodes. However, that would h
 complicated \ac{PCB} design. Also, we liked having an uneven number of pins, since that also acted as a guide to orient the Node
 correctly in its socket.
 
+*** Conflicting special-use pins
+
+Another issue was that the downloader refused to boot when connected to more than 2 Nodes. At first we thought this was a power issue
+(see Chapter [[#power_usage]]), but this didn't solve the issue. Instead, it turns out that the ESP32 pin we had used to control node reset
+was used to detect the logic voltage level, expecting a low input for \SI{3.3}{\V} logic. Since this is the default it has a pull-down
+resistor. At the same time, the node reset is active-low, and so has a built-in pull-up resistor so that device is usable when the pin
+is floating. When more than 2 Nodes were connected the pull-ups would overpower the ESP32's pull-down. To fix this we attached a stronger
+pull-down to the pin, which the ESP would easily overpower once running, and activate the Nodes.
+
 *** Power Usage
+    :PROPERTIES:
+    :CUSTOM_ID: power_usage
+    :END:
 
 We had also miscalculated the power usage of the setup. Initially we relied on the Huzzah32's built-in voltage regulator. However,
 that voltage regulator (AP2112) is only specified for loads below \SI{600}{\mA}. After recalculating our worst-case estimates we realized that
@@ -589,48 +605,48 @@ At first we wanted to make a digit display node, similar to a Lixie display\cite
   :CUSTOM_ID: further_opportunities
   :END:
 
-The possibilities with this product is restricted to your imagination. Nodes can be developed 
-for more visual effect or specific nodes can be developed for games or exercises. One request
-we got was a TNTnode and LEDs on the programmer node that light up at communication. LEDs in the 
-communication stream ws something we already thought of but the idea could not be supported on 
-our MCU for the insufficient number of IOpins.
+** More Nodes
 
-When developing the exercises, the threshold should be kept low for the unexperienced programmer.
-The first exercises should be simple to give the user a chance to get to know the language.
-Later, more advanced combination of instructions can be used in the tasks, like statement 
-in condition in condition loops or something... For example can a game like PINGPONG be developed 
+The possibilities with this product is restricted to your imagination. Nodes can be developed
+for special visual effects, or for specific purposes such as games or exercises. One request
+we got was a TNT Node, and LEDs on the Compute Node that light while communicating. LEDs in the
+communication stream was something we had already thought of, but the idea was dropped at the time
+due to a lack of \ac{IO} pins.
 
+** More Exercises
 
-To surve it's purpose, the endproduct needs to be affordable for the schools to buy in. 
-If the HUZZAH module is downscaled with only the ESP32chip, both cost and power can be reduced.
+Another area of interest would be to create more exercises. It could also be interesting to have
+LEGO-style tutorials for building specific projects.
 
-# ** Testing
+** User Management
+
+The current approach of letting everyone access everything might get chaotic in a classroom environment.
+Instead, files and downloaders should be linked to specific users.
+
+** Studies
+
+It would be useful to have a more in-depth study of the platform's efficacy.
 
 ** Compliance
 
 Before the product is taken to market it must be tested with the regards to the relevant compliance standards, such as CE, RoHS, UL, and FCC.
+There should also be a formal security audit.
 
 #+LATEX: \appendix
 
-* PicoNode-Compute manual
+* TODO PicoNode-Compute manual
   :PROPERTIES:
   :CUSTOM_ID: appendix-piconode-compute
   :END:
 
-FIXME
-
-* PicoNode-Switch manual
+* TODO PicoNode-Switch manual
   :PROPERTIES:
   :CUSTOM_ID: appendix-piconode-switch
   :END:
 
-FIXME
-
-* PicoNode-LED manual
+* TODO PicoNode-LED manual
   :PROPERTIES:
   :CUSTOM_ID: appendix-piconode-led
   :END:
-
-FIXME
 
 \printbibliography
