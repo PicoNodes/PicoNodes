@@ -589,7 +589,22 @@ At first we wanted to make a digit display node, similar to a Lixie display\cite
   :CUSTOM_ID: further_opportunities
   :END:
 
-** Testing
+The possibilities with this product is restricted to your imagination. Nodes can be developed 
+for more visual effect or specific nodes can be developed for games or exercises. One request
+we got was a TNTnode and LEDs on the programmer node that light up at communication. LEDs in the 
+communication stream ws something we already thought of but the idea could not be supported on 
+our MCU for the insufficient number of IOpins.
+
+When developing the exercises, the threshold should be kept low for the unexperienced programmer.
+The first exercises should be simple to give the user a chance to get to know the language.
+Later, more advanced combination of instructions can be used in the tasks, like statement 
+in condition in condition loops or something... For example can a game like PINGPONG be developed 
+
+
+To surve it's purpose, the endproduct needs to be affordable for the schools to buy in. 
+If the HUZZAH module is downscaled with only the ESP32chip, both cost and power can be reduced.
+
+# ** Testing
 
 ** Compliance
 
