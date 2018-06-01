@@ -1,6 +1,11 @@
 # -*- mode: org; coding: utf-8; -*-
 #+TITLE: A Physical Platform For Teaching Distributed Systems In A Simplified Setting
 #+AUTHOR: Therese Kennerberg, Teo Klestrup Röijezon
+# Fancy code blocks
+#+LATEX_HEADER: \usepackage{mdframed}
+#+LATEX_HEADER: \usepackage{minted}
+#+LATEX_HEADER: \setminted{linenos}
+#+LATEX_HEADER: \surroundwithmdframed{minted}
 # Include SVG graphics
 #+LATEX_HEADER: \usepackage{svg}
 # LaTeX export results in jumbled text scaling
@@ -14,10 +19,13 @@
 #+BEGIN_SRC emacs-lisp :results silent :exports results
   (setq org-latex-pdf-process '("latexmk -shell-escape -bibtex -pdf %f")
         org-latex-listings 'minted
-        org-ditaa-jar-path "lib/ditaa-0.11.0-standalone.jar")
+        org-ditaa-jar-path "lib/ditaa-0.11.0-standalone.jar"
+        org-plantuml-jar-path "lib/plantuml.1.2018.3.jar"
+        org-latex-default-figure-position "tbp")
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((ditaa . t))) ; this line activates ditaa
+   '((ditaa . t)
+     (plantuml . t)))
 #+END_SRC
 
 * Introduction
@@ -247,17 +255,15 @@ can be made for the MCU pins to match the breadboard.
 
 * Result
 
-** Communication Layout
+** Communication
    :PROPERTIES:
-   :CUSTOM_ID: comm_layout
+   :CUSTOM_ID: comm
    :END:
 
 We decided to use a mesh interconnect (see Figure [[fig:mesh-grid]]), where each node is connected
 to its direct neighbors. This is relatively simple to route, has no chance of collisions, and
 # Explain absolute vs relative addressing in background?
 requires no form of absolute addressing.
-
-All lines are connected to 4.7KΩ pull-up resistor.
 
 #+BEGIN_SRC ditaa :file Report-comm-layout.svg :cmdline --svg
   +-------------*-------------+        +-------------*-------------+        +-------------*-------------+
@@ -304,12 +310,117 @@ All lines are connected to 4.7KΩ pull-up resistor.
 #+RESULTS:
 [[file:Report-comm-layout.svg]]
 
+*** PicoTalk
+    :PROPERTIES:
+    :CUSTOM_ID: picotalk
+    :END:
+
+The Nodes communicate using a custom asynchronous single-wire protocol called PicoTalk. We did this because we wanted to use a
+mesh interconnect instead of a shared bus, and because we didn't have the hardware support or pin count to connect each pair
+using a more common protocol, such as UART. It is /not/ a master/slave protocol, the transmitter/receiver roles are negotiated
+for each message.
+
+Because it is asynchronous, each side must provide its own clock. The clocks must be calibrated to 10kHz. The clocks are also
+reset for each message, in order to avoid clock skew corruption.
+
+The communication line is held high while idle by a 4.7KΩ pull-up resistor on the motherboard. Thus all participants should be configured in
+open drain mode, with their internal pull-ups disabled.
+
+PicoTalk can be divided into four primary stages, as shown in Figure [[fig:picotalk-diagram]]: Idle, Handshake, Preamble, and Message.
+
+In the Idle stage neither party is trying to transmit anything. When a party wants to transmit they enter the Handshake stage,
+by transmitting two low ticks. They then wait for a single low tick in response. If no response is heard after three ticks then
+the transmitter restarts the Handshake stage. The preamble stage is 5 ticks of alternating high and low signals. This is used to
+ensure that the clocks are calibrated correctly. Afterwards the message (a single byte) is sent, least significant bit first.
+The bus then returns to the Idle stage.
+
+  #+BEGIN_SRC plantuml :file Report-PicoTalk-timing.svg
+    concise "Status" as Status
+    concise "Transmitter" as TX
+    concise "Receiver" as RX
+
+    Status is Idle
+    TX is 1
+    RX is 1
+
+    @0
+
+    @+1
+    Status is "Failing handshake (no RX)"
+    TX is 0
+
+    @+2
+    TX is 1
+
+    @+3
+    Status is Handshake
+    TX is 0
+
+    @+2
+    TX is 1
+
+    @+1
+    RX is 0
+
+    @+1
+    Status is "Waiting for Preamble"
+    RX is 1
+
+    @+2
+    Status is Preamble
+    TX is 1
+
+    @+1
+    TX is 0
+
+    @+1
+    TX is 1
+
+    @+1
+    TX is 0
+
+    @+1
+    TX is 1
+
+    @+1
+    Status is Message
+    TX is "M[0]"
+    @+1
+    TX is "M[1]"
+    @+1
+    TX is "M[2]"
+    @+1
+    TX is "M[3]"
+    @+1
+    TX is "M[4]"
+    @+1
+    TX is "M[5]"
+    @+1
+    TX is "M[6]"
+    @+1
+    TX is "M[7]"
+
+    @+1
+    Status is Idle
+    TX is 1
+  #+END_SRC
+
+  #+CAPTION: The stages of PicoTalk
+  #+NAME: fig:picotalk-diagram
+  #+RESULTS:
+  [[file:Report-PicoTalk-timing.svg]]
+
 ** Node Design
 
 There are a few design elements that are common to all nodes, to ensure that they can all be placed in any position
 on the motherboard, and so that they can all be debugged using the same tools.
 
 Using the LED node (Figure [[fig:led-node-pcb-front]]) as an example, they all share the following features:
+
+#+CAPTION: The front side of the LED Node PCB
+#+LABEL: fig:led-node-pcb-front
+#+ATTR_LATEX: :width 4cm
+[[./led-node-pcb-front.png]]
 
 - They are all 30.48x27.94mm
 - The angled corner marks the correct orientation
@@ -328,29 +439,28 @@ Using the LED node (Figure [[fig:led-node-pcb-front]]) as an example, they all s
     - Right
 - They are all powered by STM32F030F4P6 MCUs
 
-#+CAPTION: The front side of the LED Node PCB
-#+LABEL: fig:led-node-pcb-front
-[[./led-node-pcb-front.png]]
-
 ** Nodes
 
 We designed and fabricated three different Nodes: a LED display Node (see Figure [[fig:led-node-pcb-front]]), a button
 input Node (see Figure [[fig:button-node-pcb-front]]), and a programmable compute Node (see Figure
+[[fig:compute-node-pcb-front]]) to connect them. They are documented further in their respective appendices (see Appendix
+[[#appendix-piconode-led]], [[#appendix-piconode-switch]], and [[#appendix-piconode-compute]], respectively).
 
-
-[[fig:compute-node-pcb-front]]) to connect them.
+# Bring them inline instead?
 
 #+CAPTION: The front side of the button Node PCB
 #+LABEL: fig:button-node-pcb-front
+#+ATTR_LATEX: :width 4cm
 [[./button-node-pcb-front.png]]
 
 #+CAPTION: The front side of the compute Node PCB (the RX/TX pins are supposed to be female, but limited by the CAD software)
 #+LABEL: fig:compute-node-pcb-front
+#+ATTR_LATEX: :width 4cm
 [[./compute-node-pcb-front.png]]
 
 ** Motherboard
 
-We designed a motherboard based on the [[#comm_layout][communication layout]] mentioned earlier, visualized in Figure [[fig:motherboard-pcb-front]].
+We designed a motherboard based on the [[#comm][communication layout]] mentioned earlier, visualized in Figure [[fig:motherboard-pcb-front]].
 It also provides power, ground, and a reset control to all the nodes.
 
 #+CAPTION: The front side of the motherboard PCB (female connectors are not shown due to CAD software limitations)
@@ -359,7 +469,37 @@ It also provides power, ground, and a reset control to all the nodes.
 
 ** PicoASM
 
-We designed a simple assembler dialect,
+We designed a simple assembler dialect, based on Shenzhen I/O's assembler language\cite{ShenzhenIO}. It is documented
+in further detail in Appendix [[#appendix-piconode-compute]]. Contrary to typical x86 desktop processors it does not have
+any jump or branch instructions. Instead any instruction can be associated with a conditional flag, which is set by
+our test instructions. An example PicoASM program is given in Listing [[lst:picoasm-prng]], which acts as a simple "wheel
+of fortune", given a Button Node on the left side, and a LED Node on the right side.
+
+#+CAPTION: An example PicoASM program: a "wheel of fortune" that spins while an input greater than zero is given
+#+LABEL: lst:picoasm-prng
+#+BEGIN_SRC text
+  tcp left 0
++ mov acc right
++ teq acc 4
++ mov 1 acc
+- add 1
+#+END_SRC
+
+** PicoIDE
+
+We provided a web-based editor called PicoIDE, which allows you to edit programs and upload them to Compute nodes. It
+be seen in Figure [[fig:picoide-screenshot]]. It is intended that this runs on a server on the same network as the
+Downloaders.
+
+#+CAPTION: A screenshot of PicoIDE, with a few saved files and showing the program in Listing [[lst:picoasm-prng]]
+#+LABEL: fig:picoide-screenshot
+[[./picoide-screenshot.png]]
+
+*** Security
+
+Downloaders communication is encrypted using TLS, with verification of client and server certificates. Browser
+communication is not encrypted by default, but it is recommended that this is done using a reverse proxy, such
+as Nginx. There is currently no user authentication system.
 
 * Analysis
 
@@ -378,27 +518,11 @@ turn to run it on the nodes (placed on the motherboard). To keep the threshold l
 with the language. Ideas for exercises is discussed further in chapter Further Oppertuneties.
 
 To get scools to help us evaluate the prototype has ben challenging, even though we were well in time, half a year in advanced, with requests.
-<<<<<<< HEAD
 This has made us short of data to evaluate and only some observations of how the students interact with our product.
-=======
-This has made us short of data to evaluate and only some observations of how the students interact with our product. To be able to develop the answer of how to
-implement the new outcomes for computational thinking from Skolverket, more data need to be selected with a reflected program to try in several scools.
-
-# Remove?
-This can not be the only tool achieving the goal but is a useful aid for visualizing some of
-the computational foundation, as distributed systems and close metal programming. The students gets activated by the need to do actions in form of placing nodes. They
-also need to analyse what node to place where. By the fact that they are limited, force them to analyse the problem and then devide it to parts with smaller problems.To get scools to help us evaluate the prototype has ben challenging, even though we were well in time, half a year in advanced, with requests.
-This has made us short of data to evaluate and only some observations of how the students interact with our product. The feedback we got was better then
-expected, most of the students got motiveted to program with PicoNodes. For the first question of how to implement the new outcomes for computational thinking,
-we found the platform to be a very good solution. This can not be the only tool achieving the goal but is a useful aid for visualizing some of
-the computational foundation, as distributed systems and close metal programming. The students gets activated by the need to do actions in form of placing nodes. They
-also need to analyse what node to place where. By the fact that they are limited, force them to analyse the problem and then devide it to parts with smaller problems.
->>>>>>> b1b8042d3305fcd13a21fb1256aada59c8d62157
 
 Some miscalculations where made during the process.
 
 # try to sum up everyting under
-<<<<<<< HEAD
 Some misscalculations was made when developing the board. The motherboard run out of power, and the MCUs run out of memory.
 
 ** PicoNodes
@@ -406,46 +530,32 @@ Some misscalculations was made when developing the board. The motherboard run ou
 One of the challanges was to define the functions of the nodes. To complement the programmable nodes, the values transmitted and recieved needed to be visualized. This could be done
 with adding funcionalities on the programmable nodes but we decided to develop seperate nodes for this purpose.
 
-Some nodes needed to be programmable but to be able to visualize the program written by the user,
-"action" nodes was needed. To define the nodes with more specific funcionallity, a seperation between the actionnodes and programmable nodes was made. One switchnode,
-one lednode and 8 computenode was developed. This mean some restrictions in the placement of the nodes on the motherboard. A try was also done to develop a third
-kind of node to display all the values possible in the communication between the nodes. The node was a lixiedisplay but the light did not hit the numbers enough.
-Is was very doable but would have taken to much time from the critical parts of the project. The lednode was used instead of visulazing the value transmitted but
-=======
-Some misscalculations was made when developingthe board. The motherboard run out of power, and the MCUs run out of memory.
-
-** PicoNodes
-
-One of the challanges was to define the functions of the nodes. Some nodes needed to be programmable but to be able to visualize the program written by the user,
-"action" nodes was needed. To define the nodes with more specific funcionallity, a seperation between the actionnodes and programmable nodes was made. One switchnode,
-one lednode and 8 computenode was developed. This mean some restrictions in the placement of the nodes on the motherboard. A try was also done to develop a third
-kind of node to display all the values possible in the communication between the nodes. The node was a lixiedisplay but the light did not hit the numbers enough.
-Is was very doable but would have taken to much time from the critical parts of the project. The lednode was used instead of visulazing the value transmitted but
->>>>>>> b1b8042d3305fcd13a21fb1256aada59c8d62157
-limited to four values.
-
-** Memory
-
-Another problem was that we run out of memory for debugging the program on the nodes. The program that run on the nodes in the endproduct was ok but all the debugging
-tools during the development needed more space. So to keep down the work, a testnode was developed in the same serie of microcontrollers and used for debugging.
-
-# This is not good, remove?
-** Powersource
-
-For powering the motherboard revision one, one IOpin supporting 3.3 V and 1.5 A, was drawn out from the downloader. This pin needed to be able to support 9 Piconodes and 6 LEDs.
-This was corrected in the last revision to be able to give power support
-for all nine nodes connected to the motherboard according to the calculation 9 x 0.120 A + 0.500 A plus 6 leds(~15 A piece) with e regulator. The last revision of the motherboard
-is powered through a 5 V IOpin from the HUZZAH module and then processed through a regulator to optain 3.3 V and 1.5 A.
-
-** Piconodes
-
-An alternative for the PicoTalk was to have a common clock source. This would bring the nodes syncronized when communicating and could have an easier implementation for the handshake.
-An external clocksource connected to all the nodes by connections on the motherboard.
 * Further Opportunities
   :PROPERTIES:
   :CUSTOM_ID: further_opportunities
   :END:
 
-* References
+#+LATEX: \appendix
+
+* PicoNode-Compute manual
+  :PROPERTIES:
+  :CUSTOM_ID: appendix-piconode-compute
+  :END:
+
+FIXME
+
+* PicoNode-Switch manual
+  :PROPERTIES:
+  :CUSTOM_ID: appendix-piconode-switch
+  :END:
+
+FIXME
+
+* PicoNode-LED manual
+  :PROPERTIES:
+  :CUSTOM_ID: appendix-piconode-led
+  :END:
+
+FIXME
 
 \printbibliography
