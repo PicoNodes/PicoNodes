@@ -363,25 +363,13 @@ We designed a simple assembler dialect,
 
 * Analysis
 
-We have under this project developed an educational platform, with the aim, that the platfrom can be used by teachers with students in the 8:th grade to teach programming.
-<<<<<<< HEAD
-We also wanted to get an evaluation of the prototype, from surveys and observation in different schools. A prototype got developed with time left for an evauation 
-but the lack of interest and/or no time for the teachers in the scools, got us one scool offer to try PicoNodes. The evaluation was better then aspected, most of the students
-=======
-We also wanted to get an evaluation of the prototype, from surveys and observation in different scools. A prototype got developed with time left for an evauation
-but the lack of intresse and/or no time for the teachers in the scools, got us one scool offer to try PicoNodes. The evaluation was better then aspected, most of the students
->>>>>>> b1b8042d3305fcd13a21fb1256aada59c8d62157
-got motivated by PicoNodes and wanted to learn more programming from it.
+During the project we have developed an educational platform, with the aim that the platform can be used by teachers to late primary school to teach programming.
 
-** Evaluation of the endproduct, anwsers to the questions
+We also wanted to get an evaluation of the prototype, from surveys and observation in different schools. A prototype was developed, with some time left for an evauation.
+However, the teachers' lack of interest and/or time constraints was a limiting factor. In the end, one teacher offered to try out PicoNodes. The evaluation went better
+than we had anticipated; most of the students were motivated by PicoNodes, and wanted to learn more programming from it.
 
-# Is endproduct the right term?
-
-The implemetation of the platform is in form of a motherboard with a matrix of 3 x 3 spots. Each spot is connected to the surrounding spots in four directions, up, down, left and
-right. On each spot, one of three nodes can be placed, LEDnode, Switchnode and Computenode. The computenodes is programmed with a assembler-like laungage, we call picoasm,
-throu our homepage that can run locally on the teachers computer with a local server. To be able to download the program on the nodes, WIFI-communication with a server
-is used(se bilaga arkitektur?) and then UART for loading the program onto the nodes from the WIFI-module.
-LED- and switchnode can be used to visualize the values transmitted and recieved.
+** Evaluation of the final product
 
 To motivate students, the prototype is of simple sort with few steps for set-up. We designed it to be easy to start programming but with the idea of developing challanging stages
 for practice. Some exercises where made but the students could not test them indevidually because we where limited to one platform and one hour.
@@ -407,22 +395,22 @@ the computational foundation, as distributed systems and close metal programming
 also need to analyse what node to place where. By the fact that they are limited, force them to analyse the problem and then devide it to parts with smaller problems.
 >>>>>>> b1b8042d3305fcd13a21fb1256aada59c8d62157
 
-Some miscalculations where made during the process. 
+Some miscalculations where made during the process.
 
 # try to sum up everyting under
 <<<<<<< HEAD
 Some misscalculations was made when developing the board. The motherboard run out of power, and the MCUs run out of memory.
- 
+
 ** PicoNodes
 
-One of the challanges was to define the functions of the nodes. To complement the programmable nodes, the values transmitted and recieved needed to be visualized. This could be done 
+One of the challanges was to define the functions of the nodes. To complement the programmable nodes, the values transmitted and recieved needed to be visualized. This could be done
 with adding funcionalities on the programmable nodes but we decided to develop seperate nodes for this purpose.
 
-Some nodes needed to be programmable but to be able to visualize the program written by the user, 
-"action" nodes was needed. To define the nodes with more specific funcionallity, a seperation between the actionnodes and programmable nodes was made. One switchnode, 
-one lednode and 8 computenode was developed. This mean some restrictions in the placement of the nodes on the motherboard. A try was also done to develop a third 
-kind of node to display all the values possible in the communication between the nodes. The node was a lixiedisplay but the light did not hit the numbers enough. 
-Is was very doable but would have taken to much time from the critical parts of the project. The lednode was used instead of visulazing the value transmitted but 
+Some nodes needed to be programmable but to be able to visualize the program written by the user,
+"action" nodes was needed. To define the nodes with more specific funcionallity, a seperation between the actionnodes and programmable nodes was made. One switchnode,
+one lednode and 8 computenode was developed. This mean some restrictions in the placement of the nodes on the motherboard. A try was also done to develop a third
+kind of node to display all the values possible in the communication between the nodes. The node was a lixiedisplay but the light did not hit the numbers enough.
+Is was very doable but would have taken to much time from the critical parts of the project. The lednode was used instead of visulazing the value transmitted but
 =======
 Some misscalculations was made when developingthe board. The motherboard run out of power, and the MCUs run out of memory.
 
