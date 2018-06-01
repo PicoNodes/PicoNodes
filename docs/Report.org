@@ -29,6 +29,14 @@ Thinking and Programming\cite{KTek2017} (which will take effect from July 2018\c
 platform is aimed towards teaching parallel programming and distributed systems using a
 custom assembler language.
 
+** Research Questions
+
+The study has examined the following questions:
+
+1. Implementation of a platform to teach tha basics of bare metal programming to students.
+2. Evaluation of the pedagogical usefulness of the platform and how to implement
+   the idea to motivate students.
+
 ** Delimitations
 
 The project is limited to 2.5 months, so the product will not be ready for the market in this time. Rather, the
@@ -129,17 +137,12 @@ them to think about splitting their projects a long time before a traditional ap
 compensate for this, we've also provided a simplified way to communicate between them, without having
 to worry about more complicated concerns, such as bits, timing, and clock skew.
 
-To differentiate from the Zachtronics games we've actually built a physical kit using these principles,
-rather than just providing the user with a simulator.
-
-** Research Questions
-
-The study has examined the following questions:
-
-1. How to implement the new outcomes for computational thinking presented by \ac{Skolverket}.
-2. Implementation of a platform to teach tha basics of bare metal programming to students.
-3. Evaluation of the pedagogical usefulness of the platform and how to implement
-   the idea to motivate students.
+Compared to the Zachtronics games, building this as a physical kit required us to consider practicality
+to a bigger degree. Shenzhen I/O's free-form \ac{PCB} layout system gives the user an extra degree of freedom,
+but requiring the user to wait for (and pay for) the \acp{PCB} to be remanufactured after each design
+change would have been very stifling. Alternately, you could have a pre-manufactured \ac{PCB} but let
+the user set up connections as they pleased, using jumper wires. However, we also rejected this design
+due to space constraints and the messy design it would have produced.
 
 ** Purpose
 
