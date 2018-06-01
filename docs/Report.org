@@ -91,6 +91,8 @@ works.
 \acro{LED}{Light-Emitting Diode}
 \acro{RTFM}{Real-Time For the Masses}
 \acro{Skolverket}{The Swedish agency of education}
+\acro{BOM}{Bill of Materials}
+\acro{IO}[I/O]{Input/Output}
 #+END_acronym
 
 ** Computational thinking in Swedish schools
@@ -222,16 +224,16 @@ The data will be used to evaluate the product and for suggestions to future work
 
 ** Tools
 
-*** Microcontrollers
+*** Micro-controllers
 
-We chose to base our system around STMicrolectronics' STM32F030\cite{stm32f030} series of microcontrollers. We made
+We chose to base our system around STMicrolectronics' STM32F030\cite{stm32f030} series of micro-controllers. We made
 this choice because it was contains both the very cheap F4P6 chip, as well as the beefier but compatible C8T6 which
 we used for debugging our software. The whole series also offered enough peripherals for our needs (primarily, a
 software-controlled timer and a single UART channel).
 
 As a bonus we also both had experience with the STM32 lineup from earlier projects.
 
-For our downloader unit we used the ESP32 microcontroller, because it has a relatively large developer community,
+For our downloader unit we used the ESP32 micro-controller, because it has a relatively large developer community,
 plenty of resources, and a built-in Wi-Fi transceiver. Cost was also a far smaller problem here, since we need much
 smaller quantities of these. ST also has a few Wi-Fi-capable chips, but they are all marked Not Recommended for New
 Designs.
@@ -249,13 +251,13 @@ We used C for programming the downloader, because the ESP32 MCU is based on the 
 LLVM (used by the Rust compiler) does not support. This wasn't as much of a hindrance, since the downloader is mostly responsible
 for relaying messages between the server and the connected node.
 
-The website was developed using Scala for both the front- and backend. This was very useful to keep the codebases consistent, and
+The website was developed using Scala for both the front- and back end. This was very useful to keep the code bases consistent, and
 helped avoid of code repetition when defining view models, for example. In theory it would also have been nice to stay consistent
 with the MCUs, but because of the resource constraints we wouldn't have been able to share as much code anyway.
 
 *** PCB design
 
-We started out prototyping using solderless breadboards and jumper cables, so that we would have more flexibility when changing
+We started out prototyping using solder-less breadboards and jumper cables, so that we would have more flexibility when changing
 plans. However, since our MCUs are SMD-based we still had to mill our breakout boards. We also designed a "debug" board for
 the STM32F030C8T6, with the same pinout as the STM32F030F4P6 that we were using as our design target.
 
@@ -514,7 +516,7 @@ as Nginx. There is currently no user authentication system.
 
 During the project we have developed an educational platform, with the aim that the platform can be used by teachers to late primary school to teach programming.
 
-We also wanted to get an evaluation of the prototype, from surveys and observation in different schools. A prototype was developed, with some time left for an evauation.
+We also wanted to get an evaluation of the prototype, from surveys and observation in different schools. A prototype was developed, with some time left for an evaluation.
 However, the teachers' lack of interest and time constraints were limiting factors. In the end, one teacher offered to try out PicoNodes. The evaluation went better
 than we had anticipated; most of the students were motivated by PicoNodes, and wanted to learn more programming afterwards.
 
@@ -535,7 +537,7 @@ Some miscalculations where made during the development process.
 
 For example, our original PicoTalk implementation had severe
 clock skew issues, where the transmitter and receiver would start synchronized, but slowly go out of sync during the message.
-To solve this we ended up requiring the receiver to resynchronize their internal clock for each message (see also Chapter
+To solve this we ended up requiring the receiver to re-synchronize their internal clock for each message (see also Chapter
 [[#picotalk]]). This also limited the speeds that the nodes could communicate at. Another way to solve this could have been a
 shared clock bus, equalizing clock skew between the nodes. However, that would have led to a higher \ac{BOM} cost, and a more
 complicated \ac{PCB} design. Also, we liked having an uneven number of pins, since that also acted as a guide to orient the Node
