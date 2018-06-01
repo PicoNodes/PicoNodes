@@ -1,6 +1,8 @@
 # -*- mode: org; coding: utf-8; -*-
 #+TITLE: A Physical Platform For Teaching Distributed Systems In A Simplified Setting
 #+AUTHOR: Therese Kennerberg, Teo Klestrup Röijezon
+# Fancy acronyms
+#+LATEX_HEADER: \usepackage{acronym}
 # Fancy code blocks
 #+LATEX_HEADER: \usepackage{mdframed}
 #+LATEX_HEADER: \usepackage{minted}
@@ -38,6 +40,9 @@ platform is aimed towards teaching parallel programming and distributed systems 
 custom assembler language.
 
 ** Research Questions
+   :PROPERTIES:
+   :CUSTOM_ID: questions
+   :END:
 
 The study has examined the following questions:
 
@@ -55,6 +60,9 @@ Further development opportunities will be mentioned in Chapter [[#further_opport
 
 The product will be targeted towards students in eighth grade, both students who have programmed before and students
 who are new to it.
+
+Because of the limited timeframe we have not undergone compliance testing (such as for RF and EMC emissions), which
+would be required for commercialization.
 
 * Background
 
@@ -506,34 +514,48 @@ as Nginx. There is currently no user authentication system.
 During the project we have developed an educational platform, with the aim that the platform can be used by teachers to late primary school to teach programming.
 
 We also wanted to get an evaluation of the prototype, from surveys and observation in different schools. A prototype was developed, with some time left for an evauation.
-However, the teachers' lack of interest and/or time constraints was a limiting factor. In the end, one teacher offered to try out PicoNodes. The evaluation went better
-than we had anticipated; most of the students were motivated by PicoNodes, and wanted to learn more programming from it.
+However, the teachers' lack of interest and time constraints were limiting factors. In the end, one teacher offered to try out PicoNodes. The evaluation went better
+than we had anticipated; most of the students were motivated by PicoNodes, and wanted to learn more programming afterwards.
 
-** Evaluation of the final product
+** Evaluation Of The Final Product
 
-To motivate students, the prototype is of simple sort with few steps for set-up. We designed it to be easy to start programming but with the idea of developing challanging stages
-for practice. Some exercises where made but the students could not test them indevidually because we where limited to one platform and one hour.
-Instead all the students took turn to download thier program on the prototype. With the UI, the students was able to write their own solution on the browser with Ipads and then take
-turn to run it on the nodes (placed on the motherboard). To keep the threshold low for the unexperienced programmer, the first exercises should be simple until the user is familiar
-with the language. Ideas for exercises is discussed further in chapter Further Oppertuneties.
+To motivate students, the prototype is designed to be very simple, with little end user setup required. We designed it to be easy to get started, but with the opportunity
+to develop challenging tasks for more advanced students to practice with.
 
-To get scools to help us evaluate the prototype has ben challenging, even though we were well in time, half a year in advanced, with requests.
-This has made us short of data to evaluate and only some observations of how the students interact with our product.
+We had designed a few exercises, but due to various misunderstandings we weren't able to test them. We had planned to let 2-4 students test it in pairs, but
+due to time constraints we only had 1 kit ready, while 8 students showed up. This meant that we had to improvise, and they ended up passing the kit around the table, while
+the others were either observing or preparing their own programs on their tablets.
 
-Some miscalculations where made during the process.
+** Development Issues
 
-# try to sum up everyting under
-Some misscalculations was made when developing the board. The motherboard run out of power, and the MCUs run out of memory.
+Some miscalculations where made during the development process. For example, our original PicoTalk implementation had severe
+clock skew issues, where the transmitter and receiver would start synchronized, but slowly go out of sync during the message.
+To solve this we ended up requiring the receiver to resynchronize their internal clock for each message (see also Chapter
+[[#picotalk]]). This also limited the speeds that the nodes could communicate at. Another way to solve this could have been a
+shared clock bus, equalizing clock skew between the nodes. However, that would have led to a higher \ac{BOM} cost, and a more
+complicated \ac{PCB} design. Also, we liked having an uneven number of pins, since that also acted as a guide to orient the Node
+correctly in its socket.
 
-** PicoNodes
+We had also miscalculated the power usage of the setup. Initially we relied on the Huzzah32's built-in voltage regulator. However,
 
-One of the challanges was to define the functions of the nodes. To complement the programmable nodes, the values transmitted and recieved needed to be visualized. This could be done
-with adding funcionalities on the programmable nodes but we decided to develop seperate nodes for this purpose.
+** Node Selection
+
+Another problem we had was defining what Nodes to make. We obviously needed a programmable Node, but we also wanted some way to let the user affect the computation,
+and to let them see the result.
+
+At first we wanted to make a digit display node, similar to a Lixie display\cite{Lixie}. However, due to both space and time constraints we ended up making a simplified
+4-LED Node instead.
 
 * Further Opportunities
   :PROPERTIES:
   :CUSTOM_ID: further_opportunities
   :END:
+
+** Testing
+
+** Compliance
+
+Before the product is taken to market it must be tested with the regards to the relevant compliance standards, such as CE, RoHS, UL, and FCC.
 
 #+LATEX: \appendix
 
