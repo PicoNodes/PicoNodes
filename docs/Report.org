@@ -4,7 +4,7 @@
 # Fancy math!
 #+LATEX_HEADER: \usepackage{siunitx}
 # Fancy acronyms
-#+LATEX_HEADER: \usepackage{acronym}
+#+LATEX_HEADER: \usepackage[printonlyused]{acronym}
 # Fancy code blocks
 #+LATEX_HEADER: \usepackage{mdframed}
 #+LATEX_HEADER: \usepackage{minted}
@@ -92,6 +92,7 @@ works.
 \acro{PCB}{Printed Circuit Board}
 \acro{RF}{Radio Frequency}
 \acro{RTFM}{Real-Time For the Masses}
+\acro{SMD}{Surface-Mounted Device}
 \acro{Skolverket}{The Swedish agency of education}
 \acro{USB}{Universal Serial Bus}
 #+END_acronym
@@ -243,7 +244,7 @@ PicoTalk state machines without needing either a lot of repeated states (~Blah1~
 variables depending on the current state.
 
 We used C for programming the downloader, because the ESP32 \ac{MCU} is based on the rather uncommon Xtensa architecture, which
-\ac{LLVM} (used by the Rust compiler) does not support. This wasn't as much of a hindrance, since the downloader is mostly responsible
+LLVM (a dependency of the Rust compiler) does not support. This wasn't as much of a hindrance, since the downloader is mostly responsible
 for relaying messages between the server and the connected node.
 
 The website was developed using Scala for both the front- and back end. This was very useful for keeping the code bases consistent, and
@@ -256,8 +257,7 @@ We started out prototyping using solder-less breadboards and jumper cables, so t
 plans. However, since our \acp{MCU} are \ac{SMD}-based we still had to mill out our breakout boards. We also designed a "debug" board for
 the STM32F030C8T6, with the same pinout as the STM32F030F4P6 that we were using as our design target.
 
-Once we were happy with our design we made a more formal design in our \ac{CAD} program KiCad. Finally we milled our \acp{PCB} using our
-lab's LPKF ProtoMat mill.
+Once we were happy with our design we made a more formal design in our \ac{CAD} program KiCad.
 
 * Result
 
