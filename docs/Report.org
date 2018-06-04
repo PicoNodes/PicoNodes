@@ -192,7 +192,6 @@ they feel ready.
 \ac{Skolverket} is about to implement new learning goals for computational thinking in July 2018. Their vision for
 2020 is that every student has developed an adequate competence for digital technology
 \Cite{NationellDig}.
-# Try to find primary source?
 
 The primary question for this thesis project is: "How can you implement computational thinking
 for an parallel and hardware-close programming?". To try to answer this we developed a platform to
@@ -649,7 +648,7 @@ we also made a mezzanine board with the voltage regulation logic.
 Another problem we had was defining what Nodes to make. We obviously needed a programmable Node, but we also wanted some way to let the user affect the computation,
 and to let them see the result.
 
-At first we wanted to make a digit display node, similar to a Lixie display\cite{Lixie}. However, due to both space and time constraints we ended up making a simplified
+At first we wanted to make a digit display node, similar to a Lixie display\cite{Lixie}. However, due to both space and time constraints we en1ded up making a simplified
 4-LED Node instead.
 
 * Further Opportunities
