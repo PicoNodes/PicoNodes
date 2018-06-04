@@ -9,7 +9,6 @@
 #+LATEX_HEADER: \usepackage{mdframed}
 #+LATEX_HEADER: \usepackage{minted}
 #+LATEX_HEADER: \setminted{linenos}
-#+LATEX_HEADER: \surroundwithmdframed{minted}
 #+LATEX_HEADER: \surroundwithmdframed{quote}
 # Include SVG graphics
 #+LATEX_HEADER: \usepackage{svg}
@@ -692,24 +691,32 @@ There should also be a formal security audit.
 
 #+LATEX: \appendix
 
-* TODO PicoNode-Compute manual
+* PicoNode-Compute manual
   :PROPERTIES:
   :CUSTOM_ID: appendix-piconode-compute
   :END:
 
-* TODO PicoNode-Switch manual
+#+INCLUDE: User_manual_PICONODE-COMPUTE.org :lines "17-"
+
+* PicoNode-Switch manual
   :PROPERTIES:
   :CUSTOM_ID: appendix-piconode-switch
   :END:
 
-* TODO PicoNode-LED manual
+#+INCLUDE: User_manual_PICONODE-SWITCH.org :lines "7-"
+
+* PicoNode-LED manual
   :PROPERTIES:
   :CUSTOM_ID: appendix-piconode-led
   :END:
 
-* TODO PicoStorm
+#+INCLUDE: User_manual_PICONODE-SWITCH.org :lines "7-"
+
+* PicoStorm
   :PROPERTIES:
   :CUSTOM_ID: picostorm
   :END:
+
+#+INCLUDE: PicoStorm.org
 
 \printbibliography

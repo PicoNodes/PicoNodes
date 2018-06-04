@@ -56,7 +56,7 @@ Instructs the Downloader to reset all nodes.
    :END:
 
 The node is done downloading the bytecode. The payload contains a checksum of
-the saved bytecode, and the server should respond with a new [[#command-downloaded-bytecode][Download Bytecode]]
+the saved bytecode, and the server should respond with a new [[#command-download-bytecode][Download Bytecode]]
 message if it does not match.
 
 *** Checksum
