@@ -202,34 +202,34 @@ about their experience.
 
 ** Targeted user and school selection
 
-The product is directed to students in 8:th grade. The platform is aiming to be a good base for students without programming practice as well to be challenging enough
-on a higher level for a more experienced programmer. The manual is in English so the students must understand English well.
-Initially we wanted to feedback from as diverse a set of schools as possible but because of the lack of interest from the schools, only one
-volunteered to evaluate the prototype. To try to gather as much data as possible, family members was asked to participate for the evaluation of the prototype.
+The product is aimed at students in the 8:th grade. The platform aims to be a good base for students without
+programming practice, but also challenging enough for a more experienced programmer. The manual is in English,
+so the students must understand English. Initially we wanted to gather feedback from as diverse a set of schools
+as possible, but due to a lack of interest from schools we only found one class to evaluate the prototype.
 
 ** Evaluation
 
 We used a questionnaire to get an evaluation from the students testing the prototype.
 
-The data are gathered by questionnaires with two sections. One section is about their experience in general with encounter programming and
-section two is about their experience with the prototype. This is to evaluate what disposition the students can have about programming and
-if we change that disposition. The teachers and student are handed  a similar questionnaire but with straighten questions towards the use of the product
-teaching/learning.
+The data was gathered through a questionnaire with two sections. The first is about their programming experience in
+general, while the other is about their experience with the prototype. This is to evaluate what disposition the
+students have about programming, and whether we manage to change that disposition. We also customized the questionnaire,
+so that teachers got one that was more focused around the teaching experience, while the students' were focused around their
+learning experience.
+
 # should we have the questions in the report?
-The data will be used to evaluate the product and for suggestions to future work.
+The data will be used to evaluate the product, and for suggestions towards future work.
 
 ** Tools
 
 *** Micro-controllers
 
 We chose to base our system around STMicrolectronics' STM32F030\cite{stm32f030} series of micro-controllers. We made
-this choice because it was contains both the very cheap F4P6 chip, as well as the beefier but compatible C8T6 which
-we used for debugging our software. The whole series also offered enough peripherals for our needs (primarily, a
+this choice because it contains both the very cheap F4P6 chip, as well as the beefier but compatible C8T6, which
+we used for debugging our firmware. The whole series also offered enough peripherals for our needs (primarily, a
 software-controlled timer and a single UART channel).
 
-As a bonus we also both had experience with the STM32 lineup from earlier projects.
-
-For our downloader unit we used the ESP32 micro-controller, because it has a relatively large developer community,
+For our downloader unit we used the ESP32\cite{esp32} micro-controller, because it has a relatively large developer community,
 plenty of resources, and a built-in Wi-Fi transceiver. Cost was also a far smaller problem here, since we need much
 smaller quantities of these. ST also has a few Wi-Fi-capable chips, but they are all marked Not Recommended for New
 Designs.
