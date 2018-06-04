@@ -10,6 +10,7 @@
 #+LATEX_HEADER: \usepackage{minted}
 #+LATEX_HEADER: \setminted{linenos}
 #+LATEX_HEADER: \surroundwithmdframed{minted}
+#+LATEX_HEADER: \surroundwithmdframed{quote}
 # Include SVG graphics
 #+LATEX_HEADER: \usepackage{svg}
 # LaTeX export results in jumbled text scaling
@@ -52,25 +53,24 @@ The study has examined the following questions:
 2. Evaluation of the pedagogical usefulness of the platform and how to implement
    the idea to motivate students.
 
-** Delimitation
+** Delimitations
 
 The project is limited to 2.5 months, so the product will not be ready for the market in this time. Rather, the
-project aims to build up a ground for a future product that can be represented on the market. It will be a simple
-prototype, primarily so that the students can try it out.
+project aims to build up a solid base for a future project that can be represented on the market. It will be a simple
+prototype, primarily so that the students can try it out. Some suggestions for further development opportunities are
+mentioned in Chapter [[#further_opportunities]].
 
-Further development opportunities will be mentioned in Chapter [[#further_opportunities]].
+The product is targeted towards students in eighth grade, and the goal is for it to be accessible to both students
+who have programmed before, and those who have not.
 
-The product will be targeted towards students in eighth grade, both students who have programmed before and students
-who are new to it.
-
-Because of the limited time frame we have not undergone compliance testing (such as for RF and EMC emissions), which
-would be required for commercialization.
+Because of the limited time frame we have not undergone compliance testing (such as for \ac{RF} emissions and \ac{EMC}), which
+would be another prerequisite for commercialization.
 
 * Background
 
 The digitalization of our society is moving quickly, and we all want to keep up with it. This puts a lot of pressure on the schools
 to teach programming and computational thinking in the education. For this reason \ac{Skolverket} is adding computational thinking
-to the primary school curriculum.
+to the Swedish primary school curriculum.
 
 # Source for this claim
 Several countries have implemented programming into their schools, and this is creating market demand for tools to
@@ -82,17 +82,19 @@ works.
 ** Terminology and Acronyms
 
 #+BEGIN_acronym
-\acro{MCU}{Micro-controller Unit}
-\acro{PCB}{Printed Circuit Board}
+\acro{BOM}{Bill of Materials}
 \acro{CAD}{Computer-Assisted Design}
 \acro{CAM}{Computer-Assisted Manufacturing}
-\acro{IDE}{Integrated Developer Environment}
-\acro{USB}{Universal Serial Bus}
+\acro{EMC}{Electromagnetic Compatibility}
+\acro{IDE}{Integrated Development Environment}
+\acro{IO}[I/O]{Input/Output}
 \acro{LED}{Light-Emitting Diode}
+\acro{MCU}{Micro-controller Unit}
+\acro{PCB}{Printed Circuit Board}
+\acro{RF}{Radio Frequency}
 \acro{RTFM}{Real-Time For the Masses}
 \acro{Skolverket}{The Swedish agency of education}
-\acro{BOM}{Bill of Materials}
-\acro{IO}[I/O]{Input/Output}
+\acro{USB}{Universal Serial Bus}
 #+END_acronym
 
 ** Computational thinking in Swedish schools
@@ -112,34 +114,28 @@ Computational thinking is stated by Linköping's University\cite{HeintzMannila},
 - To generalize and use this kind of problem-solving process on other
   kinds of problems.
 
-According to Heintz and Mannila\cite{HeintzMannila}, computing in schools should
+According to Heintz and Mannila\cite{HeintzMannila}, teaching computation in schools should
 have three key stages:
 
-1. Ages 5-6: algorithms and instructions, to create and debug simple
+#+BEGIN_quote
+1. Ages 5-6: Algorithms and instructions, to create and debug simple
    programs, with a focus on logical thinking.
 2. Ages 7-11: Develop and debug greater problems
    with given goals and use programming concept with variables, sequences,
    selection and repetition.
 3. Ages 12-14: Two or more programming languages, Boolean logic, binary numbers,
    connection between the program and hardware.
+#+END_quote
 
-This project is directed to be used by student in the ages of 14-15, and fits the
-last key stage quite well.
+This project is aimed at students aged 14-15, and fits the last key stage quite well.
 
-One important thing to consider in the process of teaching computational thinking
-and programming is to have very clear guidance and considerations for the teachers,
-who need to understand the learning concept fully to be able to teach it.
-
-# Find the primary source or scrap
-
-A study made in 2017 by Lärarnas Riksförbund show that 8 of 10 math teachers with students in the 8:th and
-9:th grade feel insecure about teaching programming, and 54% of the teachers don't have any experience
-programming at all.
-# Lärarnas Riksförbund, letar källa..
-
-Another challenge is that the teachers are anxious to develop new learning resources, and feel insecure
-when dealing with new and unfamiliar teaching material.\Cite{Bower17} For these reasons the project
-will keep the teachers, and how to prepare them for using the platform's tools, in mind.
+It's also important to consider the teachers. A study made in 2017 by Lärarnas Riksförbund\cite{Larsson17}
+shows that 8 of 10 math teachers with students in the 8:th and 9:th grades feel insecure about teaching
+programming, and that 54% of the teachers don't have any programming experience at all. According to
+another study at Macquarie University\cite{Bower17} teachers tend to be anxious to develop new learning
+resources, and especially when dealing with new and unfamiliar teaching material. This shows that the
+tools must also be easy to pick up by inexperienced teachers, requiring a heavy focus on good and clear
+documentation.
 
 The UI should be kept as simple as possible, so that it is easy to use with few setup steps, letting
 them focus on the important part: the programming.
@@ -184,10 +180,10 @@ under the assumption that it will be used in an isolated network.
 
 The server also doesn't currently authenticate users.
 
-Finally, as an educational product we believe that it's very important that the students have the freedom to tinker with it freely,
-and that they have access to all the design materials. Any educational product is ultimately about setting up "illusions" so that
-the user can focus on what's important, but it's just as vital that they are allowed to peek behind the curtain once they feel
-ready.
+Finally, as an educational product we believe that it's very important that the students have the freedom to tinker with it,
+and that they have access to all the design materials. Any educational product is ultimately about setting up "illusions"
+so that the user can focus on what's important, but it's just as vital that they are allowed to peek behind the curtain once
+they feel ready.
 
 * Method
 
@@ -265,6 +261,60 @@ Once we were happy with our design we made a more formal design in our CAD progr
 lab's LPKF ProtoMat mill.
 
 * Result
+
+All source code and design files are available at [[https://github.com/PicoNodes/PicoNodes]].
+
+** TODO Architecture
+
+Nodes communicate
+
+#+BEGIN_SRC ditaa :file Report-architecture.svg :cmdline --svg
+                                   +-----------------------------+
+                                   | IDE                         |
+                                   |                             |
+                                   |                             |
+                                   |                             |
+                                   |                             |
+                                   +-------------+---------------+
+                                                 |
+                                                 | PicoIDEProto (Websocket)
+                                                 |
+                                                 v
+                                   +-----------------------------+
+                                   | Server                      |
+                                   |                             |
+                                   |                             |
+                                   |                             |
+                                   |                             |
+                                   +-------------+---------------+
+                                                 |
+                                                 | PicoStorm (TLS/WiFi)
+                                                 |
+                                                 v
+                                          +-----+---------+
+                                          | Downloader    |
+                                          | +-----------+ |
+                                          | |ESP32      | |
+                                          | +-----------+ |
+                                          +------+--------+
+                                                 |
+                                                 | PicoStorm (UART)
+                                                 |
+           +-------------------------------------+-------------------------------------+
+           |                                     |                                     |
+           v                                     v                                     v
+  +-+-----------------+               +-------------------+               +-------------------------+
+  | Compute Node      |   PicoTalk    | Compute Node      |   PicoTalk    | Peripheral Node         |
+  | +---------------+ +<------------->+ +---------------+ +<------------->+ +---------------------+ |
+  | |STM32F030F4P6  | |               | |STM32F030F4P6  | |               | |???                  | |
+  | +---------------+ |               | +---------------+ |               | +-----------------+---+ |
+  +-------------------+               +-------------------+               +-------------------------+
+#+END_SRC
+
+#+CAPTION: The PicoNodes communication architecture
+#+LABEL: fig:architecture
+#+RESULTS:
+[[file:Report-architecture.svg]]
 
 ** Communication
    :PROPERTIES:
