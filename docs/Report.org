@@ -224,49 +224,49 @@ The data will be used to evaluate the product, and for suggestions towards futur
 
 *** Micro-controllers
 
-We chose to base our system around STMicrolectronics' STM32F030\cite{stm32f030} series of micro-controllers. We made
-this choice because it contains both the very cheap F4P6 chip, as well as the beefier but compatible C8T6, which
+We chose to base our system around STMicroelectronics' STM32F030\cite{stm32f030} series of \acp{MCU}. We made
+this choice because it contains both the cheap F4P6 chip, as well as the beefier but compatible C8T6, which
 we used for debugging our firmware. The whole series also offered enough peripherals for our needs (primarily, a
 software-controlled timer and a single UART channel).
 
-For our downloader unit we used the ESP32\cite{esp32} micro-controller, because it has a relatively large developer community,
+For our downloader unit we used the ESP32\cite{esp32} \ac{MCU}, because it has a relatively large developer community,
 plenty of resources, and a built-in Wi-Fi transceiver. Cost was also a far smaller problem here, since we need much
 smaller quantities of these. ST also has a few Wi-Fi-capable chips, but they are all marked Not Recommended for New
 Designs.
 
 *** Programming Languages
 
-We used Rust to program the Node MCUs. This was both because of Rust's improved safety features over C (such as pointers
+We used Rust to program the Node \acp{MCU}. This was both because of Rust's improved safety features over C (such as pointers
 with limited lifetimes, and move semantics), as well as the improved type system.
 
 For example, the support for tagged unions (also known as algebraic data types or sum types) allowed us to represent our
 PicoTalk state machines without needing either a lot of repeated states (~Blah1~, ~Blah2~, ~Blah3~), or manually reinterpreting
 variables depending on the current state.
 
-We used C for programming the downloader, because the ESP32 MCU is based on the rather uncommon Xtensa architecture, which
-LLVM (used by the Rust compiler) does not support. This wasn't as much of a hindrance, since the downloader is mostly responsible
+We used C for programming the downloader, because the ESP32 \ac{MCU} is based on the rather uncommon Xtensa architecture, which
+\ac{LLVM} (used by the Rust compiler) does not support. This wasn't as much of a hindrance, since the downloader is mostly responsible
 for relaying messages between the server and the connected node.
 
-The website was developed using Scala for both the front- and back end. This was very useful to keep the code bases consistent, and
-helped avoid of code repetition when defining view models, for example. In theory it would also have been nice to stay consistent
-with the MCUs, but because of the resource constraints we wouldn't have been able to share as much code anyway.
+The website was developed using Scala for both the front- and back end. This was very useful for keeping the code bases consistent, and
+helped avoid code repetition when defining view models, for example. In theory it would also have been nice to stay consistent
+with the \acp{MCU}, but because of the resource constraints we wouldn't have been able to share as much code anyway.
 
 *** PCB design
 
 We started out prototyping using solder-less breadboards and jumper cables, so that we would have more flexibility when changing
-plans. However, since our MCUs are SMD-based we still had to mill our breakout boards. We also designed a "debug" board for
+plans. However, since our \acp{MCU} are \ac{SMD}-based we still had to mill out our breakout boards. We also designed a "debug" board for
 the STM32F030C8T6, with the same pinout as the STM32F030F4P6 that we were using as our design target.
 
-Once we were happy with our design we made a more formal design in our CAD program KiCad. Finally we milled our PCBs using our
+Once we were happy with our design we made a more formal design in our \ac{CAD} program KiCad. Finally we milled our \acp{PCB} using our
 lab's LPKF ProtoMat mill.
 
 * Result
 
 All source code and design files are available at [[https://github.com/PicoNodes/PicoNodes]].
 
-** TODO Architecture
+** Architecture
 
-Nodes communicate
+You can see an overview of the architecture in Figure [[fig:architecture]].
 
 #+BEGIN_SRC ditaa :file Report-architecture.svg :cmdline --svg
                                    +-----------------------------+
@@ -280,13 +280,13 @@ Nodes communicate
                                                  | PicoIDEProto (Websocket)
                                                  |
                                                  v
-                                   +-----------------------------+
-                                   | Server                      |
-                                   |                             |
-                                   |                             |
-                                   |                             |
-                                   |                             |
-                                   +-------------+---------------+
+                                   +-----------------------------+     +------------------------+
+                                   | Server                      |     | Database (PostgreSQL)  |
+                                   |                             |     |                        |
+                                   |                             |---->|                        |
+                                   |                             |     |                        |
+                                   |                             |     |                        |
+                                   +-------------+---------------+     +------------------------+
                                                  |
                                                  | PicoStorm (TLS/WiFi)
                                                  |
@@ -300,9 +300,9 @@ Nodes communicate
                                                  |
                                                  | PicoStorm (UART)
                                                  |
-           +-------------------------------------+-------------------------------------+
-           |                                     |                                     |
-           v                                     v                                     v
+           +-------------------------------------+
+           |                                     |
+           v                                     v
   +-+-----------------+               +-------------------+               +-------------------------+
   | Compute Node      |   PicoTalk    | Compute Node      |   PicoTalk    | Peripheral Node         |
   | +---------------+ +<------------->+ +---------------+ +<------------->+ +---------------------+ |
@@ -316,6 +316,13 @@ Nodes communicate
 #+RESULTS:
 [[file:Report-architecture.svg]]
 
+Nodes are programmed using an in-browser IDE. Since browsers are heavily sandboxed we use a server for communicating with Nodes,
+as well as for storing the users' code. We use a Downloader which is responsible for keeping the server connection open, as well
+as for storing authentication keys. The Server \leftrightarrow Downloader \leftrightarrow Compute Node communication happens using
+the PicoStorm protocol, which is documented in detail in Appendix [[#picostorm]].
+
+Nodes communicate between each other using a protocol called PicoTalk, which is documented in Chapter [[#picotalk]].
+
 ** Communication
    :PROPERTIES:
    :CUSTOM_ID: comm
@@ -323,8 +330,8 @@ Nodes communicate
 
 We decided to use a mesh interconnect (see Figure [[fig:mesh-grid]]), where each node is connected
 to its direct neighbors. This is relatively simple to route, has no chance of collisions, and
-# Explain absolute vs relative addressing in background?
 requires no form of absolute addressing.
+# Explain absolute vs relative addressing in background?
 
 #+BEGIN_SRC ditaa :file Report-comm-layout.svg :cmdline --svg
   +-------------*-------------+        +-------------*-------------+        +-------------*-------------+
@@ -502,19 +509,19 @@ Using the LED node (Figure [[fig:led-node-pcb-front]]) as an example, they all s
 
 ** Nodes
 
-We designed and fabricated three different Nodes: a LED display Node (see Figure [[fig:led-node-pcb-front]]), a button
+We designed and fabricated three different Nodes: a \ac{LED} display Node (see Figure [[fig:led-node-pcb-front]]), a button
 input Node (see Figure [[fig:button-node-pcb-front]]), and a programmable compute Node (see Figure
 [[fig:compute-node-pcb-front]]) to connect them. They are documented further in their respective appendices (see Appendix
 [[#appendix-piconode-led]], [[#appendix-piconode-switch]], and [[#appendix-piconode-compute]], respectively).
 
 # Bring them inline instead?
 
-#+CAPTION: The front side of the button Node PCB
+#+CAPTION: The front side of the button Node \ac{PCB}
 #+LABEL: fig:button-node-pcb-front
 #+ATTR_LATEX: :width 4cm
 [[./button-node-pcb-front.png]]
 
-#+CAPTION: The front side of the compute Node PCB (the RX/TX pins are supposed to be female, but limited by the CAD software)
+#+CAPTION: The front side of the compute Node \ac{PCB} (the RX/TX pins are supposed to be female, but limited by the \ac{CAD} software)
 #+LABEL: fig:compute-node-pcb-front
 #+ATTR_LATEX: :width 4cm
 [[./compute-node-pcb-front.png]]
@@ -524,7 +531,7 @@ input Node (see Figure [[fig:button-node-pcb-front]]), and a programmable comput
 We designed a motherboard based on the [[#comm][communication layout]] mentioned earlier, visualized in Figure [[fig:motherboard-pcb-front]].
 It also provides power, ground, and a reset control to all the nodes.
 
-#+CAPTION: The front side of the motherboard PCB (female connectors are not shown due to CAD software limitations)
+#+CAPTION: The front side of the motherboard \ac{PCB} (female connectors are not shown due to \ac{CAD} software limitations)
 #+LABEL: fig:motherboard-pcb-front
 [[./motherboard-pcb-front.png]]
 
@@ -558,7 +565,7 @@ Downloaders.
 
 *** Security
 
-Downloaders communication is encrypted using TLS, with verification of client and server certificates. Browser
+Downloaders communication is encrypted using \ac{TLS}, with verification of client and server certificates. Browser
 communication is not encrypted by default, but it is recommended that this is done using a reverse proxy, such
 as Nginx. There is currently no user authentication system.
 
@@ -649,7 +656,7 @@ Another problem we had was defining what Nodes to make. We obviously needed a pr
 and to let them see the result.
 
 At first we wanted to make a digit display node, similar to a Lixie display\cite{Lixie}. However, due to both space and time constraints we ended up making a simplified
-4-LED Node instead.
+4-\ac{LED} Node instead.
 
 * Further Opportunities
   :PROPERTIES:
@@ -660,7 +667,7 @@ At first we wanted to make a digit display node, similar to a Lixie display\cite
 
 The possibilities with this product is restricted to your imagination. Nodes can be developed
 for special visual effects, or for specific purposes such as games or exercises. One request
-we got was a TNT Node, and LEDs on the Compute Node that light while communicating. LEDs in the
+we got was a TNT Node, and \acp{LED} on the Compute Node that light while communicating. \acp{LED} in the
 communication stream was something we had already thought of, but the idea was dropped at the time
 due to a lack of \ac{IO} pins.
 
@@ -698,6 +705,11 @@ There should also be a formal security audit.
 * TODO PicoNode-LED manual
   :PROPERTIES:
   :CUSTOM_ID: appendix-piconode-led
+  :END:
+
+* TODO PicoStorm
+  :PROPERTIES:
+  :CUSTOM_ID: picostorm
   :END:
 
 \printbibliography
