@@ -191,7 +191,7 @@ they feel ready.
 
 \ac{Skolverket} is about to implement new learning goals for computational thinking in July 2018. Their vision for
 2020 is that every student has developed an adequate competence for digital technology
-https://liu.se/cetis/konferenser/documents-tis2017/m2-3-datalogiskt-tankande.pdf).
+\Cite{NationellDig}.
 # Try to find primary source?
 
 The primary question for this thesis project is: "How can you implement computational thinking
