@@ -218,7 +218,8 @@ so that teachers got one that was more focused around the teaching experience, w
 learning experience.
 
 # should we have the questions in the report?
-The data will be used to evaluate the product, and for suggestions towards future work.
+The data will be used to evaluate the product, and for suggestions towards future work. We will not present any statistics
+from the survey, since our data is too limited and biased to produce any significant results.
 
 ** Tools
 
